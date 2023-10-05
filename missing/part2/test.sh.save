@@ -1,0 +1,13 @@
+#!/bin/bash
+test () {
+	for i in {5..10..2}; do
+		echo "$i"
+	done
+	return 
+$1
+}
+
+output () {
+	read foo
+	echo "$foo"
+}

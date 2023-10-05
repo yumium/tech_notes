@@ -1,0 +1,27 @@
+# Q2
+grep -v "'s$" knuth_words | # filtering
+ grep -E "a.*a.*a" |
+ sed -n -E 's/^.*(..)$/\1/p' | # replace word by just last 2 letter
+ tr '[A-Z]' '[a-z]' | # turn letters to lowercase
+ sort |
+ uniq |
+ awk 'BEGIN {nLines=0} {nLines=1+nLines} END {print nLines}' # count the # of lines
+
+grep -v "'s$" knuth_words | grep -E "a.*a.*a" | sed -n -E 's/^.*(..)$/\1/p' | tr '[A-Z]' '[a-z]' | sort | uniq -c | sort -n -r > comb.txt
+
+# Q4
+# get the times (in ms apparently)
+sed -n -E 's/^.*Startup finished in ([0-9]+)ms.*$/\1/p' log > log_times
+
+# get the # of lines = 275
+awk 'BEGIN {nLines=0} {nLines=1+nLines} END {print nLines}' log_times
+# which is 275
+
+# get average = 28 exactly
+paste -sd+ log_times | bc -l # then divide by # of lines
+
+# get median = 26
+sort -n log_times | sed -n '138,138 p'
+
+# get max = 77
+sort -n log_times | tail -n1

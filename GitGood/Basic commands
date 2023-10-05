@@ -1,0 +1,51 @@
+Check installation:
+$ git --version
+
+Init setup:
+$ git config --global user.name "...your_name..."		# Git will then log who edited these files
+$ git config --global user.email "...your_email..."
+$ git config --list 						# All configs set up by user
+
+Git help:
+$ git help <verb>
+$ git <verb> --help						# eg. git config --help
+
+LOCAL:
+$ git init							# Initializes empty git repo in your current dir, the .git file. $ rm -rf .git will stop tracking with git
+$ git status							# Run anytime to see the status of files in dir, their relation with the Staging area
+$ touch .gitignore						# Create .gitignore file. You may write file names or shorthands (eg: *.pyc) and git will ignore these files (don't track them)
+$ git add -A							# Adds files from Working dir to Staging area
+$ git reset <file>						# Remove files from Staging area
+$ git commit -m "...your_message..."				# Commit, from Staging area to git dir, with message
+$ git log							# See history of all commits
+
+REMOTE(in addition to local):
+$ git clone <url> <where to clone>				# Clone remote repo to local machine to begin developing on it
+$ git remote -v							# List info on remote repo
+$ git branch -a							# List all local and remote branches
+$ git diff							# Show changes in code, line by line
+$ git pull origin master					# Pull (merge the changes) remote repo (origin) to local (master)
+$ git push origin master					# Push (merge the changes) local to remote repo. Always pull right before push, otherwise other ppl's work will be unsaved!!!
+
+BRANCHING: (allows parallel working by creating a separate commit history)
+$ git branch							# List all branches, and highlights the current one
+$ git branch <name_of_branch>					# Create a new branch
+$ git checkout <name_of_branch>					# Switch to this branch
+$ git push -u origin <name_of_branch> 				# Push current branch working files to remote repo
+
+MERGING: (merging the local branch with the local master branch)
+$ git checkout master						# First select the local master branch
+$ git pull origin master					# Then you pull the remote repo
+$ git merge <name_of_branch>					# Merge this branch to master
+$ git push origin master					# Now push the local master to remote repo. You basically have the choice to either push branch to remote repo directly, or merge with local master first then push the merged local master to the remote repo
+$ git branch --merged						# Branches that are merged together with master currently
+$ git branch -d <name_of_branch> 				# Delete the branch in local repo
+$ git push origin --delete <name_of_branch>			# Delete the branch in remote repo
+
+
+
+
+With the local file system, there's no pull/push. You have your working directory, that's the current version. And you have your commits to keep track of the history, incase you want to revert to those.
+With remote repo, you would want to pull/push your local clone with your changes to the remote repo. It's a good idea to commit locally before your do so.
+
+working dir, .., git dir (snapshots)

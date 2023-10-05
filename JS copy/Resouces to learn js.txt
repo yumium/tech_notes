@@ -1,0 +1,29 @@
+1. Codeacademy
+
+Best beginner free course to get started.
+
+2. Channel 9
+https://channel9.msdn.com/Series/Javascript-Fundamentals-Development-for-Absolute-Beginners
+
+Good js course created by MS
+
+3. Modzilla
+https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/JavaScript_basics
+
+Modzilla is the standard document to read for javascript. A more professional material.
+
+4. Udemy and Coursera
+Udemy:
+The Complete JavaScript Course 2019: Build Real Projects! (link)
+The Web Developer Bootcamp (link)
+JavaScript Bootcamp — Build Real World Applications (link)
+Javascript Essentials (FREE)(link)
+Coursera:
+Programming Foundations with JavaScript, HTML and CSS (link)
+HTML, CSS, and Javascript for Web Developers (link)
+Interactivity with JavaScript (link)
+
+
+5. freecodecamp.org
+https://www.freecodecamp.org/learn
+

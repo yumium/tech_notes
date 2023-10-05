@@ -1,0 +1,2 @@
+More on js stuff, pretty good
+Learning Git, and commmand line (bash)

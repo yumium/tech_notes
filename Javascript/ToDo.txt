@@ -1,0 +1,5 @@
+[ ] Learn JavaScript basics and do projects on Codecademy
+[ ] Learn the overall ideas of JavaScript and stuff on the MDN reference. Learn about closures and constuctor functions
+[ ] Learn to code data structures and algorithms on JavaScript using LeetCode
+[ ] Learn HTML, CSS, basics to Node.js etc. on Codecademy
+[ ] Do the project with Zimeng

@@ -1,0 +1,21 @@
+# Q5
+python3 -m cProfile -s tottime sorts.py | less
+# Insertion sort is a little quicker, as it's O(n^2) but has lower overhead
+# Insertion sort has only 1000 calls (one for each sort), while quicksort has about 33,000 calls, around 33 per sort
+# Bottleneck:
+# - insertion sort: swapping entries in array
+# - quicksort: partitioning
+# Memory usage: For some reason `quicksort` is in-place as well. Weird..
+
+
+'''
+Q6
+
+This question is as expected. It's interesting to see that the number of calls to each fib function also follows the fibonacci sequence.
+This is apparent when you realize the fact that:
+nCall(n) = nCall(n+1) + nCall(n+2); nCall(N) = 1
+
+You can also see that the sequence u(n) = number of calls to fib(n) by fib(n+1) also follows the fibonacci sequence. But you can realize that
+u(n) = nCall(n+1), which follow the fibonacci sequence as described above.
+'''. 
+

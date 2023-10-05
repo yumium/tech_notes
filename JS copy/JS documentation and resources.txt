@@ -1,0 +1,23 @@
+Code
+
+
+
+
+
+
+
+JS documentation main page:
+https://developer.mozilla.org/en-US/docs/Web/JavaScript
+
+Language reference:
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference
+
+switch statements:
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/switch
+
+operators:
+https://www.w3schools.com/Jsref/jsref_operators.asp
+
+getting user input using a module in node
+https://www.codecademy.com/articles/getting-user-input-in-node-js
+
