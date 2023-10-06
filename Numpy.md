@@ -86,6 +86,7 @@ np.linspace(0, 2, 9)  # Decimal increments are bad as it's hard to predict the #
 
 `np.linspace()`
 
+`np.tile(arr, n)`: repeats arr n times
 
 
 
