@@ -654,5 +654,7 @@ User assertions for the shape of intermediate variables. This also provides natu
 
 `torch.expand`: ?
 
+`torch.gather(source, dim, indices)`: Gathers value from source based on indices, for 1D set dim to 0, higher dimensional is more complicated
+
 
 
