@@ -12,6 +12,15 @@ C++ is...
 
 
 
+Stack vs. Heap memory:
+
+- Stack memory is used to store local variables in a function. Stack size is determined at compiled time. Deallocation is automatic
+- Heap memory is used to store variables at runtime. Deallocation is done manually (can lead to memory leak if not done properly). Not thread safe like stack memory.
+
+
+
+
+
 ## Basics of C++
 
 

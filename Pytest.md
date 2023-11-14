@@ -20,11 +20,29 @@ Property testing (like BDD)
 
 
 
+**Manual vs. Automated testing**
+
+- Automated testing is more efficiently executed, but there are features too qualitative for computers to carry out (e.g., content represents pornography) and humans can observe new issues
+
+
+
+**Blackbox vs. Whitebox testing **$$ Pros & cons of each
+
+- This describes the degree of access we have to the software
+- Blackbox testing uses software as is, while whitebox testing have additional programmatic access inside individual functions.
+
+
+
+
+
 Kinds of tests:
 
 - Unit test
 - Integration test (different components)
 - System test (entire system)
+- Performance testing (testing of performance, not just correctness)
+- User Acceptance testing (testing by user, typically done after unit and integration tests)
+- Post Release/Implementation testing (testing after release, test a subset of major features, not as thorough as QA process)
 
 
 
@@ -385,6 +403,42 @@ You have your tests in the `tests` folder.
 
 
 
+**Running tests**
+
+```python
+python -m pytest test_file.py
+```
+
+
+
+To run a single test
+
+```python
+python -m pytest test_file.py -k 'test_name'
+```
+
+
+
+StdOut
+
+You can print commands and the stdout will be shown at the end of the test run.
+
+```python
+pytest -rP
+```
+
+... shows stdout of passed tests
+
+```python
+pytest -rx
+```
+
+... shows stdout of failed tests (default behaviour)
+
+
+
+
+
 Sometimes you want to skip some tests. You can do this by using markers:
 
 ```python
@@ -459,6 +513,22 @@ Ensure interactions are correct: spy, mock
 
 
 What you use is based on taste + requirements of code
+
+
+
+
+
+<u>Types of test doubles</u>
+
+Stub: Same interface, no implementation
+
+Fake: Same interface, different implementation (use in-memory store whereas production uses disk store)
+
+Dummy: `None`
+
+Spy: Has additional functionality to track arguments called etc.
+
+Mock: Spy but fails immediately when the arguments called are not as expected
 
 
 
@@ -601,6 +671,8 @@ python -m pytest --cov sample_module test_sample_module.py --cov-report html
 
 The field `test_sample_module.py` is a relative path to the test file. The module `sample_module` doesn't need to be under your current directory as it'll be imported by the test module.
 
+https://pytest-cov.readthedocs.io/en/latest/readme.html#usage
+
 
 
 
@@ -643,6 +715,85 @@ Uses of coverage:
 **conftest.py**
 
 You can place fixtures in `conftest.py` file inside the test folder with other tests. These fixtures will automatically be imported by pytest, as `conftest.py` is a special file name in pytest. You can simply add these fixtures in test functions in your test files.
+
+
+
+
+
+
+
+### How to think about testing (real life & interviews)
+
+Although you are not a SDET, as a SWE you are expected to at least write unit tests, and think about what testing may be required.
+
+**Step 1: Are we doing Black Box Testing or White Box Testing?**
+
+
+
+**Step 2: Who will use it? And why?**
+
+E.g., for parental controls => parents, children, guests
+
+
+
+**Step 3: What are the use cases?**
+
+E.g., for parental controls => installing, adding/updating/removing controls for parents; accessing legal and "illegal" content for children
+
+This is a conversation you have with interviewer
+
+The key is to approach in structured manner, starting with broad use cases and 
+
+
+
+**Step 4: What are the bounds of use?**
+
+This is for thinking about corner cases of use that is less common
+
+E.g., for parental controls => what does blocking a page mean? Should just "illegal" page be blocked or entire website?
+
+
+
+**Step 5: What are the stress conditions / failure conditions?**
+
+When a software does inevitably fail, what would it look like? 
+
+E.g., Not crashing computer but something else (raise an error?)
+
+
+
+**Step 6: What are the test cases? How would you perform the testing?**
+
+Create specific test cases for each use case. For each use case, think about
+
+- Normal case / typical input
+- Extremes
+- Nulls / "illegal" input
+- Strange input
+
+Define result and write the test cases
+
+And in the grander scheme, think about other things to test (go back to user case). Should we add manual testing? What integration should we test (maybe even connection to adjacent service)
+
+
+
+Following the above approach, your solution will be organised, practical, and have big picture thinking.
+
+
+
+
+
+**How to troubleshoot bugs?**
+
+- First, get as much information as possible on the issue
+  How long has this been happening? What is the version of browser? Does the issue happen consistently? ..
+- Break down the entire user flow, and check which exact step does the issue happen. Write a test case to trip the error, so you know when you have fixed it
+
+
+
+
+
+
 
 
 

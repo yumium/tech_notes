@@ -240,7 +240,7 @@ array([[[ 0,  1,  2],
 
 `np.concatenate((a1, a2, ...), axis=0)` -> allow for more arguments specifying how the axis are stacked
 
-​	Arrays a1, a2, ... must have same dimensions apart from axis to be concatenated. If axis is `None`, arrays are flattened before concatenated $$
+​	Arrays a1, a2, ... must have same dimensions apart from axis to be concatenated. If axis is `None`, arrays are flattened before concatenated
 
 ​	Easy to understand if you think of ndarrays as a mapping between D-dimensional coordinates to values
 
@@ -322,7 +322,7 @@ Views references the original ndarray. The data elements are sync-ed
 Deep copies will copy out the new matrix
 
 ```python
->>> d = a.copy() $$
+>>> d = a.copy()
 >>> d is a
 False
 >>> d.base is a

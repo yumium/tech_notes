@@ -70,8 +70,6 @@ print("Hello world!")
 
 
 
-
-
 ```python
 def fib(x):
     i = 1
@@ -192,9 +190,9 @@ You can get the reverse by doing `string[::-1]`
 
 This is because `string[::k]` gives every k-th element. Then the negative sign gives that but reversed.
 
-`string[-4::2]` gives every second element starting from the fourth-last element
+`string[-4::2]` gives every second element starting from the fourth-last element $$
 
-`string[1:5:2]` gives every second element in `string[1:5]`
+`string[1:5:2]` gives every second element in `string[1:5]` $$
 
 
 
@@ -656,7 +654,7 @@ for num in range(3, 101, 2):
 
 `continue` skips to the next iteration of the loop.
 
-`break` exits the innermost loop it is in
+`break` exits the innermost loop it is in $$
 
 `else` block after a `for` loop will execute if sequence terminates normally. It will not execute if loop terminated by `break` statement.
 
@@ -1194,7 +1192,7 @@ When a variable is called, Python would search the variable in the accessible sc
 
 **Mutability:**
 
-Programs can change the value of variables inside the local scope. However, variables in other accessible scopes are "read-only".
+Programs can change the value of variables inside the local scope. However, variables in other accessible scopes are "read-only". $$
 
 If the programmer were to try and mutate those variables, Python would create a variable with the same name inside the local namespace, and map it to the new value.
 
@@ -1379,7 +1377,7 @@ As guidance:
 
 
 
-**Syntax restrictions**
+**Syntax restrictions** $$
 
 There are syntax restrictions in place to make sure no ambiguities can occur. In particular, **all positional arguments must precede keyword/default arguments in both function call and definition**. For example, the following is illegal syntax:
 
@@ -1400,7 +1398,7 @@ test(2,c=2,4)  # positional arg on right side of keyword arg
 
 Take all remaining arguments given, these arguments will be wrapped up in a tuple. 
 
-Before the variable number of arguments, zero or more normal arguments may occur. After the variable, only keyword arguments can occur.
+Before the variable number of arguments, zero or more normal arguments may occur. After the variable, only keyword arguments can occur.  $$
 
 ```python
 def write_multiple_items(file, separator, *args):
@@ -1433,6 +1431,14 @@ In this function, we cannot call it with keyword argument. If we do `join('1', '
 #### Unpacking argument lists
 
 We might want to do the reverse, when the arguments are packed inside a list while the function wants them one by one. This is conceptually similar to `uncurry` in Haskell. To do this we use `*` before the argument. Look it up online.
+
+```python
+def greet(name1='Bob', name2='James'):
+    print(f"Hello {name1}, {name2}")
+
+args = ['John', 'Bosh']
+greet2(*args) 	# Hello John, Bosh
+```
 
 
 
@@ -1914,7 +1920,7 @@ print(x)
 
 - An error is compatible with an `except` clause if the class of the clause is the same as the error, or a base class of it. This makes sense in terms of behavioural subtyping.
 
-- We can have a tuple after the `except` to have a same codeblock for multiple types of errors:
+- We can have a tuple after the `except` to have a same codeblock for multiple types of errors: $$
 
   ```python
   except(ValueError, RuntimeError, TypeError):
@@ -1978,7 +1984,7 @@ print(x)
        raise	# Re-raise the error
    ```
 
-2. `else` clause is executed if all of `try` codeblock executes without errors:
+2. `else` clause is executed if all of `try` codeblock executes without errors: $$
 
    ```python
    for arg in sys.argv[1:]:
@@ -1993,7 +1999,7 @@ print(x)
 
    This is better than just adding that code into the `try` codeblock as it provides more structure.
 
-3. `finally` clause is used to have a codeblock that always executes whether or not a `try` block succeeds. This is used for "clean-up" tasks, such as closing a file. You would want to close the file whether the operation on the file is successful or not.
+3. `finally` clause is used to have a codeblock that always executes whether or not a `try` block succeeds. This is used for "clean-up" tasks, such as closing a file. You would want to close the file whether the operation on the file is successful or not. $$
 
    The time where `finally` codeblock is executed in relation to other blocks is rather complicated though:
 
