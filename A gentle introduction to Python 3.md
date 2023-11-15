@@ -29,6 +29,52 @@ Stuff to learn in the future:
 
 
 
+### Implementation details
+
+Python implementations
+
+- CPython: Standard implementation. First compiles Python code into bytecode, which can then be interpreted efficiently in C.
+- PyPy: Implementation with JIT compiler for better performance
+- Micropython: Python ported for microcontrollers
+
+
+
+pycache (.pyc)
+
+- This is the cached Python bytecode that is compiled from the module
+- It speeds up load time, but does not speed up runtime
+
+
+
+range vs. xrange
+
+- xrange is the equivalent construct in Python 2. It behaves the same in Python 3, good for legacy support
+
+
+
+threading / GUI lock
+
+- The standard CPython implementation introduces the global interpreter lock (GIL), which means only one thread can execute Python bytecode at a time. This makes implementation simpler, as objects such as dictionaries are trivially thread safe.
+- To better use multicore machines, we can use the `multiprocessing` module to use processes instead of threads, side stepping the GIL
+
+
+
+dynamically typed
+
+- Python is dynamically typed (it uses duck types). So types are checked at runtime, instead of compile time (as in statically typed languages)
+
+
+
+Memory management: Interpreter has garbage collector
+
+
+
+
+
+
+
+
+
 ### Using the interpreter
 
 Evoke the interpreter by typing `python`
@@ -190,9 +236,9 @@ You can get the reverse by doing `string[::-1]`
 
 This is because `string[::k]` gives every k-th element. Then the negative sign gives that but reversed.
 
-`string[-4::2]` gives every second element starting from the fourth-last element $$
+`string[-4::2]` gives every second element starting from the fourth-last element
 
-`string[1:5:2]` gives every second element in `string[1:5]` $$
+`string[1:5:2]` gives every second element in `string[1:5]`
 
 
 
@@ -501,6 +547,12 @@ For other methods see reference.
 
 
 
+
+
+
+
+
+
 **Closing a file**
 
 Do `f.close()` to close a opened file. This frees up memory.
@@ -654,7 +706,7 @@ for num in range(3, 101, 2):
 
 `continue` skips to the next iteration of the loop.
 
-`break` exits the innermost loop it is in $$
+`break` exits the innermost loop it is in
 
 `else` block after a `for` loop will execute if sequence terminates normally. It will not execute if loop terminated by `break` statement.
 
@@ -1377,7 +1429,7 @@ As guidance:
 
 
 
-**Syntax restrictions** $$
+**Syntax restrictions**
 
 There are syntax restrictions in place to make sure no ambiguities can occur. In particular, **all positional arguments must precede keyword/default arguments in both function call and definition**. For example, the following is illegal syntax:
 
@@ -1390,6 +1442,13 @@ test(2,c=2,4)  # positional arg on right side of keyword arg
 
  
 
+```python
+def join(sep=', ', *args):
+	
+```
+
+
+
 
 
 
@@ -1398,7 +1457,7 @@ test(2,c=2,4)  # positional arg on right side of keyword arg
 
 Take all remaining arguments given, these arguments will be wrapped up in a tuple. 
 
-Before the variable number of arguments, zero or more normal arguments may occur. After the variable, only keyword arguments can occur.  $$
+Before the variable number of arguments, zero or more normal arguments may occur. After the variable, only keyword arguments can occur.
 
 ```python
 def write_multiple_items(file, separator, *args):
@@ -1428,16 +1487,22 @@ In this function, we cannot call it with keyword argument. If we do `join('1', '
 
 
 
-#### Unpacking argument lists
+#### Unpacking argument lists $$
 
-We might want to do the reverse, when the arguments are packed inside a list while the function wants them one by one. This is conceptually similar to `uncurry` in Haskell. To do this we use `*` before the argument. Look it up online.
+We might want to do the reverse, when the arguments are packed inside a list while the function wants them one by one. This is conceptually similar to `uncurry` in Haskell.
+
+`*args` simply uncurries a list of arguments
+
+`**args` does the same for an argument dictionary, passing in the mapping of keyword args
 
 ```python
 def greet(name1='Bob', name2='James'):
     print(f"Hello {name1}, {name2}")
 
 args = ['John', 'Bosh']
-greet2(*args) 	# Hello John, Bosh
+args2 = {'name2': 'Bosh', 'name1': 'John'}
+greet(*args)	# Hello John, Bosh
+greet(**args2) 	# Hello John, Bosh
 ```
 
 
@@ -1805,6 +1870,17 @@ This adds these names to`__main__`
 
 This imports all names in `fibo` to the global namespace (except those beginning with `_`), which should be avoided
 
+$$ If there are clashes, Python stores the newest value
+
+```python
+a = 1
+print(a)	# 1
+from lib import * 		# lib has a defined as 
+print(a)	# 2
+```
+
+
+
 ```python
 >>> import fibo as fib
 >>> fib.fib(3)
@@ -2005,7 +2081,7 @@ print(x)
 
    - If an exception occurs during execution of the try clause, the exception may be handled by an except clause. If the exception is not handled by an except clause, the exception is re-raised after the finally clause has been executed.
 
-   - An exception could occur during execution of an except or else clause. Again, the exception is re-raised aftervthe finally clause has been executed.
+   - An exception could occur during execution of an except or else clause. Again, the exception is re-raised after the finally clause has been executed.
 
    - If the try statement reaches a break, continue or return statement, the finally clause will execute just prior to the break, continue or return statement’s execution.
 
@@ -2259,17 +2335,9 @@ i = Image.open(BytesIO(r.content))
 
 
 
-
-
-
-
-
-
-
-
 ## Advanced topics
 
-### **Iterators**
+### **Iterators** $$
 
 In Python, we can iterate through a sequence type using the syntax `for ident in seq`. Under the hood, python calls `iter(seq)` to generate the iterator, and calls `next(it)` where `it = iter(seq)` to get the elements one by one.
 
@@ -2457,6 +2525,10 @@ def divide(a,b):
 ```
 
 Now the decorator will pass whatever arguments down to the decorated function
+
+
+
+
 
 
 

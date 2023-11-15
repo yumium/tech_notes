@@ -5,9 +5,19 @@ This guide contains
 - SQL cheatsheet (for t-sql dialect)
 - Some database theory mnemonics
 
+```sql
+ON DELETE CASCADE
+```
+
+
+
+
+
 
 
 ### SQL primer
+
+$$
 
 ```sql
 CREATE TABLE TableName (
@@ -56,9 +66,15 @@ NULL;
 DEFAULT 0;
 FOREIGN KEY [attr] REFERENCES [table];						-- can also be table level
 ON DELETE/UPDATE NO ACTION/CASCADE/SET DEFAULT/SET NULL;	-- can also be table level
+PRIMARY KEY
+CLUSTERED	-- If it's a key, specify it to be clustered on this PK
 ```
 
 
+
+
+
+Table level constraints
 
 ```sql
 PRIMARY KEY (attr1, attr2);
@@ -85,6 +101,8 @@ WHERE S.sid = B.sid AND B.bid = 103;
 SELECT S.name
 FROM Sailor S
 WHERE S.sid = 1
+
+GROUP BY S.month
 
 -- In / Not In (uncorrelated queries)
 ...
@@ -172,7 +190,13 @@ So should we do cond1 -> cond2 -> cond3, or cond2 -> cond1 -> cond3 etc. ? We us
 
 
 
-Multi-table query optimisation - Join algorithms
+
+
+
+
+
+
+Multi-table query optimisation - Join algorithms $$
 
 | Join Algorithm          | Description                                                  | Complexity (of disk I/O)                                 |
 | ----------------------- | ------------------------------------------------------------ | -------------------------------------------------------- |
@@ -196,7 +220,17 @@ RA optimization
 
 
 
-T-SQL join syntax
+INNER JOIN
+
+
+
+
+
+
+
+
+
+T-SQL join syntax $$
 
 ```sql
 FROM first_table < join_type > second_table [ ON ( join_condition ) ]
@@ -216,7 +250,7 @@ FROM Purchasing.ProductVendor AS PV, Purchasing.Vendor AS V
 WHERE PV.BusinessEntityID = V.BusinessEntityID
 ```
 
-Join types:
+Join types: $$
 
 - INNER JOIN: rows that satisfy condition
 - LEFT [OUTER] JOIN: + rows in left table (fields that don't satisfy are left as NULL)
@@ -339,7 +373,7 @@ FROM testSchema.Orders CROSS JOIN testSchema.Customers
 
 
 
-#### <u>ER diagrams</u>
+#### <u>ER diagrams</u> $$
 
 - Tables & relations (potentially w/ data)
 - Keys
@@ -362,13 +396,37 @@ Potential cookbook translation:
 
 
 
-
-
 #### <u>Functional dependencies & normal forms</u>
 
-Functional dependency: A -> B but A is not a key. This is bad as repeated As give predictable, repeated Bs
+Functional dependency: A -> B but A is not a key. This is bad as repeated As give predictable, repeated Bs$$
 
 ​	Solution: T1 = T\B, T2 = A U B, make A a key in T2. This decomposition is lossless as T1 JOIN T2 = T
+
+Example:
+
+```sql
+CREATE TABLE screenings (
+	screen_id CHAR(30)	PRIMARY KEY NOT NULL CLUSTERED
+    movie_id CHAR(30)
+    movie_name VARCHAR(100)
+    director VARCHAR(100)
+    [time] DATETIME
+)
+
+-- movie_id => (movie_name, director), but movie_id is not a key in screenings
+
+CREATE TABLE screenings (
+	screen_id CHAR(30)	PRIMARY KEY NOT NULL CLUSTERED
+    movie_id CHAR(30)	FOREIGN KEY movie_id REFERENCES movies ON DELETE SET DEFAULT(NULL)
+    [time] DATETIME
+)
+
+CREATE TABLE movies (
+	movie_id CHAR(30) PRIMARY KEY NOT NULL CLUSTERED
+    movie_name VARCHAR(100)
+    director VARCHAR(100)
+)
+```
 
 
 
@@ -376,9 +434,33 @@ Multi-value dependency (MVD): Pi_AB(T) JOIN Pi_AC(T) = T, where C = T \ A \ B
 
 ​	Solution: decompose into AB and AC
 
+Example:
+
+| Course |     Book     |  Lecturer   |
+| :----: | :----------: | :---------: |
+|  AHA   | Silberschatz |   John D    |
+|  AHA   |  Nederpelt   |   John D    |
+|  AHA   | Silberschatz |  William M  |
+|  AHA   |  Nederpelt   |  William M  |
+|  AHA   | Silberschatz | Christian G |
+|  AHA   |  Nederpelt   | Christian G |
+|  OSO   | Silberschatz |   John D    |
+|  OSO   | Silberschatz |  William M  |
+
+Book => Course & Book => Lecturer. Aka (Course, Book) JOIN (Book, Lecturer) = Table. So split to 2 tables like so.
 
 
-Normal forms:
+
+Normalisation & denormalisation $$
+
+- Normalisation is the process of removing dependencies. This removes redundancy at expense of performance 
+- Denormalisation is the opposite, where tables are joined together. This introduces redundancy for performance
+
+
+
+
+
+Normal forms: $$
 
 3NF: Allow A -> b and A not key is b is part of some key
 
@@ -452,11 +534,15 @@ INSERT INTO dbo.test (description) VALUES ('Test 3');  -- productGroupId is 3
 
 
 
+**ER diagram**
 
 
 
+![](https://www.ermodelexample.com/wp-content/uploads/2019/10/free-entity-relationship-diagram-template-in-conceptual-entity-relationship-diagram.png)
 
 
+
+### 
 
 
 
