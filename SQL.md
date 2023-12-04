@@ -11,13 +11,13 @@ ON DELETE CASCADE
 
 
 
+In this guide we are using MSSQL/TSQL dialect.
+
 
 
 
 
 ### SQL primer
-
-$$
 
 ```sql
 CREATE TABLE TableName (
@@ -86,6 +86,18 @@ CONSTRAINT slt_chk Check (
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 SQL queries
 
 ```sql
@@ -133,11 +145,89 @@ FROM Faculty F
 GROUP BY F.dept
 HAVING COUNT(*) > 4	-- optional
 
--- NOTE! Sometimes engines like `presto` would require you to give new column names for the aggregates
+-- NOTE! Sometimes engines like `presto` would require you to give new column names for the aggregates $$
 SELECT F.dept, COUNT(F.facultyId) as count_faculty
 FROM Faculty F
 GROUP BY F.dept
 ```
+
+
+
+
+
+**ALTER **$$
+
+```sql
+# Add new column
+# ALTER TABLE <table> ADD <column>
+ALTER TABLE dbo.doc_exa ADD column_b VARCHAR(20) NULL;
+
+# Add DEFAULT constraint on an existing column
+ALTER TABLE dob.doc_exz
+	ADD CONSTRAINT col_b_df
+	DEFAULT 50 FOR column_b;
+GO
+
+# Drop a column
+# ALTER TABLE <table> DROP COLUMN <columns>
+ALTER TABLE dbo.doc_exb DROP COLUMN column_c, column_d;
+
+# Change data type of column
+# ALTER TABLE <table> ALTER COLUMN <column> <datetype>
+ALTER TABLE dbo.doc_exb ALTER COLUMN column_a DECIMAL (5, 2);
+```
+
+
+
+**UPDATE** $$
+
+```sql
+# Update all rows for a column
+# UPDATE <table> SET <column = new_value>
+UPDATE Person.Address
+SET ModifiedDate = GETDATE():
+GO
+
+# Update all rows for multiple column
+UPDATE Sales.SalesPerson
+SET Bonus = 6000, CommissionPct = .10, SalesQuota = NULL;
+GO
+
+# Limit rows updated using WHERE
+# UPDATE <table> SET <column = new_value> WHERE <condition>
+UPDATE Sales.SalesPerson
+SET Bonus = 6000, CommisionPct = .10, SalesQuota = NULL
+WHERE Name LIKE N'Road-250%' AND Color = N'Red';
+GO
+
+# Limit rows updated using TOP
+UPDATE TOP (10) Sales.SalesPerson
+SET Bonus = 6000, CommissionPct = .10, SalesQuota = NULL;
+GO
+
+# Specifying a computed value
+UPDATE Production.Product
+SET ListPrice = ListPrice * 2;
+Go
+```
+
+
+
+**DELETE** $$
+
+```sql
+# Delete all rows in table
+DELETE FROM Production.ProductionCostHistory;
+GO
+
+# Delete rows that match condition
+# DELETE FROM <table> WHERE <condition>
+DELETE FROM Production.ProductionCostHistory
+WHERE StandardCost > 1000.00;
+GO
+```
+
+
 
 
 
@@ -196,7 +286,7 @@ So should we do cond1 -> cond2 -> cond3, or cond2 -> cond1 -> cond3 etc. ? We us
 
 
 
-Multi-table query optimisation - Join algorithms $$
+Multi-table query optimisation - Join algorithms
 
 | Join Algorithm          | Description                                                  | Complexity (of disk I/O)                                 |
 | ----------------------- | ------------------------------------------------------------ | -------------------------------------------------------- |
@@ -220,17 +310,9 @@ RA optimization
 
 
 
-INNER JOIN
 
 
-
-
-
-
-
-
-
-T-SQL join syntax $$
+T-SQL join syntax
 
 ```sql
 FROM first_table < join_type > second_table [ ON ( join_condition ) ]
@@ -451,7 +533,7 @@ Book => Course & Book => Lecturer. Aka (Course, Book) JOIN (Book, Lecturer) = Ta
 
 
 
-Normalisation & denormalisation $$
+Normalisation & denormalisation
 
 - Normalisation is the process of removing dependencies. This removes redundancy at expense of performance 
 - Denormalisation is the opposite, where tables are joined together. This introduces redundancy for performance
@@ -501,6 +583,8 @@ GO
 
 
 
+#### <u>Miscellaneous concepts</u>
+
 <u>Schemas</u>
 
 = namespace of tables within db, default is `dpo` in t-sql
@@ -542,7 +626,115 @@ INSERT INTO dbo.test (description) VALUES ('Test 3');  -- productGroupId is 3
 
 
 
-### 
+
+
+<u>Pivot statement</u>
+
+Pivot statement creates new columns where the values are aggregates of other columns
+
+Syntax:
+
+```sql
+SELECT <non-pivoted column>,
+	[first pivoted column] AS <column name>,
+	[second pivoted column] AS <column name>,
+	...
+	[last pivoted column] AS <column name>
+FROM
+	(<SELECT query that produces data>)
+	AS <alias for source query>
+PIVOT
+(
+	<aggregate function>(<column being aggregated>)
+FOR
+[<column to be pivoted>]
+    	IN ( [first pivoted column], [second pivoted column], ... [last pivoted column])
+) AS <alias for the pivot table
+<optional ORDER BY clause>;
+```
+
+
+
+Example:
+
+We have a table for manufactoring time and cost of various products
+
+```sql
+SELECT DaysToManufacture, AVG(StandardCost) AS AverageCost
+FROM Production.Product
+GROUP BY DaysToManufacture;
+```
+
+Result set:
+
+```
+DaysToManufacture AverageCost
+----------------- -----------
+0                 5.0885
+1                 223.88
+2                 359.1082
+4                 949.4105
+```
+
+We want to find out average days to manufacture for each `DaysToManufacture` values. We can use `PIVOT` to make `DaysToManufacture` columns of the new table
+
+```sql
+SELECT 'AverageCost' AS Cost_Sorted_By_Production_Days
+	[0], [1], [2], [3], [4]
+FROM
+	(SELECT P.DayToManufacture, P.StandardCost
+	FROM Production.Product AS P)
+	AS SourceTable
+PIVOT (
+	AVG(P.StandardCost)
+FOR
+[P.DayToManufacture] IN ([0], [1], [2], [3], [4])
+) AS PivotTable
+```
+
+Result set:
+
+```
+Cost_Sorted_By_Production_Days 0           1           2           3           4         
+------------------------------ ----------- ----------- ----------- ----------- -----------
+AverageCost                    5.0885      223.88      359.1082    NULL        949.4105
+```
+
+
+
+<u>More complex example:</u>
+
+Finding how many purchases each employee made for each vendor
+
+```sql
+SELECT VendorID, [250] AS Emp1, [251] AS Emp2, [256] AS Emp3, [257] AS Emp4, [260] AS Emp5  
+FROM   
+(SELECT PurchaseOrderID, EmployeeID, VendorID  
+FROM Purchasing.PurchaseOrderHeader) p  
+PIVOT  
+(  
+COUNT (PurchaseOrderID)  
+FOR EmployeeID IN  
+( [250], [251], [256], [257], [260] )  
+) AS pvt  
+ORDER BY pvt.VendorID;
+```
+
+Partial result set:
+
+```
+VendorID    Emp1        Emp2        Emp3        Emp4        Emp5  
+----------- ----------- ----------- ----------- ----------- -----------
+1492        2           5           4           4           4
+1494        2           5           4           5           4
+1496        2           4           4           5           5
+1498        2           5           4           4           4
+1500        3           4           4           5           4
+```
+
+
+
+
 
 
 

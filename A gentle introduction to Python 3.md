@@ -27,8 +27,6 @@ Stuff to learn in the future:
 
 
 
-
-
 ### Implementation details
 
 Python implementations
@@ -52,9 +50,12 @@ range vs. xrange
 
 
 
-threading / GUI lock
+threading / GIL lock
 
-- The standard CPython implementation introduces the global interpreter lock (GIL), which means only one thread can execute Python bytecode at a time. This makes implementation simpler, as objects such as dictionaries are trivially thread safe.
+- The standard CPython implementation introduces the global interpreter lock (GIL), which means only one thread ($$) can execute Python bytecode at a time. This makes implementation simpler, as objects such as dictionaries are trivially thread safe.
+- Of course, this is only for Python interpreter.
+  If some code in Python then goes ahead to execute some other code in C, multithreading can happen in that C code.
+  This is where `multithreading` can help (though sometimes marginally) to run programs with a lot of I/O. When multiple threads are running, only one thread can run Python bytecode at a time. But if one thread is blocked on I/O, another thread can be run, leading to performance improvements.
 - To better use multicore machines, we can use the `multiprocessing` module to use processes instead of threads, side stepping the GIL
 
 
@@ -68,6 +69,13 @@ dynamically typed
 Memory management: Interpreter has garbage collector
 
 
+
+Python vs. C++
+
+- **Types**: Python is dynamically typed, C++ is static. So Python easier to write but C++ is type safe.
+- **Compilation**: Python is an interpreted language while C++ is compiled, so C++ is almost always faster. With C++ you have a good understanding of how the assembly code will look like, not so with Python
+- **Memory management**: C++ has no garbage collector, and the ability to do pointer operations make the program more prone to memory issues than Python. But it also gives you better control.
+- Overall, Python is great for building prototypes, but C++ better for performance-critical systems
 
 
 
@@ -240,11 +248,11 @@ This is because `string[::k]` gives every k-th element. Then the negative sign g
 
 `string[1:5:2]` gives every second element in `string[1:5]`
 
+$$ Note: `string[::k]` is just `string[x:y:k]` with x and y omitted (so takes entire string). Similarly, `string[-4::2]` omits the "y"
 
 
 
-
-
+​	
 
 **Strings are immutable**
 
@@ -534,6 +542,12 @@ Text mode and binary mode:
 
 `f.readline()` return the next line. Think of this as an iterator. It outputs the next string that ends in `\n`. a newline character (\n) is left at the end of the string, and is only omitted on the last line of the file if the file doesn’t end in a newline.  This means `""` is returned if and only if the file has ended (iterator exhausted).
 
+```python
+with open('READMD.md', 'r') as f:
+    while line := f.readline():
+		print(line)
+```
+
 There is a better way to iterate through the lines in a file, which is memory efficient:
 
 ```python
@@ -542,6 +556,8 @@ for line in f:
 ```
 
 `f.write(str)` takes a string and writes it into the file, returning the # of characters written.
+
+`f.readlines()` return a list of string (lines)
 
 For other methods see reference.
 
@@ -708,42 +724,9 @@ for num in range(3, 101, 2):
 
 `break` exits the innermost loop it is in
 
-`else` block after a `for` loop will execute if sequence terminates normally. It will not execute if loop terminated by `break` statement.
 
-```python
-for i in range(3):
-	print(i)
-else:
-	print("done")
-```
 
-gives
-
-```python
-0
-1
-2
-done
-```
-
-But
-
-```python
-for i in range(3):
-	print(i)
-    if i > 1:
-        break
-else:
-	print("done")
-```
-
-gives
-
-```
-0
-1
-2
-```
+`else` after `for` or `while` loop will be executed iff the loop is not terminated by `break` (using `continue` in loop doesn't matter)
 
 
 
@@ -771,7 +754,7 @@ def primes(n):
 
 
 
-You also can add a `else` statement after a `while` loop, which will be executed after the `while` loop is escaped. Again, if the `while` loop terminates because of `break` and not the guard being false, the `else` clause will not be executed
+$$ You also can add a `else` statement after a `while` loop, which will be executed after the `while` loop is escaped. Again, if the `while` loop terminates because of `break` and not the guard being false, the `else` clause will not be executed
 
 ```python
 >>> while x < 3:
@@ -1455,7 +1438,7 @@ def join(sep=', ', *args):
 
 #### Arbitrary argument lists
 
-Take all remaining arguments given, these arguments will be wrapped up in a tuple. 
+Take all remaining arguments given, these arguments will be wrapped up in a tuple.  $$
 
 Before the variable number of arguments, zero or more normal arguments may occur. After the variable, only keyword arguments can occur.
 
@@ -1836,6 +1819,62 @@ For example, a function might take in a file as an argument and call `read()` an
 
 
 
+### Additional OOP constructs $$
+
+Abstract methods
+
+```python
+import abc import ABC, abstractmethod		# Abstract Base Class
+
+class Producer(ABC):
+    @abstractmethod
+	def publish(self, message):
+        pass
+```
+
+All classes inheriting `Producer` here must override methods with decorator `@abstractmethod`. Here it's `publish`
+
+
+
+Class methods
+
+```python
+class AltString:
+    def __init__(self, astring):
+        self.s = astring
+    
+    @classmethod
+	def fromlist(cls, alist):
+        s = ''.join(alist)
+        return cls(s)
+```
+
+Class methods pass in the class as the first argument, instead of the object. It can used for example as an alternative constructor (taking use of the class)
+
+
+
+Static methods
+
+```python
+class AltString:
+    def __init__(self, astring):
+        self.s = astring
+    
+    @staticmethod
+    def greet(s):
+        print(f"Hello, {s}")
+```
+
+Static methods are normal functions under the class's namespace. It is used when the method has some connection to the class.
+
+
+
+
+
+
+
+
+
 ## Python Modules (abstraction 3)
 
 It's tiring to enter stuff into the interpreter one-by-one. That's why we create a text file that saves the script to be executed as once, called a *script*.
@@ -1960,6 +1999,78 @@ Say `module.func` calls `module.helper`, you don't need to import both `func` an
 
 ## Error handling
 
+```
+BaseException
+ ├── BaseExceptionGroup
+ ├── GeneratorExit
+ ├── KeyboardInterrupt
+ ├── SystemExit
+ └── Exception
+      ├── ArithmeticError
+      │    ├── FloatingPointError
+      │    ├── OverflowError
+      │    └── ZeroDivisionError
+      ├── AssertionError
+      ├── AttributeError
+      ├── BufferError
+      ├── EOFError
+      ├── ExceptionGroup [BaseExceptionGroup]
+      ├── ImportError
+      │    └── ModuleNotFoundError
+      ├── LookupError
+      │    ├── IndexError
+      │    └── KeyError
+      ├── MemoryError
+      ├── NameError
+      │    └── UnboundLocalError
+      ├── OSError
+      │    ├── BlockingIOError
+      │    ├── ChildProcessError
+      │    ├── ConnectionError
+      │    │    ├── BrokenPipeError
+      │    │    ├── ConnectionAbortedError
+      │    │    ├── ConnectionRefusedError
+      │    │    └── ConnectionResetError
+      │    ├── FileExistsError
+      │    ├── FileNotFoundError
+      │    ├── InterruptedError
+      │    ├── IsADirectoryError
+      │    ├── NotADirectoryError
+      │    ├── PermissionError
+      │    ├── ProcessLookupError
+      │    └── TimeoutError
+      ├── ReferenceError
+      ├── RuntimeError
+      │    ├── NotImplementedError
+      │    └── RecursionError
+      ├── StopAsyncIteration
+      ├── StopIteration
+      ├── SyntaxError
+      │    └── IndentationError
+      │         └── TabError
+      ├── SystemError
+      ├── TypeError
+      ├── ValueError
+      │    └── UnicodeError
+      │         ├── UnicodeDecodeError
+      │         ├── UnicodeEncodeError
+      │         └── UnicodeTranslateError
+      └── Warning
+           ├── BytesWarning
+           ├── DeprecationWarning
+           ├── EncodingWarning
+           ├── FutureWarning
+           ├── ImportWarning
+           ├── PendingDeprecationWarning
+           ├── ResourceWarning
+           ├── RuntimeWarning
+           ├── SyntaxWarning
+           ├── UnicodeWarning
+           └── UserWarning
+```
+
+
+
 Generally speaking, Python errors have 2 types, "syntax error" and "exceptions".
 
 Syntax error is built-in and straight-forward.
@@ -1987,6 +2098,8 @@ while True:
         break	# To break the while loop
     except ValueError:
         print("Please give number")
+	except:	# catch all $$
+        print("Unknown error occured")
 print(x)
 ```
 
@@ -2057,7 +2170,7 @@ print(x)
        raise ValueError
    except:
        print("Unexpected error:", sys.exc_info()[0])
-       raise	# Re-raise the error
+       raise	# Re-raise the error $$
    ```
 
 2. `else` clause is executed if all of `try` codeblock executes without errors: $$
@@ -2079,14 +2192,11 @@ print(x)
 
    The time where `finally` codeblock is executed in relation to other blocks is rather complicated though:
 
-   - If an exception occurs during execution of the try clause, the exception may be handled by an except clause. If the exception is not handled by an except clause, the exception is re-raised after the finally clause has been executed.
+   - If an exception isn't handled, it's reraised after the `finally` clause
 
-   - An exception could occur during execution of an except or else clause. Again, the exception is re-raised after the finally clause has been executed.
-
-   - If the try statement reaches a break, continue or return statement, the finally clause will execute just prior to the break, continue or return statement’s execution.
-
-   - If a finally clause includes a return statement, the returned value will be the one from the finally clause return statement, not the value from the try clause’s return statement.  
-
+   - If try clause reaches a break, continue, or return statement, `finally` is executed just before break
+     And if finally returns a value as well, that is the value returned (instead of from try statement)
+   
      ```python
      def bool_return():
          try:
@@ -2096,7 +2206,7 @@ print(x)
          
      print(bool_return())		# False
      ```
-
+   
    From this perspective, the closing of the file after `with` statement finishes is an automatic clean-up process.
 
 
@@ -2327,6 +2437,268 @@ i = Image.open(BytesIO(r.content))
 
 
 
+### multiprocessing
+
+
+
+**Process(target=None, args=(), kwargs={}, name=None)**
+
+target = function the process starts at
+
+args is the argument to pass to function (list of tuple of arguments)
+
+
+
+`.start()`: Start the process's activity
+
+`.join([timeout])`: Waits for process to terminate and hence "joins" the parent process
+
+- If `timeout` is None (the default), method will block until the subprocess terminates
+- If `timeout` > 0, blocks at most `timeout` seconds before continuing with rest of code (a process can be joined multiple times)
+
+`.name`: Name of process, used for ID-ing only
+
+`.pid`: Returns process ID
+
+`.exitcode`: Exit code of process, returns `None` if not yet terminated
+
+`.terminate()`: Terminate the process. `SIGTERM` on POSIX and `TerminateProcess()` on Windows
+
+`.kill()`: Same as `.terminate()` but uses `SIGKILL` on POSIX
+
+`.close()`: Close Process object, releases all resources associated with it. `ValueError` is raised if the underlying process is still running.
+
+
+
+Ways to start a process
+
+`multiprocessing.set_start_method(method, force=False)`
+
+- spawn
+- fork
+- forkserver
+
+
+
+```python
+from multiprocessing import Process
+
+def f(name):
+    print('hello', name)
+
+if __name__ == '__main__':
+    p = Process(target=f, args=('bob',))
+    p.start()
+    p.join()
+    # hello bob
+```
+
+
+
+
+
+
+
+
+
+**Message passing**
+
+**Queues**
+
+`multiprocessing.Queue([maxsize])`: Implemented using a pipe and a few locks/semaphores
+
+`.qsize()`: Approximate size of queue, not reliable because of concurrency
+
+`.empty()`: Whether queue is empty, not reliable because of concurrency
+
+`.full()`: Whether queue is full, not reliable because of concurrency
+
+`.put(obj, block=True, timeout=None)`: Put `obj` into queue
+
+- `block` is True, `timeout` is None, blocks until a free slot is available
+- `block` is True, `timeout` is positive number, blocks at most `timeout` seconds and raise `queue.Full` exception if no free slot is available within that time
+- `block` is False, puts an item on the queue if a free slot is immediately available, else raise the `queue.Full` exception
+
+`.put_nowait(obj)`: Same as `.put(obj, False)`
+
+`.get([block[, timeout]])`: Symmetric to `.put()`, raises `queue.Empty` error in this case
+
+`.get_nowait()`: Same as `.get(False)`
+
+`.close()`: Indicates no more data will be put on this queue by current process
+
+
+
+```python 
+# Simple program communicating using a queue
+from multiprocessing import Process, Queue
+
+def f(q):
+    q.put([42, None, 'hello'])
+
+if __name__ == '__main__':
+    q = Queue()
+    p = Process(target=f, args=(q,))
+    p.start()
+    print(q.get())    # prints "[42, None, 'hello']"
+    p.join()
+```
+
+
+
+
+
+**Pipes**
+
+`multiprocessing.Pipe(duplex=True)`: Returns a pair `(conn1, conn2)` of Connection objects representing both ends of pipe
+
+- Default it's bidirectional, each side (`conn_`) has `.send()` and `.recv()` methods. Pipe may become corrupted if more than 1 process try to read from or write to the *same* end of the pipe. But if each process only gets handle to one end of pipe, there is no risk of this.
+
+
+
+```python
+# Simple program communicating using a pipe
+from multiprocessing import Process, Pipe
+
+def f(conn):
+    conn.send([42, None, 'hello'])
+    conn.close()
+
+if __name__ == '__main__':
+    parent_conn, child_conn = Pipe()
+    p = Process(target=f, args=(child_conn,))
+    p.start()
+    print(parent_conn.recv())   # prints "[42, None, 'hello']"
+    p.join()
+```
+
+
+
+
+
+> The two connection objects returned by [`Pipe()`](https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Pipe) represent the two ends of the pipe. Each connection object has `send()` and `recv()` methods (among others). Note that data in a pipe may become corrupted if two processes (or threads) try to read from or write to the *same* end of the pipe at the same time. Of course there is no risk of corruption from processes using different ends of the pipe at the same time.
+
+
+
+Keep in mind the message to be sent to processes:
+
+- Messages that are too large are inconvenient (try to send pointers, filenames instead)
+- All messages must be pickle-able (ie. lambdas won't work)
+
+
+
+
+
+**Pool()**
+
+Have a pool of processes that runs on an array of data with the same task (data parallel)
+
+`map()`: blocks until entire task is finished
+
+`imap()`: "iterative map", returns results as they materialize
+
+`imap_unorderd()`: Get tasks back in order of which returned first
+
+Modify chunksize to optimise IO / compute trade off
+
+```python
+# A trivial process
+from multiprocessing import Pool
+
+def f(x):
+    return x*x
+
+if __name__ == '__main__':
+    with Pool(5) as p:
+        print(p.map(f, [1, 2, 3]))
+        # [1, 4, 9]
+```
+
+
+
+
+
+
+
+**Synchronisation primitives**
+
+Generally not used in multiprocess program as they are in multithreaded program.
+
+Primitives: Barrier, BoundedSemaphore, Condition, Event, Lock, RLock, Semaphore ...
+
+<u>Lock</u>: only 1 process can acquire it at a time
+
+`.acquire(block=True, timeout=None)`: Acquire a lock
+
+- Block is `True`, timeout is `None`: Blocks until lock is free, acquires it, and returns `True`
+- Block is `True`, timeout is a positive integer: Block for at most `timeout` seconds, return `True` if able to acquire lock before then, or `False` otherwise
+- Block is `False`: Does not block, return `True` if able to acquire lock immediately, and `False` otherwise
+
+`.release()`: Release a lock. This can be called from any process or thread, though I'm a little unclear on the behaviour in that case
+
+
+
+```python
+from multiprocessing import Process, Lock
+
+def f(l, i):
+    l.acquire()
+    try:
+        print('hello world', i)
+    finally:
+        l.release()
+
+if __name__ == '__main__':
+    lock = Lock()
+
+    for num in range(10):
+        Process(target=f, args=(lock, num)).start()
+```
+
+
+
+
+
+
+
+**shared state**
+
+You can access `sharedctypes` which are objects in c, which have some thread-safe mechanism built in
+
+```python
+from multiprocessing import Process, Value, Array
+
+def f(n, a):
+    n.value = 3.1415927
+    for i in range(len(a)):
+        a[i] = -a[i]
+
+if __name__ == '__main__':
+    num = Value('d', 0.0)		# 'd' = double precision float
+    arr = Array('i', range(10))	# 'i' = signed integer
+
+    p = Process(target=f, args=(num, arr))
+    p.start()
+    p.join()
+
+    print(num.value)
+    print(arr[:])
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2337,7 +2709,7 @@ i = Image.open(BytesIO(r.content))
 
 ## Advanced topics
 
-### **Iterators** $$
+### **Iterators**
 
 In Python, we can iterate through a sequence type using the syntax `for ident in seq`. Under the hood, python calls `iter(seq)` to generate the iterator, and calls `next(it)` where `it = iter(seq)` to get the elements one by one.
 
@@ -2466,6 +2838,21 @@ ordinary()  # extraordinary
 
 
 
+```python
+def safe(f):
+    def res(*args):
+		try:
+            f(*args)
+		except ZeroDivisionError:
+            print('An error occured.')
+	
+    return res
+```
+
+
+
+
+
 **Decorator for function with parameters**
 
 Sometime you might want to do this (the decorated function need to take parameters)
@@ -2491,14 +2878,6 @@ safe(divide)(2,0) # Sorry, an error occured
 This can be written as:
 
 ```python
-def safe(func):
-    def res(a,b):
-        try:
-            func(a,b)
-        except:
-            print("Sorry, an error occured")
-	return res
-
 @safe
 def divide(a,b):
     return a/b

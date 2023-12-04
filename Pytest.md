@@ -26,10 +26,12 @@ Property testing (like BDD)
 
 
 
-**Blackbox vs. Whitebox testing **$$ Pros & cons of each
+**Blackbox vs. Whitebox testing **
 
 - This describes the degree of access we have to the software
 - Blackbox testing uses software as is, while whitebox testing have additional programmatic access inside individual functions.
+- White box testing requires knowledge of function and can take longer to write, but it checks more
+  Black box testing is simpler to write
 
 
 
@@ -726,6 +728,10 @@ You can place fixtures in `conftest.py` file inside the test folder with other t
 
 Although you are not a SDET, as a SWE you are expected to at least write unit tests, and think about what testing may be required.
 
+Menmonic: Who? What? How? (N-EIS)
+
+
+
 **Step 1: Are we doing Black Box Testing or White Box Testing?**
 
 
@@ -766,20 +772,22 @@ E.g., Not crashing computer but something else (raise an error?)
 
 Create specific test cases for each use case. For each use case, think about
 
-- Normal case / typical input
-- Extremes
-- Nulls / "illegal" input
-- Strange input
+- Normal case: typical input and failures
+- Extremes: sort([]), sort([1]*10000)
+- Nulls / "illegal" input: fibonnaci(-1)
+- Strange input: 
 
 Define result and write the test cases
 
-And in the grander scheme, think about other things to test (go back to user case). Should we add manual testing? What integration should we test (maybe even connection to adjacent service)
+And in the grander scheme, think about other things to test (go back to user case). Should we add manual testing? What integration should we test (maybe even connection to adjacent service) $$
 
 
 
-Following the above approach, your solution will be organised, practical, and have big picture thinking.
+Following the above approach, your solution will be organised, practical, and have big picture thinking. $$
 
 
+
+> Moral: If we have infinite resources, we will test every possible case (every arrangement of the environment, every possible sequence of user moves ...). But given resources are constraint, we try to maximize the coverage of our tests on the use cases. (e.g., if I have tested one scenario, it's probably better to test a different scenario rather than writing another test case for the same scenario)
 
 
 
