@@ -356,11 +356,3 @@ Margin collapse: Top and bottom margin of adjacent elements will take together t
 
 
 
-
-
-
-
-Landing the plane (ROI out of this)
-
-The girl is really not that special
-
