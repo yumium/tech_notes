@@ -312,7 +312,7 @@ Read the chapter on `Refspec`, p.458
 - `git stash`: temporarily remove modifications to working directory
 - `git bisect`: binary search history (e.g. for regressions)
 - `.gitignore`: [specify](https://git-scm.com/docs/gitignore) intentionally untracked files to ignore
-
+- `git cherry-pick <commitSHA>`: Apply changes in that commit to current branch and commits it, this allows change applied from any arbitrary commit in any order.
 
 
 # Submodules
