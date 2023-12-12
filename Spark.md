@@ -1,4 +1,4 @@
-# Apache Spark
+# dataApache Spark
 
 Apache Spark is a unified analytics engine for large-scale data processing. It provides an interface for programming clusters (in Java, Scala, Python and R), with implicit *data parallelism* and *fault tolerance*.
 
@@ -843,6 +843,72 @@ results.show()
 
 
 
+
+
+### DataTypes
+
+```python
+from pyspark.sql.types import *
+```
+
+### Supported Data Types
+
+Spark SQL and DataFrames support the following data types:
+
+- Numeric types
+
+  - `ByteType`: Represents 1-byte signed integer numbers. The range of numbers is from `-128` to `127`.
+  - `ShortType`: Represents 2-byte signed integer numbers. The range of numbers is from `-32768` to `32767`.
+  - `IntegerType`: Represents 4-byte signed integer numbers. The range of numbers is from `-2147483648` to `2147483647`.
+  - `LongType`: Represents 8-byte signed integer numbers. The range of numbers is from `-9223372036854775808` to `9223372036854775807`.
+  - `FloatType`: Represents 4-byte single-precision floating point numbers.
+  - `DoubleType`: Represents 8-byte double-precision floating point numbers.
+  - `DecimalType`: Represents arbitrary-precision signed decimal numbers. Backed internally by `java.math.BigDecimal`. A `BigDecimal` consists of an arbitrary precision integer unscaled value and a 32-bit integer scale.
+
+- String type
+
+  - `StringType`: Represents character string values.
+  - `VarcharType(length)`: A variant of `StringType` which has a length limitation. Data writing will fail if the input string exceeds the length limitation. Note: this type can only be used in table schema, not functions/operators.
+  - `CharType(length)`: A variant of `VarcharType(length)` which is fixed length. Reading column of type `CharType(n)` always returns string values of length `n`. Char type column comparison will pad the short one to the longer length.
+
+- Binary type
+
+  - `BinaryType`: Represents byte sequence values.
+
+- Boolean type
+
+  - `BooleanType`: Represents boolean values.
+
+- Datetime type
+
+  - `DateType`: Represents values comprising values of fields year, month and day, without a time-zone.
+
+  - `TimestampType`: Timestamp with local time zone(TIMESTAMP_LTZ). It represents values comprising values of fields year, month, day, hour, minute, and second, with the session local time-zone. The timestamp value represents an absolute point in time.
+
+  - ```plaintext
+    TimestampNTZType
+    ```
+
+    : Timestamp without time zone(TIMESTAMP_NTZ). It represents values comprising values of fields year, month, day, hour, minute, and second. All operations are performed without taking any time zone into account.
+
+    - Note: TIMESTAMP in Spark is a user-specified alias associated with one of the TIMESTAMP_LTZ and TIMESTAMP_NTZ variations. Users can set the default timestamp type as `TIMESTAMP_LTZ`(default value) or `TIMESTAMP_NTZ` via the configuration `spark.sql.timestampType`.
+
+- And many more ...
+
+
+
+
+
+
+
+
+
+### Spark SQL Functions
+
+
+
+
+
 <u>Scalar and Aggregate functions</u>
 
 https://spark.apache.org/docs/latest/sql-ref-functions.html
@@ -855,25 +921,63 @@ You can also define your own functions
 
 
 
+<u>Scalar functions</u>
 
+```python
+import pyspark.sql.functions as f
+```
 
-Scalar functions
-
-`.columns`: Return the column names in the DataFrame as a list of strings
-
-`.count()`: Return the # of rows in the DataFrame
-
-
-
+`.slice(x, start, length)`: `x` is Column or str, `start` is starting index, `length` is length of slice
 
 
 
 
 
+<u>Column functions</u>
 
-## PySpark
+`.cast(dataType)`: Cast column to another datatype
+
+```python
+# Example
+df.select(df.age.cast(StringType()).alias('ages')).collect()
+```
 
 
+
+
+
+<u>DataFrame functions</u>
+
+Type: DataFrame => DataFrame / Value
+
+`.columns`: Return columns of DataFrame
+
+`.join(other, on=None, how=None)`: Join with other dataframe 
+
+- on : str, list or Column
+- how : str (inner, left, right, outer, cross)
+
+`.fillna(value, subset=None)`: Fills NA values with `value`
+
+- subset : str, tuple or list (of column names to consider)
+
+`.count()`: Return # of rows in the dataframe
+
+`.distinct()`: Return output dataframe with distinct rows
+
+
+
+
+
+
+
+### Miscellaneous
+
+- You can create a DataFrame directly from a list of Rows
+
+```python
+pdf = pd.createDataFrame(df.head(10)).toPandas()
+```
 
 
 

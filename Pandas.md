@@ -533,7 +533,7 @@ def is_valid(condition):
     return any([x.startswith('DIAB1') for x in condition.split()])
 ```
 
-
+`.rename(columns)`: Rename column name (`columns` is mapping of old name => new name)
 
 
 
@@ -622,6 +622,16 @@ df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
 
 
 These functions take a series of dtype `string` and return a new series
+
+
+
+#### General functions
+
+`pandas.*`
+
+`.cut(x, bins, labels=True)`: `bins` is # of equal width bins to use. `x` is the series. This function will return a series of equal length, where each value points to the bin (`(lo, hi]`) the value belongs to. If `labels` is set to `False`, return integer ID of the bin instead.
+
+
 
 
 
