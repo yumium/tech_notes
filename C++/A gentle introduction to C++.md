@@ -21,6 +21,49 @@ Stack vs. Heap memory:
 
 
 
+
+
+Pointers and references
+
+```cpp
+// Pointer stores address of a value
+int* pointer = &gum;
+int* numPointer = new int(1000);
+
+// Reference is an alias for another object (they point to same address), modifying one shows same modification in the other
+int &sonny = songqiao;
+
+// Memory address
+// Use & operator to get the address of a variabel
+std:cout << &porcupine_count << "\n";
+
+// Dereference
+// Fetches value of a pointer
+int dereference = *pointer;
+
+// Pass by reference
+void swap_num(int &num1, int &num2) {
+    int temp;
+    // Store num1 in temp variable
+    temp = num1;
+    // Write value of num2 to num1
+    num1 = num2;
+    // Write temp variable to num2
+    num2 = temp;
+}
+// Here if we're passing by value, then the changes stay in the function stack and will not have side effect of swapping these two values
+```
+
+
+
+
+
+
+
+
+
+
+
 ## Basics of C++
 
 
