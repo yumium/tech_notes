@@ -1,4 +1,4 @@
-# dataApache Spark
+# Apache Spark
 
 Apache Spark is a unified analytics engine for large-scale data processing. It provides an interface for programming clusters (in Java, Scala, Python and R), with implicit *data parallelism* and *fault tolerance*.
 

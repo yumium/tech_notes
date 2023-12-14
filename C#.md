@@ -2,6 +2,12 @@
 
 
 
+
+
+### Introduction
+
+
+
 Why C# / Main language features:
 
 - Object-oriented, component-oriented
@@ -26,6 +32,7 @@ C# and .NET
 ```c#
 using System;
 
+/* A Hello World program to introduce the C# language */
 class Hello
 {
     static void Main()
@@ -44,35 +51,144 @@ class Hello
 
 
 
-```c#
-using System;
+### Types
 
-namespace HelloWorld
+C# has an extensive type system that defines the structure and behaviour of the underlying data.
+
+
+
+There are 2 kinds of types in C#:
+
+- Value types: Variable stores underlying value. Multiple variables store different copies of their own value.
+- Reference types: Variable stores reference to data in memory
+
+
+
+- Value types
+  - Simple types
+    - [Signed integral](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/integral-numeric-types): `sbyte`, `short`, `int`, `long`
+    - [Unsigned integral](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/integral-numeric-types): `byte`, `ushort`, `uint`, `ulong`
+    - [Unicode characters](https://learn.microsoft.com/en-us/dotnet/standard/base-types/character-encoding-introduction): `char`, which represents a UTF-16 code unit
+    - [IEEE binary floating-point](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/floating-point-numeric-types): `float`, `double`
+    - [High-precision decimal floating-point](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/floating-point-numeric-types): `decimal`
+    - Boolean: `bool`, which represents Boolean values—values that are either `true` or `false`
+  - Enum types
+    - User-defined types of the form `enum E {...}`. An `enum` type is a distinct type with named constants. Every `enum` type has an underlying type, which must be one of the eight integral types. The set of values of an `enum` type is the same as the set of values of the underlying type.
+  - Struct types => like classes but are value types (no heap allocation) and no inheritance
+    - User-defined types of the form `struct S {...}`
+  - Nullable value types => Represented by `<type>?`, e.g,, `int?`, `string?`
+    - Extensions of all other value types with a `null` value
+  - Tuple value types
+    - User-defined types of the form `(T1, T2, ...)`
+- Reference types
+  - Class types => contains data members and methods
+    - Ultimate base class of all other types: `object`
+    - [Unicode strings](https://learn.microsoft.com/en-us/dotnet/standard/base-types/character-encoding-introduction): `string`, which represents a sequence of UTF-16 code units
+    - User-defined types of the form `class C {...}`
+  - Interface types => implemented by `class` or `struct` types. A `class` or `struct` type may implement multiple interfaces
+    - User-defined types of the form `interface I {...}`
+  - Array types
+    - Single-dimensional, multi-dimensional, and jagged. For example: `int[]`, `int[,]`, and `int[][]`
+  - Delegate types => reference to methods so they are first class citizens (e.g., can be passed in as variables to functions)
+    - User-defined types of the form `delegate int D(...)`
+
+
+
+All types in C# inherit from `Object` based type. For a value type to become inherited from `Object`, we "box" them (the reverse is called "unbox"). Boxing simply means creating an instance of a reference type and putting the value into the box.
+
+```C#
+int i = 123;.
+object o = i;    // Boxing
+int j = (int)o;  // Unboxing
+```
+
+
+
+
+
+### Program Structure
+
+- Programs: 
+- Namespaces: Types and members
+- Types: Classes, structs, interfaces ...
+- Members: Fields, methods, properties, events ...
+- Assemblies: Compiled C# code, `.exe` for application implementation, `.dll` for library implementation
+
+
+
+```C#
+namespace Acme.Collections;
+
+// Fully qualifieid name of this class is `Acme.Collections.Stack`
+public class Stack<T>
 {
-  class Program
-  {
-    static void Main(string[] args)
+    // 4 members, a field, 2 methods, and a nested class
+    Entry _top;	// A field
+
+    public void Push(T data)	// A method
     {
-      Console.WriteLine("Hello World!");    
+        _top = new Entry(_top, data);
     }
-  }
+
+    public T Pop()	// A method
+    {
+        if (_top == null)
+        {
+            throw new InvalidOperationException();
+        }
+        T result = _top.Data;
+        _top = _top.Next;
+
+        return result;
+    }
+
+    class Entry	// A nested class
+    {
+        public Entry Next { get; set; }	// Property
+        public T Data { get; set; }		// Property
+
+        public Entry(Entry next, T data)	// Constructor
+        {
+            Next = next;
+            Data = data;
+        }
+    }
 }
 ```
 
 
 
+And another program that makes use of that class
 
-
-### Comments
-
-```c#
-// This is a comment
-Console.WriteLine("Hello World!");
-
-/* The code below will print the words Hello World
-to the screen, and it is amazing */
-Console.WriteLine("Hello World!"); 
+```C#
+class Example
+{
+    public static void Main()
+    {
+        var s = new Acme.Collections.Stack<int>();
+        s.Push(1);
+        s.Push(10);
+        s.Push(100);
+        Console.WriteLine(s.Pop());	// 100
+        Console.WriteLine(s.Pop());	// 10
+        Console.WriteLine(s.Pop());	// 1
+    }
+}
 ```
+
+
+
+When you compile this program, the needed libraries are linked together, and are free to reference each other. Because of this, there is no need for forward referencing. Conceptually it's as if all code is added to the same large file.
+
+
+
+
+
+
+
+
+
+
 
 
 
