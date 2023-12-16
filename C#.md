@@ -74,10 +74,11 @@ There are 2 kinds of types in C#:
     - Boolean: `bool`, which represents Boolean values—values that are either `true` or `false`
   - Enum types
     - User-defined types of the form `enum E {...}`. An `enum` type is a distinct type with named constants. Every `enum` type has an underlying type, which must be one of the eight integral types. The set of values of an `enum` type is the same as the set of values of the underlying type.
-  - Struct types => like classes but are value types (no heap allocation) and no inheritance
+  - Struct types => like classes but are value types (allocation on stack not heap) and no inheritance
     - User-defined types of the form `struct S {...}`
   - Nullable value types => Represented by `<type>?`, e.g,, `int?`, `string?`
     - Extensions of all other value types with a `null` value
+    - The underlying type `System.Nullable<T>`
   - Tuple value types
     - User-defined types of the form `(T1, T2, ...)`
 - Reference types
@@ -101,6 +102,22 @@ int i = 123;.
 object o = i;    // Boxing
 int j = (int)o;  // Unboxing
 ```
+
+
+
+
+
+Tuples
+
+```c#
+// You can define a named tuple
+(double Sum, int COunt) t2 = (4.5, 3);
+Console.WriteLine($"Sum of {t2.count} elements is {ts.Sum}.");
+```
+
+
+
+
 
 
 
@@ -301,6 +318,64 @@ Console.WriteLine(numbers[0, 0]); // Outputs 5 instead of 1
 
 
 
+#### Enums
+
+They are constant values with names that are compiled to the underlying integral values.
+
+```c#
+public enum SomeRootVegetable
+{
+    HorseRadish,
+    Radish,
+    Turnip
+}
+
+var turnip = SomeRootVegetable.Turnip;	// This is represented as an integer
+```
+
+
+
+You can define values that represent a specific set of values from the enum using bit flags
+
+```c#
+[Flags]
+public enum Seasons
+{
+    None = 0,
+    Summer = 1,
+    Autumn = 2,
+    Winter = 4,
+    Spring = 8,
+    All = Summmer | Autumn | Winter | Spring
+}
+
+var spring = Season.Spring;
+var startingOnEquinox = Seasons.Spring | Seasons.Autumn;
+var theYear = Seasons.All;
+```
+
+The underlying value is represented as a sequence of bits. Use values with no overlapping bits to avoid confusion.
+
+This allows the use of logical operators for calculating union (`OR`) and intersection (`AND`) of set of enums.
+
+
+
+If you explicitly cast `enum` type to an integral, it'll give you the underlying representation:
+
+```c#
+var theYear = (int)Seasons.All; 	// 15
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 ### Conditionals and Branching
@@ -430,6 +505,156 @@ static double PlusMethod(double x, double y)
 
 
 ### Classes and Objects
+
+Class header:
+
+- Attributes & modifiers of class
+- Name of class
+- Base class
+- Interfaces implemented by the class
+
+Classes can be instantiated with constructors. There are 2 kinds of constructors:
+
+- A *parameterless constructor*, which initializes all fields to their default value.
+- A *primary constructor*, which declares the required parameters for an instance of that type.
+
+Instances of class (objects) are created by the `new` keyword
+
+```C#
+public class Point
+{
+    public int X { get; }
+    public int Y { get; }
+    
+    public Point(int x, int y) => (X, Y) = (x, y);
+}
+```
+
+Invokation of `new` allocates memory for a new instance, invokes a constructor to initialize the instance, and returns a reference to the instance.
+
+When the reference is no longer reacheable, the memory is reclaimed. There is no facility for manual memory reclaiming in C#.
+
+
+
+**Generic class**
+
+A generic class define type parameters. 
+
+```c#
+public class Pair<TFirst, TSecond>
+{
+    public TFirst First { get; }
+    public TSecond Second { get; }
+    
+    public Pair(TFirst first, TSecond second) =>
+        (First, Second) = (first, second);
+}
+```
+
+When used, we must provide type arguments on instantiation.
+
+```c#
+var pair = new Pair<int, string>(1, "two");
+int i = pair.First;
+string s = pair.Second;
+```
+
+
+
+
+
+**Base class**
+
+A class can inherit from a base class, identified by the name after `:`
+
+```c#
+public class Point3D : Point
+{
+    public int Z { get; set; }
+     
+    public Point3D(int x, int y, int z) : base(x, y)
+    {
+        Z = z;
+    }
+}
+```
+
+Derived class contains all members of its base class. It can add new members but cannot remove inherited members.
+
+The superclass can be casted to its base class, where the type system simply restrict access to only inherited members
+
+```C#
+Point a = new Point(10, 20);
+Point b = new Point3D(10, 20, 30);
+```
+
+
+
+**Interfaces**
+
+Interface represents the contracts that implementations need to fulfil. Interfaces can inherit from interface(s)
+
+```c#
+interface IControl
+{
+    void Paint();
+}
+
+interface ITextBox : IControl
+{
+    void SetText(string text);
+}
+
+interface IListBox ; IControl
+{
+    void SetItems(string[] items);
+}
+
+interface IComboBox : ITextBox, IListBox { }
+
+interface IDataBound
+{
+    void Bind(Binder b);
+}
+```
+
+Classes can implement interface(s)
+
+```c#
+public class EditBox : IControl, IDataBound
+{
+    public void Paint() { }
+    public void Bind(Binder b) { }
+}
+```
+
+Similar to base classes, objects can be casted to an interface the class implement, which will again restrict the type system to only allow methods in that interface's contract
+
+```c#
+EditBox editBox = new EditBox();
+IControl control = editBox;
+IDataBound dataBound = editBox;
+```
+
+
+
+
+
+$$: What to do when there are clashes (e.g., with names) amonst the classes inherited?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```c#
 class Car 
