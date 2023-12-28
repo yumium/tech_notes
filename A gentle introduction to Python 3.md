@@ -24,6 +24,7 @@ Python is:
 Stuff to learn in the future:
 
 - Type hints
+- Logging module, how does it work
 
 
 
@@ -2691,11 +2692,47 @@ if __name__ == '__main__':
 
 
 
+### textwrap
+
+`textwrap.wrap(text, width=70)`: Maps a string into a list of strings, where each item is no longer than `width` characters long
+
+
+
+### difflib
+
+Library for checking text differences, like `gitdiff` and `vimdiff`
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+## Useful libraries
+
+### pyinstaller
+
+Compiles python programs into binary executables on Windows `.exe` file
+
+```shell
+python -m pyinstaller "app.py" --add-data "FreeSans.ttf;." --onefile --exclude numpy --exclude mkl
+```
+
+
+
+
+
+### colorama
+
+ANSI escape character sequences for colours
 
 
 

@@ -495,7 +495,22 @@ air_quality = pd.merge(air_quality, air_quality_parameters,
 
 `.droplevel(level, axis=0)`: Name or level index to drop for MultiIndex, `axis` at 0 is for row index and 1 for column 
 
+`.drop(columns=[], ...)`: Drop columns, rows ...
+
+`.rename(column={'A': 'a', 'B': 'b'}, ...)`: Rename column and index labels
+
 `.fillna(x)` Fill NA values
+
+`.astype(dtype)`: Cast a pandas object to a specified type `dtype`
+
+```python
+df.astype('int32')	# cast all columns
+df['wordcount'] = df['wordcount'].astype('int32')	# cast a column and map back
+```
+
+
+
+
 
 ^^ Some of these methods/attributes also work on series
 
@@ -631,7 +646,7 @@ These functions take a series of dtype `string` and return a new series
 
 `.cut(x, bins, labels=True)`: `bins` is # of equal width bins to use. `x` is the series. This function will return a series of equal length, where each value points to the bin (`(lo, hi]`) the value belongs to. If `labels` is set to `False`, return integer ID of the bin instead.
 
-
+`.qcut(ser, q)` E.g. `pandas.qcut(articles['wordcount'], 10)` , returns new column where each cell is the decile of the `worcount` cell. Each decile contains exactly 10% of the rows in `articles`
 
 
 

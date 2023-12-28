@@ -851,6 +851,8 @@ results.show()
 from pyspark.sql.types import *
 ```
 
+
+
 ### Supported Data Types
 
 Spark SQL and DataFrames support the following data types:
@@ -929,6 +931,25 @@ import pyspark.sql.functions as f
 
 `.slice(x, start, length)`: `x` is Column or str, `start` is starting index, `length` is length of slice
 
+`.count(col)`: Aggregate function, returns the number of items in group
+
+`.when(condition, value)` => Column: Evaluates a list of conditions and returns one of multiple possible result expressions. If `otherwise` is not evoked, None is returned for unmatched columns
+
+```python
+from pyspark.sql.functions import when, otherwise
+articleReport = articleReport.withColumn('hasPrinted', when(articleReport['numPrinted'] == 0, 0).otherwise(1))
+```
+
+
+
+
+
+<u>Aggregate functions</u>
+
+`.first()`: Compute first of group values
+
+
+
 
 
 
@@ -965,6 +986,91 @@ Type: DataFrame => DataFrame / Value
 
 `.distinct()`: Return output dataframe with distinct rows
 
+`.withColumn(colName, col)`: Returns new DataFrame with new or replaced column `colName` with values `col`
+
+
+
+
+
+### UDFs and Pandas UDF
+
+UDFs allow users to define ordinary python functions that can be used like Spark functions to transform DataFrames.
+
+However, UDFs act on a row by row basis. Pandas UDF extends the functionality of allowing UDFs to be defined as type `pandas.Series -> pandas.Series` (or as type Scalar -> Scalar which will implicitly be executed in Series -> Series fashion).
+
+Using Pandas UDF allow the function to chunk multiple rows together into a series, and distribute that, instead of distributing individual rows. This means the worker nodes can utilize efficient vectorized implementations.
+
+Examples:
+
+```python
+from pyspark.sql.functions import udf, pandas_udf, PandasUDFType
+
+# Add one as UDF
+@udf('double')
+def plus_one(v):
+    return v + 1
+
+df.withColumn('v2', plus_one(df.v))
+
+# Add one as Pandas UDF
+@pandas_udf('double', PandasUDFType.SCALAR)
+def pandas_plus_one(v):
+    return v + 1
+
+df.withColumn('v2', pandas_plus_one(df.v))
+
+# Cumulative probability of value in distribution Norm(0,1)
+@pandas_udf('double')
+def cdf(v):
+    return pd.Series(stats.norm.cdf(v))
+
+df.withColumn('cumulative_probability', cdf(df.v))
+```
+
+With experiments, Pandas UDF version achieved 10x speed up for plus one, and 100x speed up for cumulative probability
+
+
+
+
+
+<u>Use cases</u>
+
+In Research, sometimes we have spike compute need to run sentiment analysis over text documents, using models such as FinBERT.
+
+It's generally better to batch documents together and feed into the model, to fully utilise all the cores as the forward pass uses mostly matrix operations which are parallelizable. This generally achieves a good speed up compared to feeding documents one at a time. On top of that, perhaps add a few parallel processes (though more wouldn't help due to resource contention).
+
+To scale this idea across a Spark cluster, we can define a Pandas UDF to batch documents together in a series, and inside the function we can turn it into a list and feed it into the model.
+
+```python
+@pandas_udf(returnType=DoubleType())
+def get_finbert_sentiment_udf(text):
+    sentiment_finbert = get_sentiment_pipeline()
+    results = sentiment_finbert(list(text))
+    return pd.Series(results)
+```
+
+Note, Spark will create as many instances of the model as there are cores. We want this for data pre/post processing, but want to limit to perhaps 2 parallel instances during model inference (to avoid resource contention). One easy way to do this is to use a locking mechanism to ensure only a certain # of processes can run concurrently.
+
+```python
+@pandas_udf(returnType=DoubleType())
+def get_finbert_sentiment_udf(text):
+    FINBERT_CONCURRENCY = 2
+    lock_number = random.randint(0, FINBERT_CONCURRENCY-1)
+    lock = FileLock(f"/app/tmp/finbert{lock_number}.lock")
+    with lock:
+        sentiment_finbert = get_sentiment_pipeline()
+        results = sentiment_finbert(list(text))
+        return pd.Series(results)
+```
+
+The `FileLock` literal in Python is fair.
+
+
+
+
+
+
+
 
 
 
@@ -978,6 +1084,10 @@ Type: DataFrame => DataFrame / Value
 ```python
 pdf = pd.createDataFrame(df.head(10)).toPandas()
 ```
+
+
+
+
 
 
 

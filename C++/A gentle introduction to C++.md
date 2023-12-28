@@ -19,6 +19,91 @@ Stack vs. Heap memory:
 
 
 
+Compiling C++ code using GCC (`g++`) 
+
+```
+Usage: g++.exe [options] file...
+Options:
+  -pass-exit-codes         Exit with highest error code from a phase.
+  --help                   Display this information.
+  --target-help            Display target specific command line options.
+  --help={common|optimizers|params|target|warnings|[^]{joined|separate|undocumented}}[,...].
+                           Display specific types of command line options.
+  (Use '-v --help' to display command line options of sub-processes).
+  --version                Display compiler version information.
+  -dumpspecs               Display all of the built in spec strings.
+  -dumpversion             Display the version of the compiler.
+  -dumpmachine             Display the compiler's target processor.
+  -print-search-dirs       Display the directories in the compiler's search path.
+  -print-libgcc-file-name  Display the name of the compiler's companion library.
+  -print-file-name=<lib>   Display the full path to library <lib>.
+  -print-prog-name=<prog>  Display the full path to compiler component <prog>.
+  -print-multiarch         Display the target's normalized GNU triplet, used as
+                           a component in the library path.
+  -print-multi-directory   Display the root directory for versions of libgcc.
+  -print-multi-lib         Display the mapping between command line options and
+                           multiple library search directories.
+  -print-multi-os-directory Display the relative path to OS libraries.
+  -print-sysroot           Display the target libraries directory.
+  -print-sysroot-headers-suffix Display the sysroot suffix used to find headers.
+  -Wa,<options>            Pass comma-separated <options> on to the assembler.
+  -Wp,<options>            Pass comma-separated <options> on to the preprocessor.
+  -Wl,<options>            Pass comma-separated <options> on to the linker.
+  -Xassembler <arg>        Pass <arg> on to the assembler.
+  -Xpreprocessor <arg>     Pass <arg> on to the preprocessor.
+  -Xlinker <arg>           Pass <arg> on to the linker.
+  -save-temps              Do not delete intermediate files.
+  -save-temps=<arg>        Do not delete intermediate files.
+  -no-canonical-prefixes   Do not canonicalize paths when building relative
+                           prefixes to other gcc components.
+  -pipe                    Use pipes rather than intermediate files.
+  -time                    Time the execution of each subprocess.
+  -specs=<file>            Override built-in specs with the contents of <file>.
+  -std=<standard>          Assume that the input sources are for <standard>.
+  --sysroot=<directory>    Use <directory> as the root directory for headers
+                           and libraries.
+  -B <directory>           Add <directory> to the compiler's search paths.
+  -v                       Display the programs invoked by the compiler.
+  -###                     Like -v but options quoted and commands not executed.
+  -E                       Preprocess only; do not compile, assemble or link.
+  -S                       Compile only; do not assemble or link.
+  -c                       Compile and assemble, but do not link.
+  -o <file>                Place the output into <file>.
+  -pie                     Create a position independent executable.
+  -shared                  Create a shared library.
+  -x <language>            Specify the language of the following input files.
+                           Permissible languages include: c c++ assembler none
+                           'none' means revert to the default behavior of
+                           guessing the language based on the file's extension.
+
+Options starting with -g, -f, -m, -O, -W, or --param are automatically
+ passed on to the various sub-processes invoked by g++.exe.  In order to pass
+ other options on to these processes the -W<letter> options must be used.
+```
+
+For most uses you can do:
+
+```shell
+gcc -std=c++11 main.cpp -o out
+```
+
+
+
+
+
+C++ standards:
+
+- C++ is standardized by the ISO. The standard outlines the syntax and semantics of each version of the C++ programming language.
+- This document specifies the form and establishes the interpretation of programs written in the C programming language.[1)](https://www.iso.org/obp/ui/#iso:std:iso-iec:9899:ed-4:v1:en:fn:1) It specifies
+  - — the representation of C programs;
+  - — the syntax and constraints of the C language;
+  - — the semantic rules for interpreting C programs;
+  - — the representation of input data to be processed by C programs;
+  - — the representation of output data produced by C programs;
+  - — the restrictions and limits imposed by a conforming implementation of C.
+  - https://www.iso.org/obp/ui/#iso:std:iso-iec:9899:ed-4:v1:en
+- Current status of standards: https://isocpp.org/std/status
+
 
 
 
@@ -60,6 +145,12 @@ void swap_num(int &num1, int &num2) {
 
 
 
+**Parking:**
+
+- Explore more about the compiler. What is linking? etc.
+
+
+
 
 
 
@@ -71,21 +162,26 @@ void swap_num(int &num1, int &num2) {
 ### Program structure
 
 ```c++
-// My first program in C++
-#include <iostream>
+#include <iostream>	// instructors preprocessor to include a section of standard C++ code, known as `header iostream`
 
+/* This functions prints `Hello World` to the standard output */
 int main()
 {
-	std::cout << "Hello World!";
-    std::cout << "Welcome to C++!"
+	std::cout << "Hello World!";	// C++ statement
 }
 ```
 
 - `main` is the entry point of the program
 
-To compile, go to VSCode and press Ctrl+Shift+B to execute builder, and choose our compiler G++. A corresponding `.exe` file representing the binary code will be shown.
+C++ does not care about indentation or new lines (apart from preprocessor directives which must be in their own lines). The above program could have equally been written as
 
-The `lst..` part links the compiler to the standard library
+```c++
+#include <iostream>
+
+int main() { std::cout << "Hello World!"; }
+```
+
+
 
 You can also use the namespace `std`
 
@@ -97,17 +193,32 @@ using namespace std;
 int main()
 {
 	cout << "Hello World!";
-    cout << "Welcome to C++!";
 }
 ```
+
+- `cout` is the unqualified name
+- `std::cout` is the qualified name (`cout` is a function inside the standard library `std`)
+
+- If you use the namespace `std` with the `using` keyword, you can call names inside `std` in an unqualified manner
+- Note, using qualified name is the easiest way to avoid introducing name collisions
+
+
+
+
 
 
 
 ### Variables and types
 
-Identifiers: sequence of letters, digits and _. Must begin with letter
+Identifiers: sequence of letters, digits or underscore characters (`_`). Must begin with letter
 
 Reserved keywords: bool, break, delete, do ...
+
+C++ is a case sensitive language, so variable `DELAY_TIME` and `delay_time` are not the same.
+
+
+
+Fundamental data types
 
 | Group                    | Type names*                  | Notes on size / precision                          |
 | ------------------------ | ---------------------------- | -------------------------------------------------- |
@@ -129,17 +240,31 @@ Reserved keywords: bool, break, delete, do ...
 |                          | **double**                   | Precision not less than `float`                    |
 |                          | **long double**              | Precision not less than `double`                   |
 | Boolean type             | **bool**                     |                                                    |
-| Void type                | **void**                     | no storage                                         |
-| Null pointer             | **decltype(nullptr)**        |                                                    |
+| Void type                | **void**                     | no storage, lack of type                           |
+| Null pointer             | **decltype(nullptr)**        | A special type of pointer                          |
 
-Sizes of these types may change across machines.
+A C++ program does not need to know where the data is stored, it can reference the data using the variable name. It does, however, need to know the underlying type of variables.
 
-Type declarations
+Note, for type names the italic parts can be omitted. (`signed long int` can be abbreviated as `long`)
+
+Note, for different types within the same group, only the size is different, the other properties are the same. And for size, only the minimum size is given. The compiler is freely able to choose the actual size based on the target machine.
+
+
+
+If you don't care much about precision or memory usage, then `char`, `int` and `double` is all you need.
+
+
+
+
+
+**Variable declarations**
 
 ```c++
 int a;
 float mynumber;
 ```
+
+C++ is strongly typed, every variable must have its type explicitly defined before first use. This tells the compiler the memory needed to be reserved for the variable and how to interpret its value.
 
 If variables have the same type, they can be declared on the same line
 
@@ -155,53 +280,64 @@ int a (3);  // constructor initialisation
 int a {3};  // uniform initialisation
 ```
 
-You can let the compiler deduce the type for you using `auto` and `decltype` keywords, though this probably reduces readability and hence should not be used extensively.
+You can let the compiler deduce the type for you using `auto` and `decltype` keywords (use the same type as something else), though this probably reduces readability and hence should not be used extensively.
+
+```c++
+int foo = 0;
+auto bar = foo;  // the same as: int bar = foo;
+deltype(foo) baz;  // the same as: int baz;
+```
+
+
+
+
 
 
 
 ### Constants
 
-Literals
+**Literals**
 
 ```c++
-// Integer
-a = 5;
+// Integer Numerals
+a = 75;
 a = -273
-    
-// Other base
-a = 0113; // octal
-a = 0x46; // hexadecimal
+a = 0113; // octal, digits preceded with 0
+a = 0x4b; // hexadecimal, digits preceded with 0x
 
-// Adding type information
-75         // int
+75         // int (adding type information)
 75u        // unsigned int
 75l        // long
 75ul       // unsigned long 
 75lu       // unsigned long 
     
-// Floats
+// Floating Point Numerals
 f = 3.14159;
-f = 6.02e23;
+f = 6.02e23;  // Scientific notation
+f = 1.6e-19;
+f = 3.0
 
-// Adding type information
-3.14159L;  // long double
+3.14159L;  // long double (adding type information)
 6.02e23f;  // float
 
 // Character and string literals
-s = 'z';
-s = "Hello World!";
+s = 'z';  // A character
+s = "Hello World!";  // A string
+s = "string expressed in \
+two lines"  // This is equivalent to the string below
+s = "string expressed in two lines" 
 
-// boolean
+// Boolean Literals
 bool foo = true;
 bool bar = false;
 
-// pointer
+// Null Pointer Literals
 int* p = nullptr;
 ```
 
 
 
-**Escapes**
+**Escapes for special characters**
 
 | Escape code | Description           |
 | ----------- | --------------------- |
@@ -219,45 +355,42 @@ int* p = nullptr;
 
 
 
-Line-continuation
+**Typed constant expressions**
+
+Sometimes it's convenient to give a constant a name, instead of writing out that constant everywhere
 
 ```c++
-string s = "String expressed in "\
-"two lines";
+#include <iostream>
+using namespace std;
+
+const double pi = 3.14159;
+const char newline = '\n';
+
+int main ()
+{
+    double r=5.0;
+    double circle;
+    
+    circle = 2 * pi * r;
+    cout << circle;
+    cout << newline;
+}
 ```
 
 
 
-Raw string
+**Preprocessor definitions**
 
-```c++
-string s = R"(string with \backslash)"
-```
-
-
-
-Strings
-
-```c++
-#include <string>
-
-string myString;
-myString = "Hello World!";
-cout << myString << endl;  // END Line character
-```
-
-
-
-Preprocessor definitions
+Preprocessor definitions are similar to typed constants, but the replacement is done in preprocessing stage. The identifier is replaced by the constant in a "blind" way, without type or syntax checking.
 
 ```c++
 #define PI 3.14159
 ...
-    
+
 circle = 2 * PI * r;
 ```
 
-The replacement is done by the preprocessor before compilation starts, causing a "blind" replacement.
+
 
 
 
@@ -320,7 +453,7 @@ Comma operator
 Expressions are evaluated from left to right, but only right most is considered for output
 
 ```c++
-int res = (b = 3, b -= 1, ++b); // res = 3
+int res = (b = 3, b += 1, ++b); // res = 5
 ```
 
 
@@ -357,7 +490,40 @@ y = sizeof (x);	   // depends on the type of x
 
 
 
-Check the precise precedence and associativity here: https://www.cplusplus.com/doc/tutorial/operators/
+Operator precedence (highest to lowest priority)
+
+| Level        | Precedence group             | Operator                           | Description                      | Grouping      |
+| :----------- | :--------------------------- | :--------------------------------- | :------------------------------- | :------------ |
+| 1            | Scope                        | `::`                               | scope qualifier                  | Left-to-right |
+| 2            | Postfix (unary)              | `++ --`                            | postfix increment / decrement    | Left-to-right |
+| `()`         | functional forms             |                                    |                                  |               |
+| `[]`         | subscript                    |                                    |                                  |               |
+| `. ->`       | member access                |                                    |                                  |               |
+| 3            | Prefix (unary)               | `++ --`                            | prefix increment / decrement     | Right-to-left |
+| `~ !`        | bitwise NOT / logical NOT    |                                    |                                  |               |
+| `+ -`        | unary prefix                 |                                    |                                  |               |
+| `& *`        | reference / dereference      |                                    |                                  |               |
+| `new delete` | allocation / deallocation    |                                    |                                  |               |
+| `sizeof`     | parameter pack               |                                    |                                  |               |
+| `(*type*)`   | C-style type-casting         |                                    |                                  |               |
+| 4            | Pointer-to-member            | `.* ->*`                           | access pointer                   | Left-to-right |
+| 5            | Arithmetic: scaling          | `* / %`                            | multiply, divide, modulo         | Left-to-right |
+| 6            | Arithmetic: addition         | `+ -`                              | addition, subtraction            | Left-to-right |
+| 7            | Bitwise shift                | `<< >>`                            | shift left, shift right          | Left-to-right |
+| 8            | Relational                   | `< > <= >=`                        | comparison operators             | Left-to-right |
+| 9            | Equality                     | `== !=`                            | equality / inequality            | Left-to-right |
+| 10           | And                          | `&`                                | bitwise AND                      | Left-to-right |
+| 11           | Exclusive or                 | `^`                                | bitwise XOR                      | Left-to-right |
+| 12           | Inclusive or                 | `|`                                | bitwise OR                       | Left-to-right |
+| 13           | Conjunction                  | `&&`                               | logical AND                      | Left-to-right |
+| 14           | Disjunction                  | `||`                               | logical OR                       | Left-to-right |
+| 15           | Assignment-level expressions | `= *= /= %= += -=>>= <<= &= ^= |=` | assignment / compound assignment | Right-to-left |
+| `?:`         | conditional operator         |                                    |                                  |               |
+| 16           | Sequencing                   | `,`                                | comma separator                  | Left-to-right |
+
+
+
+
 
 
 
@@ -386,6 +552,17 @@ cout << "The number is " << x << ".";  // This can be used like Python's f-strin
 
 
 
+`endl`
+
+```c++
+cout << "First sentence." << endl;
+cout << "Second sentence." << endl;
+```
+
+`endl` will produce a newline character, but also instructs the stream's buffer to be flushed. So use `\n` when just needing the newline character.
+
+
+
 **cin**
 
 ```c++
@@ -396,13 +573,30 @@ cin >> age;
 
 cin is rarely used as we usually need some good parsing of input data.
 
+If user inputs something that cannot be parsed as an `int` in this case, the extraction fails, and program will continue to run without setting `age`. This is generally not what we want.
+
 cin also checks for whitespace, new-line ... so it usually doesn't take in entire string but just first word. (use `getline` for this)
 
 
 
 **stringstream**
 
-(Read more on this)
+Converts a string into a stream, which exposes the data to be used using stream operators.
+
+```c++
+#include <sstream>
+using namespace std;
+
+string mystr = "1204";
+int myint;
+stringstream(mystr) >> myint;  // myint = 1204
+```
+
+
+
+
+
+
 
 
 
@@ -606,6 +800,10 @@ int even (int x)
 
 
 ## Compound data types
+
+
+
+### Strings!!!!
 
 
 
