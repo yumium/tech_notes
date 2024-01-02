@@ -9,6 +9,11 @@ import pandas as pd
 ```
 
 
+Parking:
+
+- Join vs Merge, apparently Join needs common column to be an index??
+
+
 
 ### DataFrame
 
