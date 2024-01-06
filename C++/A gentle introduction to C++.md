@@ -611,11 +611,11 @@ stringstream(mystr) >> myint;  // myint = 1204
 **if and else**
 
 ```c++
-// single statement in `if`
+// single line statement in `if`
 if (x == 100)
     cout << "x correct";
 
-// multiple statements in `if`
+// multiple line statement in `if`
 if (x == 100)
 {
     cout << "x correct";
@@ -639,7 +639,9 @@ else
 
 
 
-while
+
+
+**while**
 
 ```c++
 while (true) {
@@ -652,6 +654,8 @@ while (true) {
 
 
 
+
+
 **do-while**
 
 ```c++
@@ -660,7 +664,9 @@ do {
 } while (x < 10);
 ```
 
-Statement is executed before first evaluation of guard
+Statement is executed before first evaluation of guard. Useful when statement needs to execute at least once.
+
+
 
 
 
@@ -674,11 +680,51 @@ for (int i = 0; i < N; i++)
 }
 ```
 
-Range for strings
+Note, the 3 parts (initialization, condition, statement) are all optional
+
+- No initialization and no increase acts like a while loop
 
 ```c++
+for (;n<10;)
+```
+
+- No initialization only can be used when initialization is taken care of elsewhere
+
+```c++
+for (;n<10;n++)
+```
+
+- No condition is equivalent to `while (true) {}`
+
+```c++
+for (n=0;;n++)
+```
+
+You may want to execute multiple statements in each part. We can separate out the expressions with `,` to make up the simple expression 
+
+```c++
+for ( n=0, i=100 ; n!=i; n++, i-- )
+{
+    // blah (this is executed 50 times, if values of n and i are not altered in the loop)
+}
+```
+
+
+
+Range
+
+```c++
+// for ( declaration : range) statement;
 for (char c : str)
 ```
+
+Range commonly use the `auto` type declaration to declare the type
+
+```c++
+for (auto c : str)
+```
+
+
 
 
 
@@ -688,7 +734,44 @@ break: break out of enclosing loop
 
 continue: skip to next iteration
 
-goto: jumps to label. Used only is very low programming, not in high-level
+```c++
+int main ()
+{
+    for (int n=10; n>=0; n--)
+    {
+        if (0<n && n<=3)
+            continue;
+        if (n==0)
+        {
+            cout << "countdown aborted!";
+            break;
+        }
+        cout << n << ", ";
+    }
+}
+
+// 10, 9, 8, 7, 6, 5, 4, countdown aborted!
+```
+
+
+
+goto: jumps to label. Used only in very low programming, not in high-level. This statement ignores loops and does no stack unwinding, so is recommended to only be used in the same block, especially in the presence of local variables.
+
+```c++
+int main ()
+{
+    int n=10;
+mylabel:
+    cout << n << ", ";
+    n--;
+    if (n>0) goto mylabel;
+    cout << "liftoff!\n";
+}
+```
+
+Labels are created with the label name followed by colon
+
+
 
 
 
@@ -706,7 +789,14 @@ switch (x) {
 }
 ```
 
-Evaluates head and compare with constants top-down. It "falls through" with break statements.
+- Evaluates head and compare with constants top-down. 
+- Matches the first case and executes the code block. It "falls through" with break statements (will flow into default clause too)
+- Each `case` keyword must be followed by a constant expression, not variables. If you want ot use variables, use `if` statements
+- The `default` clause is executed (if it exists) when no case is matched
+
+
+
+
 
 
 
@@ -734,22 +824,29 @@ void main ()
 }
 
 // Pass by reference (default is by value). Do this for large values like strings or arrays
-void incr (int% a)
+void incr (int& a)
 {
-    a++;
+    a++;	// Do as you would as if it's a local variable
 }
 
-// Add `const` keyword to forbit value change
+// Add `const` keyword to qualify arguments as constant, so changes are forbidden
 void say (const string% s)
 {
     std::cout << s << end;
 }
+
+/*
+Pass by reference is considerably faster for larger data types, as it only copies the reference to the subroutine stack, not the entire value.
+Though pass by reference introduces the possibility of side effects, so we can use the `const` qualifier as displayed earlier.
+Pass by reference for smaller datatypes like `int` can actually worsen performance, as each access needs 2 cycles (fetch address, then fetch value) instead of 1 cycle (fetch value from stack)
+*/
 
 // Inline functions (insert code in function instead of doing calling by adding new stackframe)
 inline string concat (const string& a, const string& b)
 {
     return a+b;
 }
+// Most compilers will inline functions where it sees a performance improvement. So the `inline` keyword simply indicates to the compiler that inserting this function as inline is preferred. Though the compiler change choose not to inline it.
 
 // Default values
 int divide (int a, int b=2)
@@ -791,11 +888,268 @@ int even (int x)
 
 
 
-### *Overloads and templates
+Protofunctions are necessary for functions which are mutually exclusive, as you cannot define one without the other
+
+```c++
+int odd(int);
+
+int even(int x)
+{
+    if (x==0)
+        return true;
+    else
+        return odd(x-1);
+}
+
+int odd(int x)
+{
+    if (x==0)
+        return false;
+    else
+        return even(x-1);
+}
+```
 
 
 
-### *Name visibility
+
+
+
+
+### Overloads and templates
+
+```c++
+// overloading functions
+#include <iostream>
+using namespace std;
+
+int operate (int a, int b)
+{
+  return (a*b);
+}
+
+double operate (double a, double b)
+{
+  return (a/b);
+}
+
+int main ()
+{
+  int x=5,y=2;
+  double n=5.0,m=2.0;
+  cout << operate (x,y) << '\n';
+  cout << operate (n,m) << '\n';
+  return 0;
+}
+```
+
+Different functions with the same but different parameter types / # of parameters are overloaded. The correct subroutine will be called base on the argument types.
+
+
+
+Function templates => polymorphic functions
+
+```c++
+template <typename T>	// Can also write `template <class T>`, there is no difference
+T sum (T a, T b)
+{
+    return a+b;
+}
+```
+
+The generic typename can be used anywhere in the function (return type, declaring new variables with that type)
+
+You can call polymorphic functions by supplying it with the actual type
+
+```c++
+x = sum<int>(10,20);
+```
+
+When the type is defined, the function is equivalent to:
+
+```c++
+int sum (int a, int b)
+{
+	return a+b;
+}
+```
+
+Syntax for multiple `typename`s
+
+```c++
+// function templates
+#include <iostream>
+using namespace std;
+
+template <class T, class U>
+bool are_equal (T a, U b)
+{
+  return (a==b);
+}
+
+int main ()
+{
+  if (are_equal<int,double>(10,10.0))
+    cout << "x and y are equal\n";
+  else
+    cout << "x and y are not equal\n";
+  return 0;
+}
+```
+
+
+
+
+
+```C++
+// template arguments
+#include <iostream>
+using namespace std;
+
+template <class T, int N>
+T fixed_multiply (T val)
+{
+  return val * N;
+}
+
+int main() {
+  std::cout << fixed_multiply<int,2>(10) << '\n';
+  std::cout << fixed_multiply<int,3>(10) << '\n';
+}
+```
+
+The types of call to `fixed_multiply` is determined at compile time.
+
+
+
+
+
+
+
+### Name visibility
+
+- Global scope: Variables accessible everywhere in code
+- Block scope: Variables inside blocks (called local variables), accessible inside the block (included blocks nested inside it)
+
+Names within the same scope cannot conflict
+
+
+
+You can define namespaces
+
+```c++
+namespace foo
+{
+	int value() { return 5; }
+}
+
+namespace bar
+{
+    const double pi = 3.1416;
+    double value() { return 2*pi; }
+}
+```
+
+You access variables inside namespaces by qualifying the variable with the namespace name and `::`
+
+```c++
+int main()
+{
+    cout << foo::value() << "\n";
+    cout << bar::value() << "\n";
+	cout << bar::pi << "\n";
+  	return 0;
+}
+```
+
+You can define the same namespace in different parts of the code
+
+```c++
+namespace foo { int a; }
+namespace bar { int b; }
+namespace foo { int c; }
+```
+
+
+
+
+
+With `using` keyword, you import all variable names inside the namespace into the current scope (global or block, depending on where it is declared). You no longer need to use the namespace qualifier.
+
+```c++
+// using namespace example
+#include <iostream>
+using namespace std;
+
+namespace first
+{
+  int x = 5;
+}
+
+namespace second
+{
+  double x = 3.1416;
+}
+
+int main () {
+  {
+    using namespace first;
+    cout << x << '\n';
+  }
+  {
+    using namespace second;
+    cout << x << '\n';
+  }
+  return 0;
+}
+```
+
+
+
+
+
+Namespace aliasing
+
+```c++
+namespace new_name = current_name;
+```
+
+
+
+
+
+Storage and namespaces
+
+- Global and namespace variables are allocated static storage. They are initialized to zeroes
+- Variables inside blocks (local variables) are allocated automated storage. They are no initialized.
+
+```c++
+// static vs automatic storage
+#include <iostream>
+using namespace std;
+
+int x;
+
+int main ()
+{
+  int y;
+  cout << x << '\n';
+  cout << y << '\n';
+  return 0;
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -815,9 +1169,12 @@ int foo [5];
 
 // Initializing arrays
 int foo [5] = { 1, 2, 3, 4, 5 };
+int foo [5] = { 1, 2, 3 }	// Creates array [1,2,3,0,0]
+int foo [5] = { }	// Creates array [0,0,0,0,0]
 
 // Can also omit size when initializing
 int foo [] = { 1, 2, 3, 4, 5 };
+int foo [] { 1, 2, 3, 4, 5 };	// Universal init, no need for `=`
 
 // Accessing
 x = foo[2];
@@ -825,28 +1182,96 @@ x = foo[2];
 // Multidimensional arrays
 int mat [5][5];
 
-// Multidimentional arrays is an abstraction for the programmer, as same index can be achieved by multiplying the indices
+// Multidimentional arrays is an abstraction for the programmer, as same index can be achieved by multiplying the indices (specifically, mat[n][m] is at n*WIDTH+m)
 cout << mat[3][5] == mat[15] << endl;
 
 // Arrays can only be passed by reference in C++
-int sum (int a[])
+void print (int a[], int length)
 {
-   	// ...
+	for (int n=0; n<length; n++)
+        cout << a[n] << ' ';
+    cout << '\n';
+}
+
+// Arrays passed in can be multidimensional
+void print (int a[][2], int length)
+{
+    for (int n=0; n<length; n++)
+        cout << a[n][0] << ' ';
+    	cout << a[n][1] << '\n';
+}
+
+/*
+So when passing a multidimensional array as argument, we "lose" a dimension.
+
+Consider a unidimensional array (int a[])
+___, ___, ___, ___, ___, ___, ...
+^ ptr
+Knowing the pointer address and size of each cell (deduced from type), we can get to any position in the array
+
+For a 2-dimensional array (int a[][3])
+ptr -> 	___, ___, ___,
+		___, ___, ___,
+		___, ___, ___,
+		...
+We are given the width of the array, then knowing also the pointer address and size of each cell (deduced from type), we can get to any position in this 2-dimensional array.
+
+This generalises to all dimensions
+*/
+```
+
+
+
+Library arrays
+
+An alternative array type as a standard container. Some improvements over standard arrays inherited from C is that library arrays can be copied, and only decay into pointers when explicitly told to do so.
+
+```c++
+#include <array>
+int main()
+{
+    array<int,3> myarray { 10, 20, 30 };
+    
+    for (int i=0, i=myarray.size(); i++)
+        myarray[i]++;
+    
+    for (int elem : myarray)
+        cout << elem << '\n';
+    
+    return 0;
 }
 ```
+
+
+
+
+
+
 
 
 
 ### Character sequences
 
 ```c++
-// A string can also just be presented explicitly as an array of characters. Don't forget the null character at the end
+// A string can also just be presented explicitly as an array of characters. Don't forget the null character at the end. Null charcter indicates end of a string, by convention.
 char myword [] = { 'H', 'e', 'l', 'l', 'o', '\0' };
 
 // We can also initialize with a string literal, which appends the null character automatically
 char yourword [] = "Hello";
 
-// In C++, people use both the C-strings (the char array representation) and string types. Methods on strings are usually overloaded to deal with both. 
+// Reassigning to `yourword` will no be valid
+yourword = "World";	// Invalid
+
+// `yourword` is an array, assignment must be made cell by cell
+myword[0] = 'W';
+myword[1] = 'o';
+myword[2] = 'r';
+myword[3] = 'l';
+myword[4] = 'd';
+
+// In C++, people use both the C-strings (the char array representation) and string types. 
+// C-strings are created when using character arrays explicitly or using the string literal `""`
+// Methods on strings are usually overloaded to deal with both. 
 ```
 
 
@@ -867,8 +1292,7 @@ baz = *myvar;
 int * number;  // A pointer `number` pointing to a (usually 32-bit) integer
 // Types are needed to know what kind of data the uniform size addresses are storing
 
-
-// Becareful in multiple declaration
+// Be careful in multiple declaration
 int * p1, p2; // This declares pointer p1 and int p2
 int * p1, * p2; // This declares both as pointers
 
@@ -929,7 +1353,258 @@ int operation (int x, int y, int (*functocall)(int,int))
 }
 // This is one of the ways to pass functions as arguments. Other ways include using the <function> template or using lambda functions
 
+```
 
+
+
+
+
+
+
+### Dynamic memory
+
+Some cases memory cannot be determined before program execution, such as in cases where memory depends on user input.
+
+
+
+**New operator: allocate memory**
+
+```c++
+int * foo;
+foo = new int [5];	// Allocate space for 5 integers
+
+int * bar;
+bar = new int;	// Allocates space for an integer
+
+cout << foo[0];
+cout << foo[1];
+cout << *foo;
+cout << *(foo+1);
+// etc.
+```
+
+The biggest difference between allocating memory with `new` and arrays is that for `new`, the size of array does not need to be determined at compile time, ie. it doesn't need to be a constant expression.
+
+Of course, memory allocation will not always be successful. There are 2 ways C++ can deal with this:
+
+- By default, a `bad_alloc` exception is thrown
+- If you declare `foo = new (nothrow) int [5];`, then if memory allocation fails it will return `nullptr`. Using the exception is more efficient, as it avoids null check every time.
+
+
+
+**Delete operator**
+
+```c++
+delete[] foo;
+delete bar;
+```
+
+Deallocates memory for the pointer. If `nullptr` is provided, there will be no effects.
+
+
+
+
+
+### Data structures
+
+A data structure is a group of data element together under one name.
+
+```c++
+struct product {
+    // members of the struct
+    int weight;
+    double price;
+    char[] name;
+} apple;
+
+product banana, melon;
+
+apple.weight = 100;
+apple.price = 0.9;
+apple.name = "apple";
+
+cout << apple.price;
+```
+
+
+
+You can create pointer to `struct`
+
+```c++
+product * pprod;
+pprod = &apple;
+cout << pprod->price;	// This dereferences the struct then returns the member. This operation is used as it's one cycle in machine language
+```
+
+| Expression | What is evaluated                            | Equivalent |
+| :--------- | :------------------------------------------- | :--------- |
+| `a.b`      | Member `b` of object `a`                     |            |
+| `a->b`     | Member `b` of object pointed to by `a`       | `(*a).b`   |
+| `*a.b`     | Value pointed to by member `b` of object `a` | `*(a.b)`   |
+
+
+
+`struct` can be nested, and members referenced by chaining `.`
+
+```c++
+struct movies_t {
+    string title;
+    int year;
+}
+
+struct friends_t {
+    string name;
+    string email;
+    movies_t favorite_movie;
+} charlie, maria;
+
+// initialisation ...
+
+cout << charlie.favorite_movie.year;
+```
+
+
+
+
+
+### Other data types
+
+
+
+**Type aliases**
+
+```c++
+// typedef existing_type new_type_name
+typedef char C;
+typedef unsigned int WORD;
+typedef char * pChar;
+typedef char field [50];
+
+C mychar, anotherchar;
+WORD myword;
+...
+```
+
+This simply gives another name for the type.
+
+Another semantically equivalent syntax is to use the `using` keyword
+
+```c++
+using C = char;
+using WORD = unsigned int;
+using pChar = char *;
+using field = char [50];
+```
+
+One use of type aliases is to have a easy way to switch, say between `int` and `long`, by just changing the alias declaration, instead of changing it every in the code.
+
+
+
+
+
+**Unions**
+
+Syntactically like `struct`, but all members occupy the same space.
+
+```c++
+union mytypes_t {
+    char c;
+    int i;
+    float f;
+} mytypes;
+```
+
+They all occupy the same underlying 4-byte long memory. When you access  `mytypes.char` and `mytypes.f`, they cast the underlying memory to the respective types. Changing one member affects the other members, as the underlying memory changed.
+
+
+
+```c++
+// A slightly more interesting example
+union mix_t {
+    int l;	// 4 bytes
+    struct {
+        short hi;	// 2 bytes
+        short lo;	// 2 bytes
+    } s;
+    char c[4];	// 4 bytes
+} mix;
+```
+
+Of course, the actual machine representation of these types can vary across machine types, so this introduces potential portability issues.
+
+
+
+
+
+**Anonymous unions**
+
+You can define union inside a `struct` and not giving it a name, which omits the union name during use.
+
+```C++
+struct book1_t {
+    char title[50];
+    char author[50];
+    union {
+        float dollars;
+        int yen;
+    } price;
+} book1;
+
+struct book2_t {
+    char title[50];
+    char author[50];
+    union {
+        float dollars;
+        int yen;
+    };
+} book2;
+
+// initialisation ...
+
+cout << book1.price.dollars;
+cout << book2.dollars;
+```
+
+
+
+
+
+**Enumerated types (enum)**
+
+A list of values what can be passed around and compared. These values are implicitly converted to `int` underlying
+
+```c++
+enum colors_t { black, blue, green, cyan, red, purple, yellow, white };
+
+colors_t mycolor = blue;
+if (mycolor != green)
+    cout << "CORRECT!\n";
+```
+
+By default, members are assigned integers from 0, then 1, 2, and so on ... But you can specify the actual value some of the member take. If a member is not specified a value, it's taken as the value of the previous member + 1
+
+```c++
+enum months_t { january=1, february, march, april,
+                may, june, july, august,
+                september, october, november, december} y2k;
+```
+
+
+
+
+
+**Enumerated types with enum class**
+
+You can create enum types that have more type safety (you can't compare directly a member with an integer)
+
+```c++
+enum class Colors { blue, green }
+
+mycolor = Colors::blue;
+if (mycolor != Colors::green)
+    cout << "CORRECT!\n";
+
+enum class EyeColor : char { blue, green, brown };	// Specify the underlying representation type
 ```
 
 
@@ -940,15 +1615,7 @@ int operation (int x, int y, int (*functocall)(int,int))
 
 
 
-### *Dynamic memory
 
-
-
-### *Data structures
-
-
-
-### *Other data types
 
 
 
