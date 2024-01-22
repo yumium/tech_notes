@@ -2082,6 +2082,179 @@ describe("Multiple spies, when created manually", function() {
 
 
 
+
+
+## Routing and navigation
+
+In a single page app, you change what your user sees without needing to hit the server again.
+
+Angular `Router` enables navigation by interpreting a browser URL as an instruction to change the view.
+
+This essentially gives the experience of going to a different URL but without needing to hit the server, giving the performance boost.
+
+
+
+**Defining a basic route**
+
+Import `Routes` and add to your `routes` array
+
+```typescript
+import { Routes } from '@angular/router';
+
+export const routes: Routes = [
+    { path: 'first-component', component: FirstComponent },
+    { path: 'second-component', component: SecondComponent },
+    { path: '', redirectTo: '/first-component', pathMatch: 'full'},	// redirects to `first-component`
+    { path: '**', component: PageNotFoundComponent }	// Wildcard route for a 404 page
+];
+```
+
+Each element in `routes` array have 2 properties, `component` which is the Angular component to display, and `path` which is the path that can trigger the component.
+
+You can also add optional property `title` for the title of the page
+
+The order of elements in `routes` matter, as the framework will display the component associated with the first path that matches the current route.
+
+You can add routes to your application say by using the `anchor` element, with `route-outlet` element as placeholder for where to display the component.
+
+```html
+<h1>Angular Router App</h1>
+<nav>
+	<ul>
+        <li><a routerLink="/first-component" routerLinkActive="active" ariaCurrentWhenActive="page">First Component</a></li>
+		<li><a routerLink="/second-component" routerLinkActive="active" ariaCurrentWhenActive="page">Second Component</a></li>
+    </ul>
+</nav>
+
+<!-- The routed views render in the <router-outlet>-->
+<router-outlet></router-outlet
+```
+
+
+
+
+
+**Relative paths**
+
+If you want to go from `FirstComponent` to `Second Component` but they are at the same level, you can use the form `../` to indicate going back a level
+
+```html
+<h2>First Component</h2>
+
+<nav>
+  <ul>
+    <li><a routerLink="../second-component">Relative Route to second component</a></li>
+  </ul>
+</nav>
+<router-outlet></router-outlet>
+```
+
+You can also use
+
+```typescript
+goToItems() {
+  this.router.navigate(['items'], { relativeTo: this.route });
+}
+```
+
+
+
+
+
+**Parameters and fragments**
+
+Getting parameters from the URL
+
+```typescript
+hero$: Observable<Hero>;
+
+constructor(
+  private route: ActivatedRoute,
+  private router: Router  ) {}
+
+ngOnInit() {
+  const heroId = this.route.snapshot.paramMap.get('id');
+  this.hero$ = this.service.getHero(heroId);
+}
+
+gotoItems(hero: Hero) {
+  const heroId = hero ? hero.id : null;
+  // Pass along the hero id if available
+  // so that the HeroList component can select that item.
+  this.router.navigate(['/heroes', { id: heroId }]);
+}
+```
+
+```
+foo://example.com:8042/over/there?name=ferret#nose
+\_/   \______________/\_________/ \_________/ \__/
+ |           |            |            |        |
+scheme    authority      path        query   fragment
+```
+
+
+
+
+
+**Location strategy**
+
+When Router goes to a new component, it updates the URL and the new URL goes into the browser history. There are a few location strategies that specify how the URL changes.
+
+HTML5 pushState
+
+```
+localhost:3002/crisis-center
+```
+
+Hash location strategy
+
+```
+localhost:3002/src/#/crisis-center
+```
+
+
+
+
+
+**Lazy loading**
+
+Specify so Angular only loads routes as needed, not all at application launch.
+
+
+
+
+
+**Preventing unauthorized access**
+
+Use route guards to prevent users from navigating to parts of an application without authorization. The following route guards are available in Angular:
+
+- [`canActivate`](https://angular.io/api/router/CanActivateFn)
+- [`canActivateChild`](https://angular.io/api/router/CanActivateChildFn)
+- [`canDeactivate`](https://angular.io/api/router/CanDeactivateFn)
+- [`canMatch`](https://angular.io/api/router/CanMatchFn)
+- [`resolve`](https://angular.io/api/router/ResolveFn)
+- [`canLoad`](https://angular.io/api/router/CanLoadFn)
+
+Put these guards in the objects of `routes` array.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Further learning
 
 
@@ -2093,7 +2266,6 @@ Questions on Angular:
 - When you log in, how does the     security token work?
 - How do pages store     information when you navigate them?
 - What Angular version are you     using?
-- How do routers work?
 
 
 
