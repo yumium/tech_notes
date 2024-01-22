@@ -3398,7 +3398,7 @@ int main () {
 
 
 
-## Preprocessor directives *
+## Preprocessor directives
 
 These directives starts with `#` and is for the preprocessor.
 
@@ -3669,7 +3669,255 @@ int main()
 
 
 
-## File I/O *
+## File I/O
+
+
+
+C++ directives for file i/o
+
+- `ofstream`: Stream class to write on files
+- `ifstream`: Stream class to read from files
+- `fstream`: Stream class to both read and write from/to files.
+
+These classes are all derived from `istream` and `ostream`.
+
+
+
+
+
+**Opening a file**
+
+A opened file is represented within a program by a *stream*. Then all operations will be done on the physical file via the stream.
+
+```c++
+open (filename, mode);
+```
+
+Modes:
+
+| `ios::in`     | Open for input operations.                                   |
+| ------------- | ------------------------------------------------------------ |
+| `ios::out`    | Open for output operations.                                  |
+| `ios::binary` | Open in binary mode.                                         |
+| `ios::ate`    | Set the initial position at the end of the file. If this flag is not set, the initial position is the beginning of the file. |
+| `ios::app`    | All output operations are performed at the end of the file, appending the content to the current content of the file. |
+| `ios::trunc`  | If the file is opened for output operations and it already existed, its previous content is deleted and replaced by the new one. |
+
+You can merge modes together with bitwise OR `|`
+
+`ofstream` always have `ios::out` enabled, same with `ifstream` for `ios::in`.
+
+`fstream` has default mode `ios::in | ios::out`, but will not include them automatically when a mode is provided.
+
+
+
+`binary` mode means operations are performed without consideration for file format.
+
+
+
+```c++
+if (file.is_open()) { /* ok, proceed with output */ }
+```
+
+
+
+
+
+**Closing a file**
+
+```c++
+file.close();
+```
+
+Close the stream object (flushes to associate buffers).
+
+Once this member function is called, the stream object can be re-used to open another file.
+
+
+
+
+
+**Text files**
+
+Text file streams are when `ios::binary` flag is not included. Values of I/O go through some formatting transformations before going to the binary raw file.
+
+```c++
+// writing on a text file
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+int main () {
+  ofstream myfile ("example.txt");
+  if (myfile.is_open())
+  {
+    myfile << "This is a line.\n";
+    myfile << "This is another line.\n";
+    myfile.close();
+  }
+  else cout << "Unable to open file";
+  return 0;
+}
+```
+
+```c++
+// reading a text file
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+int main () {
+  string line;
+  ifstream myfile ("example.txt");
+  if (myfile.is_open())
+  {
+    while ( getline (myfile,line) )
+    {
+      cout << line << '\n';
+    }
+    myfile.close();
+  }
+
+  else cout << "Unable to open file"; 
+
+  return 0;
+}
+```
+
+
+
+
+
+**Checking state flags**
+
+
+
+`bad()`: `true` if R/W failes
+
+`fail()`: `true` when `bad` returns `true`, but also when there are format errors
+
+`eof()`: `true` if a file opens for reading has reached the end
+
+`good()`: `false` only if any of the previous functions return `true`
+
+
+
+These state flags are set after each operations done on the stream. `clear()` can be used to reset the state flags.
+
+
+
+
+
+**get and put stream positioning**
+
+`ifstream` keeps an internal *get position*
+
+`ofstream` keeps an internal *put position*
+
+`fstream` keeps both *get position* and *put position*
+
+
+
+`tellg()` and `tellp()` gives the get and put position
+
+`seekg()` and `seekp()` sets the get and put position. The functions are overloaded:
+
+```c++
+// Absolute position (# of bytes from beginning of file)
+seekg ( position );
+seekp ( position );
+
+// Relative position
+seekg ( offset, direction );
+seekp ( offset, direction );
+```
+
+direction is an enumerated type of the following possible values
+
+| `ios::beg` | offset counted from the beginning of the stream |
+| ---------- | ----------------------------------------------- |
+| `ios::cur` | offset counted from the current position        |
+| `ios::end` | offset counted from the end of the stream       |
+
+offset is # of bytes.
+
+
+
+Example
+
+```c++
+// obtaining file size
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+int main () {
+  streampos begin,end;
+  ifstream myfile ("example.bin", ios::binary);
+  begin = myfile.tellg();
+  myfile.seekg (0, ios::end);
+  end = myfile.tellg();
+  myfile.close();
+  cout << "size is: " << (end-begin) << " bytes.\n";
+  return 0;
+}
+```
+
+
+
+
+
+**Binary files**
+
+When doing I/O on binary files, we don't need `<<`, `>>`, or `getline`, as they are not as efficient. We use `write` and `read` instead
+
+```c++
+write ( memory_block, size );
+read ( memory_block, size );
+```
+
+`memory_block` is of type `char *`, representing the start of the buffer to read from, or copy from (for write). `size` is # of characters to be read or written from/to the memory block.
+
+
+
+```c++
+// reading an entire binary file
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+int main () {
+  streampos size;
+  char * memblock;
+
+  ifstream file ("example.bin", ios::in|ios::binary|ios::ate);
+  if (file.is_open())
+  {
+    size = file.tellg();
+    memblock = new char [size];
+    file.seekg (0, ios::beg);
+    file.read (memblock, size);
+    file.close();f
+
+    cout << "the entire file content is in memory";
+
+    delete[] memblock;
+  }
+  else cout << "Unable to open file";
+  return 0;
+}
+```
+
+
+
+
+
+**Buffers and Synchronization**
+
+
+
+
 
 
 
