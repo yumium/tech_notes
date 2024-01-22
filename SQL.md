@@ -840,6 +840,34 @@ WHERE
 
 
 
+Can you unit test an SQL query?
+
+- This is a weird question as an SQL query is not like code. It's more like a simple declarative statement on what needs to be done, rather than imperative
+- So to check SQL queries, it's more about making sure it's the correct intent (e.g., is the JOIN done correctly? Did you need to add DISTINCT?)
+  And performance tuning it
+
+
+
+Use SQL Stored Procedure or LINQ Query like in the language C#?
+
+- Stored procedures are directly on the DB, whereas LINQ needs to compile to SQL first
+- With SQL you get much better control (e.g., for performance)
+- And changing SQL is easy, you don't need to recompile the entire C# application
+- Also no need for unit testing with SQL
+- Overall SQL is preferred, unless you are incapable of writing SQL statements
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### Database design
 
 <u>Step 1: Handle ambiguity</u>
