@@ -1623,7 +1623,7 @@ enum class EyeColor : char { blue, green, brown };	// Specify the underlying rep
 
 
 
-### Class (1/2)
+### Class I
 
 Structure of class
 
@@ -1637,26 +1637,36 @@ class class_name {
 } object_name;
 ```
 
+Classes = A collection of members. Like Struct, but also have function members + access specifiers.
+
+
+
 Access specifier:
 
 - private: accessible only from within class or other members of same class (called "friends")
-- protected: accessible to same class or derived class
-- public: accessible from anywhere
+- protected: accessible from members of same class or derived class
+- public: accessible from anywhere the object is visible.
 
 An example class
 
 ```c++
 class Rectangle {
     	int width, height;  // first methods without access specifier are set to `private` by default
+    
     public:
     	void set_values (int w, int h) {
             width = w;
             height = h;
         }
+    
     	int area () {
             return width*height;
         }
 }
+
+Rectangel rect;
+rect.set_values(3,4);
+cout << rect.area(); 	// 12
 ```
 
 You can also define class methods outside of class using the scope operator (::)
@@ -1677,6 +1687,10 @@ void Rectangle::set_values (int w, int h) {
 }
 ```
 
+Functions defined directly inside the class are automatically marked as inline functions, while functions defined later outside of the class are marked as not inline.
+
+
+
 
 
 Constructor function
@@ -1684,8 +1698,10 @@ Constructor function
 ```c++
 class Rectangle {
     int width, height;
+    
   public:
     Rectangle (int,int); // Constructor function must have the same name as class
+    
     int area () {return (width*height);}
 };
 
@@ -1705,11 +1721,142 @@ int main () {
 
 
 
+Overloading constructors
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Rectangle {
+    	int width, height;
+	
+    public:
+    	Rectangle ();
+    	Rectangle (int, int);
+		int area (void) { return (width*height); }
+};
+
+Rectangle::Rectangle () {	// The default constructor, used when no parameters are applied during object instantiation
+    width = 5;
+    height = 5;
+}
+
+Rectangle::Rectangle (int a, int b) {
+    width = a;
+    height = b;
+}
+
+int main () {
+	Rectangle rect (3,4);
+    Rectangle rect;
+    cout << "rect area: " << rect.area() << endl;
+    cout << "rectb area: " << rect.area() << endl;
+    return 0;
+}
+```
+
+
+
+Uniform initialisation
+
+These are semantically equivalent ways to instantiate an object
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Circle {
+    	double radius;
+    
+    public:
+    	Circle(double r) { radius = r; }
+    	double circum () { return 2*radius*3.14159265; }
+};
+
+int main () {
+	Circle foo (10.0);		// functional form
+    Circle bar = 10.0;		// assignment init.
+    Circle baz {10.0};		// uniform init.
+    Circle qux = {10.0};	// POD-like init. (uniform with `=`)
+}
+```
+
+One possible advantage of the uniform initialization syntax is that they make the call to constructors explicit:
+
+```c++
+Rectangle rect;		// default constructor called, but not obvious
+Rectangle rectb();	// function declaration (a function that returns a Rectangle)
+Rectangle rectc{};	// default constructor called
+```
+
+Syntax choice is largely personal preference on style.
 
 
 
 
-To be continued ...
+
+Member initialization in constructors
+
+We can abbreviate the member initialization part of the constructor
+
+```c++
+class Rectangle {
+    	int width, height;
+    
+	public:
+    	Rectangle(int,int);
+    	int area () { return width*height; }
+};
+
+Rectangle::Rectangle (int x, int y) : width(x), height(y) { }	// No other statements apart from initialization, so nothing between curly brackets
+```
+
+For class members that are not initiated in the constructor, if they are fundamental types (int, char ...) they are left uninitialized, if they are class types they need to be initialized in the constructors.
+
+```c++ 
+#include <iostream>
+using namespace std;
+
+class Circle {
+    double radius;
+  public:
+    Circle(double r) : radius(r) { }
+    double area() {return radius*radius*3.14159265;}
+};
+
+class Cylinder {
+    Circle base;
+    double height;
+  public:
+    Cylinder(double r, double h) : base (r), height(h) {} 	// Here we call constructor of `Circle` to initialize `base`
+    double volume() {return base.area() * height;}
+};
+
+int main () {
+  Cylinder foo (10,20);
+
+  cout << "foo's volume: " << foo.volume() << '\n';
+  return 0;
+}
+```
+
+
+
+
+
+Pointer to class
+
+Of course, you can create a pointer to an object of a class
+
+```c++
+Rectangle * prect;
+```
+
+Then, to access members of that object, use the `->` operator
+
+```c++
+cout << prect->area() << '\n';
+```
 
 
 
@@ -1721,5 +1868,1808 @@ To be continued ...
 
 
 
-### Classes (2/2)
+
+
+### Class II
+
+**Overloading operators**
+
+Operators can also be overloaded to support, say expressions like `a + b` where a and b are objects of the same type.
+
+The syntax for defining overloading operators as a member function of the class is:
+
+```
+type operator symbol (prameters) { /* ... body ... */ }
+```
+
+Example:
+
+```c++
+#include <iostream>
+using namespace std;
+
+class CVector {
+  public:
+    int x,y;
+    CVector () {};
+    CVector (int a,int b) : x(a), y(b) {}
+    CVector operator + (const CVector&);
+};
+
+// Member function
+CVector CVector::operator+ (const CVector& param) {
+  CVector temp;
+  temp.x = x + param.x;
+  temp.y = y + param.y;
+  return temp;
+}
+
+int main () {
+  CVector foo (3,1);
+  CVector bar (1,2);
+  CVector result;
+  result = foo + bar;
+  cout << result.x << ',' << result.y << '\n';
+  return 0;
+}
+```
+
+The below two are equivalent
+
+```c++
+c = a + b;
+c = a.operator+ (b);
+```
+
+
+
+Note, some overloaded operators can be defined as non-member function (a regular function that doesn't belong to a class)
+
+```c++
+#include <iostream>
+using namespace std;
+
+class CVector {
+  public:
+    int x,y;
+    CVector () {}
+    CVector (int a, int b) : x(a), y(b) {}
+};
+
+// Non-member function
+CVector operator+ (const CVector& lhs, const CVector& rhs) {
+  CVector temp;
+  temp.x = lhs.x + rhs.x;
+  temp.y = lhs.y + rhs.y;
+  return temp;
+}
+
+int main () {
+  CVector foo (3,1);
+  CVector bar (1,2);
+  CVector result;
+  result = foo + bar;
+  cout << result.x << ',' << result.y << '\n';
+  return 0;
+}
+```
+
+
+
+Parameters for different operators to be overloaded
+
+| Expression  | Operator                                        | Member function         | Non-member function |
+| :---------- | :---------------------------------------------- | :---------------------- | :------------------ |
+| `@a`        | `+ - * & ! ~ ++ --`                             | `A::operator@()`        | `operator@(A)`      |
+| `a@`        | `++ --`                                         | `A::operator@(int)`     | `operator@(A,int)`  |
+| `a@b`       | `+ - * / % ^ & | < > == != <= >= << >> && || ,` | `A::operator@(B)`       | `operator@(A,B)`    |
+| `a@b`       | `= += -= *= /= %= ^= &= |= <<= >>= []`          | `A::operator@(B)`       | -                   |
+| `a(b,c...)` | `()`                                            | `A::operator()(B,C...)` | -                   |
+| `a->b`      | `->`                                            | `A::operator->()`       | -                   |
+| `(TYPE) a`  | `TYPE`                                          | `A::operator TYPE()`    | -                   |
+
+
+
+
+
+
+
+**The keyword `this`**
+
+The `this` keyword inside the member function returns a reference to the object itself.
+
+One use can be for checking whether a parameter is the object itself
+
+```c++
+class Dummy {
+    public:
+    	bool isitme (&Dummy param) {
+            return (&param == this);
+        }
+}
+
+bool Dummy::isitme (Dummy& param)
+{
+    return (&param == this);
+};
+
+int main () {
+    Dummy a;
+    Dummy* b = &a;
+    if ( b->isitme(a))
+        cout << "yes, &a is b\n";
+   	return 0;
+}
+```
+
+Another use is for a binary operator to return a reference to one of its objects
+
+```c++
+CVector& CVector::operator= (CVector other)
+{
+   	x = other.x;
+    y = other.y;
+	return *this;
+}
+```
+
+
+
+
+
+
+
+**Static members**
+
+Static variables are like non-member variables but require qualifying by class (or object)
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Dummy {
+    public:
+    	static int n;
+    	Dummy () { n++; }
+};
+
+int Dummy::n=0;
+
+int main ()
+{
+    Dummy a;
+    Dummy b[5];
+    cout << a.n << '\n';		// 6
+    Dummy* c = new Dummy;
+    cout << Dummy::n << '\n';	// 7
+    delete c;
+    return 0;
+}
+```
+
+Static functions are the same but for functons.
+
+
+
+
+
+
+
+**Const member functions**
+
+Const data members => immutable and read-only variable
+
+Const function members => no modifications to nonstatic data members, or call nonconst member functions (no change in state)
+
+```c++
+int get() const { return x; }	// const member function
+const int& get() { return x; }	// member function returning a const&
+const int& get() const { return x; }	// const function returning a const&
+```
+
+^^ Don't confuse const function with const parameters as introduced earlier. These 2 are independent.
+
+
+
+Const objects =>
+
+- Access to data members outside class is read-only
+- Access to function members are restricted to const functions only
+- So essentially as if all data members are treated as `const` and only function that can be called are one that don't modify the state
+
+
+
+One use of const objects is when using an object as a parameter to a function
+
+```c++
+#include <iostream>
+using namespace std;
+
+class MyClass {
+    	int x;
+    public:
+    	MyClass(int val) : x(val) { }
+    	const int& get() const { return x; }
+};
+
+void print (const MyClass& arg)	// Here, all data members as const and only const functions accessible
+{
+    cout << arg.get() << '\n';
+};
+
+int main ()
+{
+	MyClass foo (10);
+    print(foo);
+    
+    return 0;
+}
+```
+
+
+
+Note, the constructor can still modify `const` data members, and is the only function that can do so.
+
+
+
+
+
+
+
+**Class templates**
+
+Like function templates, class templates allow creation of objects that are polymorphic.
+
+```c++
+template <class T>
+class myPair {
+    	T values [2];
+  	public:
+    	myPair (T first, T second)
+        {
+            values[0] = first;
+            values[1] = second;
+        }
+};
+```
+
+We use similar syntax to instantiate new objects
+
+```c++
+mypair<int> myobject (115, 36);
+mypair<double> myobject (3.0, 2.18);
+```
+
+
+
+If we are defining function members outside the class, we need the template header
+
+```c++
+// class definition ...
+
+template <class T>
+T mypair<T>::getmax ()
+{
+    return a >= b ? a : b;
+}
+```
+
+
+
+
+
+
+
+**Template specialization**
+
+If we want to define additional function members when certain types are used, we can specialize a template
+
+```c++
+#include <iostream>
+using namespace std;
+
+template <class T>
+class MyContainer {
+    	T myitem;
+   	public:
+ 		MyContainer (T item) : myitem(item) { }
+    	T increase () { return ++myitem; }
+};
+
+// template specialization
+template <>	// No additional type templates to declare
+class MyContainer <char> {
+    	char myitem;
+   	public:
+    	MyContainer (char item) : myitem(item) { }
+    	char uppercase () 
+        {
+            if ((myitem >= 'a') & (myitem <= 'z'))
+                myitem += 'A' - 'a';
+           	return myitem;
+        }
+};
+
+int main () {
+    MyContainer<int> myint (7);
+    MyContainer<char> mychar ('j');
+    cout << myint.increase() << endl;
+    cout << mychar.uppercase() << endl;
+    return 0;
+}
+```
+
+Again, compare the class signature syntax between template class and template specialization
+
+```c++
+template <class T> class MyContainer { ... };
+template <> class MyContainer <char> { ... };
+```
+
+
+
+
+
+
+
+
+
+### Special members
+
+| Member function                                              | typical form for class `C`: |
+| :----------------------------------------------------------- | :-------------------------- |
+| [Default constructor](https://cplusplus.com/doc/tutorial/classes2/#default_constructor) | `C::C();`                   |
+| [Destructor](https://cplusplus.com/doc/tutorial/classes2/#destructor) | `C::~C();`                  |
+| [Copy constructor](https://cplusplus.com/doc/tutorial/classes2/#copy_constructor) | `C::C (const C&);`          |
+| [Copy assignment](https://cplusplus.com/doc/tutorial/classes2/#copy_assignment) | `C& operator= (const C&);`  |
+| [Move constructor](https://cplusplus.com/doc/tutorial/classes2/#move) | `C::C (C&&);`               |
+| [Move assignment](https://cplusplus.com/doc/tutorial/classes2/#move) | `C& operator= (C&&);`       |
+
+
+
+**Default constructor**
+
+A default constructor is a constructor that doesn't take any parameters.
+
+If no constructors are defined, compiler writes the default constructor for you.
+
+If at least 1 constructor is defined, then the default constructor must be defined by the user as well, otherwise default construction (one without any parameters) is not allowed.
+
+
+
+
+
+**Destructor**
+
+For releasing resources and clean up after the object is destroyed.
+
+```c++
+#include <iostream>
+#include <string>
+using namespace std;
+
+class StringWrapper {
+    	string* ptr;
+    public:
+		StringWrapper () : ptr(new string) { }
+    	StringWrapper (const string& str) : ptr(new string(str)) { }
+    	// Destructor
+    	~StringWrapper () { delete ptr; }
+    
+    	const string& content () const { return *ptr; }
+};
+
+int main ()
+{
+	StringWrapper foo;
+    StringWrapper bar ("Example");
+   
+    cout << "bar's content: " << bar.content() << endl;
+    return 0;
+}
+
+// Destructors are called here, at end of life cycle of objects
+```
+
+
+
+
+
+**Copy constructor**
+
+When an object is instantiated with another object (of same type) as argument, copying is done.
+
+```c++
+MyClass foo ("Example");
+MyClass bar = foo;	// Copying `foo` to `bar`, this is same as MyClass bar (foo);
+```
+
+The copy constructor is defined with following signature
+
+```c++
+MyClass::MyClass (const MyClass&);
+```
+
+If no copy constructor is defined, the compiler creates a default one, which does shallow copying over all the members. This may not be what we want. If a member contains a pointer to a string, then modification of that string on obj1 will reflect on obj2, and vice versa. If we try to destroy both objects, they will try to deallocate the same memory, causing a runtime error.
+
+
+
+Instead we can define a copy constructor, perhaps performing deep copy.
+
+```c++
+#include <iostream>
+#include <string>
+using namespace std;
+
+class StringWrapper {
+    	string* ptr;
+    public:
+    	StringWrapper (const string& str) ptr(new string(str)) { }
+    	~StringWrapper () { delete ptr; }
+    	// Copy constructor
+    	StringWrapper (const StringWrapper& x) : ptr(new string(x.content())) {}
+    
+		const string& content () const { return *ptr; }
+};
+
+int main () 
+{
+    StringWrapper foo ("Example");
+    String bar = foo;
+    
+    cout << "bar's content: " << bar.content() << '\n';
+    return 0;
+}
+```
+
+
+
+
+
+**Copy assignment**
+
+When an object is assigned another object, the copy assignment constructor is called
+
+```c++
+MyClass foo ("Example");
+MyClass bar;
+bar = foo;
+```
+
+The copy assignment simply overloads `=` with argment `MyClass&`
+
+```c++
+MyClass& operator= (const MyClass&);
+```
+
+The default definition by compiler does shallow copy, but this doesn't always work. Say for the class in the previous example, if we shallow copy the new string address, the old string is not deleted, leading to a memory leak.
+
+```c++
+StringWrapper operator= (const StringWrapper& x)
+{
+	delete ptr;	// Free memory of previously defined string
+    ptr = new string (x.content());
+    return *this;
+}
+```
+
+Or even better, just re-utilize the same string object
+
+```c++
+StringWrapper& operator= (const StringWrapper& x)
+{
+	*ptr = x.content();
+    return *this;
+}
+```
+
+
+
+
+
+**Move constructor and assignment**
+
+Move is like a copy, but the original reference is destroyed. So there is rarely need to actually move data around, as the original reference will never be used.
+
+Move happens when data is assigned to a new variable from an unnamed object, examples of unnamed objects include return values of class constructor, return values of functions etc.
+
+```c++
+MyClass (MyClass&&);             // move-constructor
+MyClass& operator= (MyClass&&);  // move-assignment
+```
+
+As a parameter, an *rvalue reference* matches arguments of temporaries of this type.
+
+
+
+
+
+**Implicit members**
+
+Behaviors of defaults.
+
+| Member function                                              | implicitly defined:                                          | default definition: |
+| :----------------------------------------------------------- | :----------------------------------------------------------- | :------------------ |
+| [Default constructor](https://cplusplus.com/doc/tutorial/classes2/#default_constructor) | if no other constructors                                     | does nothing        |
+| [Destructor](https://cplusplus.com/doc/tutorial/classes2/#destructor) | if no destructor                                             | does nothing        |
+| [Copy constructor](https://cplusplus.com/doc/tutorial/classes2/#copy_constructor) | if no move constructor and no move assignment                | copies all members  |
+| [Copy assignment](https://cplusplus.com/doc/tutorial/classes2/#copy_assignment) | if no move constructor and no move assignment                | copies all members  |
+| [Move constructor](https://cplusplus.com/doc/tutorial/classes2/#move) | if no destructor, no copy constructor and no copy nor move assignment | moves all members   |
+| [Move assignment](https://cplusplus.com/doc/tutorial/classes2/#move) | if no destructor, no copy constructor and no copy nor move assignment | moves all members   |
+
+
+
+
+
+## Friendship and inheritance
+
+
+
+### Friend functions
+
+We can declare certain functions to have access to private and protected members of objects of certain classes.
+
+We give this access using the keyword `friend` in the class, preceding the function name
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Rectangle {
+    	int width, height;
+    
+    public:
+    	Rectangle() {}
+    	Rectangle (int x, int y) : width(x), height(y) {}
+    	int area() { return width*height; }
+    	friend Rectangle duplicate (const Rectangle&);
+};
+
+Rectangle duplicate (const Rectangle& param)
+{
+	Rectangle res = Rectangle(param.width, param.height);
+    return res;
+};
+
+int main ()
+{
+    Rectangle foo;
+    Rectangle bar (2,3);
+    foo = diuplicate(bar);
+    cout << foo.area() << '\n';
+    return 0;
+}
+```
+
+
+
+Note, this function `duplicate` is not a member of the class.
+
+Friend functions are commonly used when the function needs access to private and protected members of multiple classes (hence cannot be defined as a member)
+
+
+
+
+
+
+
+### Friend class
+
+A friend class of another class can access its private and protected members.
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Square;
+
+class Rectangle {
+    	int width, height
+
+	public:
+    	int area () { return width*height; }
+    	void convert (Square a);
+};
+
+class Square {
+    friend class Rectangle	// Rectangle can access private and protected members of Square
+	private:
+    	int side;
+    public:
+    	Square (int a) : side(a) {}
+};
+
+void Rectangle::convert (Square a)
+{
+    width = a.side;
+    height = a.side;
+}
+
+int main ()
+{
+	Rectangle rect;
+    Square sqr(4);
+    rect.convert(sqr);
+    cout << rect.area();
+    return 0;
+}
+```
+
+
+
+Note, friend relationship is no symmetric nor transitive.
+
+
+
+
+
+
+
+### Inheritance
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Polygon {
+    protected:
+    	int width, height
+	public:
+    	void set_values (int a, int b)
+        { width=a; height=b; }
+};
+
+class Rectangle: public Polygon {
+    public:
+    	int area ()
+        	{ return width*height / 2; }
+};
+
+class Triangle: public Polygon {
+    public
+}
+
+int main () {
+    Rectangle rect;
+    Triangle trgl;
+    rect.
+}
+```
+
+The access specifier in the inherited class definition means:
+
+- All members with more accessible levels are restricted to this level in the derived class
+- Other members (same or more restrictive access) keep their restrictive level in the derived class
+
+So using the `public` access specifier does not change the access levels of members in the base class.
+
+Default access specifier is `private` for classes and `public` for structs.
+
+Variables in `private` access specifier cannot be accessed in derived class. Variables in `protected` access specifier can be accessed in derived class.
+
+
+
+What is inherited?
+
+All members of base class apart from:
+
+- Its constructors and destructor
+- Its assignment operator members (operator=)
+- Its friends
+- Its private members
+
+Base class constructors are used by default in derived class unless specified otherwise.
+
+```c++
+derived_constructor_name (parameters) : base_constructor_name (parameters) {...}
+```
+
+Example:
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Mother {
+    public:
+    	Mother ()
+        	{ cout << "Mother: no parameters\n"; }
+    	Mother (int a)
+        	{ cout << "Mother: int parameter\n"; }
+};
+
+class Daughter : public Mother {
+    public:
+    	Daughter (int a)	// Base class default constructor called
+        	{ cout << "Daughter: int parameter\n"; }
+};
+
+class Son : public Mother {
+    public:
+    	Son (int a) : Mother (a)	// Base class constructor with int param called
+        	{ cout << "Son: int parameter\n"; }
+};
+
+int main () {
+    Daughter kelly(0);
+    Son bud(0);
+    
+    return 0;
+};
+
+/*
+cout:
+Mother: no parameters
+Daughter: int parameter
+
+Mother: int parameter
+Son: int parameter
+*/
+```
+
+
+
+If the derived class contains members with same name as base class, the member in derived class is used. To use the member in the base class, qualify the variable with `Base::member`
+
+```c++
+class A
+{
+    public:
+    	int x;
+};
+
+class B : public A
+{
+	public:
+    	int x;
+    	B ()
+        {
+            x = 0;
+            A::x = 1;
+		}
+    
+    	int get_base_x () { return A::x; }
+    	int get_derived_x () { return x; }
+};
+
+int main ()
+{
+	B obj;
+   	cout << obj.get_base_x() << '\n';		// 1
+    cout << obj.get_derived_x() << '\n';	// 0
+    return 0;
+};
+```
+
+
+
+Multiple inheritance (just put classes in comma separated list)
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Polygon {
+    protected:
+    	int width, height
+	public:
+    	Polygon (int a, int b) : width(a), height(b) {}
+};
+
+class Output {
+    public:
+    	static void print (int i);
+};
+
+void Output::print (int i) {
+    cout << i <<'\n';
+};
+
+class Rectangle: public Polygon, public Output {
+    public:
+    	Rectangle (int a, int b) : Polygon(a,b) {}
+    	int area ()
+        	{ return width*height; }
+};
+
+class Triangle: public Polygon, public Output {
+    public:
+    	Triangle (int a, int b) : Polygon(a,b) {}
+    	int area ()
+        	{ return width*height/2; }
+};
+
+int main () {
+    Rectangle rect (4,5);
+    Triangle trgl (4,5);
+    rect.print (rect.area());		// 20
+    Triangle::print (trgl.area());	// 10
+    return 0;
+}
+```
+
+This kind of works like mixins.
+
+
+
+
+
+
+
+
+
+## Polymorphism
+
+
+
+### Pointers to base class
+
+One key feature of class inheritance is that pointer to the derived class is type compatible to the pointer to the base class.
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Polygon {
+  protected:
+    int width, height;
+  public:
+    void set_values (int a, int b)
+      { width=a; height=b; }
+};
+
+class Rectangle: public Polygon {
+  public:
+    int area()
+      { return width*height; }
+};
+
+class Triangle: public Polygon {
+  public:
+    int area()
+      { return width*height/2; }
+};
+
+int main () {
+  Rectangle rect;
+  Triangle trgl;
+  Polygon * ppoly1 = &rect;
+  Polygon * ppoly2 = &trgl;
+  ppoly1->set_values (4,5);
+  ppoly2->set_values (4,5);
+  cout << rect.area() << '\n';	// 20
+  cout << trgl.area() << '\n';	// 10
+  return 0;
+}
+```
+
+Pointer to class of type `Polygon` can only access members of the base class `Polygon`. (here `set_values`, but not `area`)
+
+
+
+
+
+### Virtual members
+
+Virtual members allow certain functions in the base class to be overriden in the derived class. Unlike simply defining a function with the same name in the derived class, overriden functions can be access in pointer class when type casted to base class.
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Polygon {
+  protected:
+    int width, height;
+  public:
+    void set_values (int a, int b)
+      { width=a; height=b; }
+    virtual int area ()
+      { return 0; }
+};
+
+class Rectangle: public Polygon {
+  public:
+    int area ()
+      { return width * height; }
+};
+
+class Triangle: public Polygon {
+  public:
+    int area ()
+      { return (width * height / 2); }
+};
+
+int main () {
+  Rectangle rect;
+  Triangle trgl;
+  Polygon poly;
+  Polygon * ppoly1 = &rect;
+  Polygon * ppoly2 = &trgl;
+  Polygon * ppoly3 = &poly;
+  ppoly1->set_values (4,5);
+  ppoly2->set_values (4,5);
+  ppoly3->set_values (4,5);
+  cout << ppoly1->area() << '\n';	// 20
+  cout << ppoly2->area() << '\n';	// 10
+  cout << ppoly3->area() << '\n';	// 0
+  return 0;
+}
+```
+
+Note, previously `ppoly1->area()` is not allowed.
+
+A class that declares or inherits a virtual function is called a *polymorphic class*. Here all 3 classes are polymorphic.
+
+
+
+
+
+
+
+### Abstract base classes
+
+Abstract base classes contain at least one pure virtual function (a virtual function with no definition).
+
+Abstract base classes can only be used as a base class to inherit from. It cannot be instantiated directly.
+
+```c++
+#include <iostream>
+using namespace std;
+
+// Abstract base class
+class Polygon {
+    protected:
+    	int width, height;
+   	public:
+    	void set_values (int a, int b)
+        	{ width=a; height=b; }
+    	virtual int area() =0;	// declaring a pure virtual function with no definition
+};
+
+class Rectangle: public Polygon {
+  public:
+    int area (void)
+      { return (width * height); }
+};
+
+class Triangle: public Polygon {
+  public:
+    int area (void)
+      { return (width * height / 2); }
+};
+
+int main () {
+  Rectangle rect;
+  Triangle trgl;
+  Polygon * ppoly1 = &rect;
+  Polygon * ppoly2 = &trgl;
+  ppoly1->set_values (4,5);
+  ppoly2->set_values (4,5);
+  cout << ppoly1->area() << '\n';	// 20
+  cout << ppoly2->area() << '\n';	// 10
+  return 0;
+}
+```
+
+
+
+
+
+Apart from providing polymorphic information in OOP use cases, abstract base classes can also define functions that make use of future derived class implementations, with the `this` keyword.
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Polygon {
+  protected:
+    int width, height;
+  public:
+    void set_values (int a, int b)
+      { width=a; height=b; }
+    virtual int area() =0;
+    void printarea()
+      { cout << this->area() << '\n'; }
+};
+
+class Rectangle: public Polygon {
+  public:
+    int area (void)
+      { return (width * height); }
+};
+
+class Triangle: public Polygon {
+  public:
+    int area (void)
+      { return (width * height / 2); }
+};
+
+int main () {
+  Rectangle rect;
+  Triangle trgl;
+  Polygon * ppoly1 = &rect;
+  Polygon * ppoly2 = &trgl;
+  ppoly1->set_values (4,5);
+  ppoly2->set_values (4,5);
+  ppoly1->printarea();
+  ppoly2->printarea();
+  return 0;
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+## Type Conversions
+
+**Implicit conversions**
+
+Standard conversion (conversion between compatible types without explicit operator)
+
+```c++
+short a=2000;
+int b;
+b=a;
+```
+
+
+
+Some conversion rules of fundamental types
+
+- Smaller to larger types (strictly more representable values) is know as *promotion*. The exact value is retained (e.g., short => int, int => float, float => double)
+
+- Negative integer to unsigned type is the same bits from 2's compliment representation (e.g., -1 becomes the largest value of the unsigned type, -2 second largest)
+- `false` => zero in numeric types, `true` => one in numeric types
+- Floats => integer type, decimal part is removed. If the result is outside the range of the integer type, the conversion causes *undefined behavior*
+- Conversions between numeric types of the same kind (floating to floating, integer to integer), the conversion is implementation specific
+
+
+
+Some conversion rules for other types
+
+- Arrays and functions implicitly convert to pointers
+- Null pointers can be converted to pointers of any type
+- Pointers of any type can be converted to void pointers
+
+
+
+
+
+**Implicit conversions with classes**
+
+- Single-argument constructors: allow implicit conversion from a particular type to initialize an object.
+- Assignment operator: allow implicit conversion from a particular type on assignments.
+- Type-cast operator: allow implicit conversion to a particular type.
+
+
+
+```c++
+// implicit conversion of classes:
+#include <iostream>
+using namespace std;
+
+class A {};
+
+class B {
+public:
+  // conversion from A (constructor):
+  B (const A& x) {}
+  // conversion from A (assignment):
+  B& operator= (const A& x) {return *this;}
+  // conversion to A (type-cast operator)
+  operator A() {return A();}
+};
+
+int main ()
+{
+  A foo;
+  B bar = foo;    // calls constructor
+  bar = foo;      // calls assignment
+  foo = bar;      // calls type-cast operator
+  return 0;
+}
+```
+
+Notice the form of the `type-cast` operator. It's the `operator` keyword followed by destination type and empty parenthesis. No return type is stated as it is the destination type.
+
+
+
+
+
+**Keyword explicit**
+
+Normally, when a variable of type `A` is used as the argument for a function that takes a type `B`, implicit conversion is done between the types before the function is called. This may not always be what we want. Say in the case of implicit single-argument constructors in classes.
+
+
+
+We use the `explicit` keyword to make implicit conversion of argument parameters invalid.
+
+```c++
+#include <iostream>
+using namespace std;
+
+class A {};
+
+class B {
+public:
+  explicit B (const A& x) {}	// Adding the `explicit` keyword
+  B& operator= (const A& x) {return *this;}
+  operator A() {return A();}
+};
+
+void fn (B x) {}
+
+int main ()
+{
+  A foo;
+  B bar (foo);
+  bar = foo;
+  foo = bar;
+  
+//  fn (foo);  // not allowed for explicit ctor.
+  fn (bar);  
+
+  return 0;
+}
+```
+
+Additionally, constructors marked with `explicit` cannot be called with assignment-like syntax. (`B bar = foo`)
+
+`explicit` keyword before type-cast operators presents implicit conversions.
+
+
+
+Basically, `explicit` keyword makes sure the arguments need to be explicitly converted before being passed into the function.
+
+
+
+
+
+**Type casting**
+
+*Explicit* type conversion (as alluded earlier) have 2 syntaxes that can be used:
+
+```c++
+double x = 10.3;
+int y;
+y = int (x);    // functional notation
+y = (int) x;    // c-like cast notation
+```
+
+
+
+Note, the default behavior for explicit conversion between pointer types is simply swapping the pointer. 
+
+```c++
+// class type-casting
+#include <iostream>
+using namespace std;
+
+class Dummy {
+    double i,j;
+};
+
+class Addition {
+    int x,y;
+  public:
+    Addition (int a, int b) { x=a; y=b; }
+    int result() { return x+y;}
+};
+
+int main () {
+  Dummy d;
+  Addition * padd;
+  padd = (Addition*) &d;
+  cout << padd->result();
+  return 0;
+}
+```
+
+In this case, the variable `padd` of type `Addition *` simply holds the pointer to a `Dummy` type. This will cause runtime errors (e.g., `d` does not have members `x` or `y`)
+
+The following four specific casting operators control this behaviour.
+
+
+
+
+
+**dynamic_cast**
+
+`dynamic_cast` always include pointer **upcast** (converting from pointer-to-derived to pointer-to-base), in the same way as allowed as an **implicit conversion**.
+
+But `dynamic_cast` only allows pointer **downcast** (convert from pointer-to-base to pointer-to-derived) iff the pointed object is a valid, complete object of the target type. If the object is not a valid, complete object of the target type, a **null-pointer** is returned instead.
+
+```C++
+#include <iostream>
+#include <exception>
+using namespace std;
+
+class Base { virtual void dummy() {} };
+class Derived: public Base { int a; };
+
+int main () {
+  try {
+    Base * pba = new Derived;
+    Base * pbb = new Base;
+    Derived * pd;
+
+    // Valid, as pba has underlying complete object of `Derived`
+    pd = dynamic_cast<Derived*>(pba);
+    if (pd==0) cout << "Null pointer on first type-cast.\n";
+
+    // Invalid, as pbb is not a complete object of `Derived`
+    pd = dynamic_cast<Derived*>(pbb);
+    if (pd==0) cout << "Null pointer on second type-cast.\n";
+
+  } catch (exception& e) {cout << "Exception: " << e.what();}
+  return 0;
+}
+```
+
+Note here, `pba` has more information than `pbb` due to the type initialisation.
+
+
+
+
+
+**static_cast**
+
+Basically `dynamic_cast` but **downcasting** is not checked that the object is a valid, complete object of the target type. (up to programmer to check).
+
+The flip size is that there is now no overhead of checking this.
+
+
+
+
+
+**reinterpret_cast**
+
+Simply copies the exact pointer to the new class.
+
+For casting pointers to or from integer types, this is platform specific (not portable)
+
+
+
+```c++
+class A { /* ... */ };
+class B { /* ... */ };
+A * a = new A;
+B * b = reinterpret_cast<B*>(a)
+```
+
+This code compiles, although it does not make much sense, since now `b` points to an object of a totally unrelated and likely incompatible class. Dereferencing `b` is unsafe.
+
+
+
+
+
+**const_cast**
+
+Manipulate const-ness of the object to the other status (ie. either to be set, or to be removed). 
+
+Example, passing const object to function that doesn't expect a const argument
+
+```c++
+#include <iostream>
+using namespace std;
+
+void print (char * str)
+{
+  cout << str << '\n';
+}
+
+int main () {
+  const char * c = "sample text";
+  print ( const_cast<char *> (c) );
+  return 0;
+}
+```
+
+The example above is guaranteed to work because function `print` does not write to the pointed object. Note though, that removing the constness of a pointed object to actually write to it causes **undefined behavior**.
+
+
+
+
+
+**typeid**
+
+Return the type of an expression
+
+```c++
+typeid (expression)
+```
+
+
+
+You can compare the result with `==`
+
+
+
+```c++
+#include <iostream>
+#include <typeinfo>
+using namespace std;
+
+int main () {
+  int * a,b;
+  a=0; b=0;
+  if (typeid(a) != typeid(b))
+  {
+    cout << "a and b are of different types:\n";
+    cout << "a is: " << typeid(a).name() << '\n';
+    cout << "b is: " << typeid(b).name() << '\n';
+  }
+  return 0;
+}
+
+/*
+a and b are of different types:
+a is: int *
+b is: int  
+*/
+```
+
+
+
+When `typeid` is applied to an expression whose type is a polymorphic class, the result is the type of the most derived complete object.
+
+```c++
+#include <iostream>
+#include <typeinfo>
+#include <exception>
+using namespace std;
+
+class Base { virtual void f(){} };
+class Derived : public Base {};
+
+int main () {
+  try {
+    Base* a = new Base;
+    Base* b = new Derived;
+    cout << "a is: " << typeid(a).name() << '\n';
+    cout << "b is: " << typeid(b).name() << '\n';
+    cout << "*a is: " << typeid(*a).name() << '\n';
+    cout << "*b is: " << typeid(*b).name() << '\n';
+  } catch (exception& e) { cout << "Exception: " << e.what() << '\n'; }
+  return 0;
+}
+
+/*
+a is: class Base *
+b is: class Base *
+*a is: class Base
+*b is: class Derived
+*/
+```
+
+
+
+
+
+
+
+## Exceptions
+
+We wrap the code inside a `try` block so catch any exceptions.
+
+We can throw exception ourselves by using the `throw` keyword followed by a single argument.
+
+We can follow the `try` block with `catch` blocks, each taking one argument.
+
+Each `catch` block can take a different argument type, and only if the exception type matches the catch argument type would the statements inside `catch` execute.
+
+We can write `catch (...)` to indicate a catch all.
+
+```c++
+#include <iostream>
+using namespace std;
+
+int main () {
+  try
+  {
+    throw 20;
+  }
+  catch (int e)
+  {
+    cout << "An exception occurred. Exception Nr. " << e << '\n';
+  }
+  return 0;
+}
+```
+
+
+
+```c++
+catch (int param) { cout << "int exception"; }
+catch (char param) { cout << "char exception"; }
+catch (...) { cout << "default exception"; }
+```
+
+
+
+If we nest `try` blocks, we can actually forward an exception to the outer block's exception handler by using the `throw` keyword without arguments.
+
+```c++
+try {
+  try {
+	  throw 20;
+  }
+  catch (int n) {
+      throw;
+  }
+}
+catch (int n) {
+  cout << "Exception occurred: " << n << '\n';
+}
+
+/*
+Exception occurred: 20
+*/
+```
+
+
+
+
+
+**Standard exceptions**
+
+`std::exception` base class defined in the `<exception>` header. We can inherit from it and define a virtual function `what()` that have some description on the exception
+
+```c++
+#include <iostream>
+#include <exception>
+using namespace std;
+
+class myexception: public exception
+{
+  virtual const char* what() const throw()
+  {
+    return "My exception happened";
+  }
+} myex;
+
+int main () {
+  try
+  {
+    throw myex;
+  }
+  catch (exception& e)
+  {
+    cout << e.what() << '\n';
+  }
+  return 0;
+}
+```
+
+
+
+Some exceptions thrown by functions in the standard library
+
+| exception           | description                                              |
+| :------------------ | :------------------------------------------------------- |
+| `bad_alloc`         | thrown by `new` on allocation failure                    |
+| `bad_cast`          | thrown by `dynamic_cast` when it fails in a dynamic cast |
+| `bad_exception`     | thrown by certain dynamic exception specifiers           |
+| `bad_typeid`        | thrown by `typeid`                                       |
+| `bad_function_call` | thrown by empty `function` objects                       |
+| `bad_weak_ptr`      | thrown by `shared_ptr` when passed a bad `weak_ptr`      |
+
+Some other exceptions defined in the `<excaption>` header
+
+| exception       | description                                        |
+| :-------------- | :------------------------------------------------- |
+| `logic_error`   | error related to the internal logic of the program |
+| `runtime_error` | error detected during runtime                      |
+
+
+
+A typical example of checking for successful memory allocation.
+
+```c++
+#include <iostream>
+#include <exception>
+using namespace std;
+
+int main () {
+  try
+  {
+    int* myarray= new int[1000];
+  }
+  catch (exception& e)
+  {
+    cout << "Standard exception: " << e.what() << endl;
+  }
+  return 0;
+}
+```
+
+
+
+
+
+
+
+
+
+## Preprocessor directives *
+
+These directives starts with `#` and is for the preprocessor.
+
+The preprocessor examines the code and deals with all headers before compilation.
+
+
+
+**macro definitions (#define, #undef)**
+
+When the preprocessor encounters this directive, it replaces any occurrence of `identifier` in the rest of the code by `replacement`.
+
+```c++
+#define TABLE_SIZE 100
+int table1[TABLE_SIZE];
+int table2[TABLE_SIZE];
+```
+
+becomes
+
+```c++
+int table1[100];
+int table2[100];
+```
+
+
+
+You can also define functional macros, which replaces function name with expression on the right, alongside the correct arguments
+
+```c++
+#include <iostream>
+using namespace std;
+
+#define getmax(a,b) ((a)>(b)?(a):(b))
+
+int main()
+{
+  int x=5, y;
+  y= getmax(x,2);
+  cout << y << endl;
+  cout << getmax(7,x) << endl;
+  return 0;
+}
+```
+
+becomes
+
+```c++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+  int x=5, y;
+  y= ((x)>(2)?(x):(2));
+  cout << y << endl;
+  cout << ((7)>(x)?(7):(x)) << endl;
+  return 0;
+}
+```
+
+
+
+Defined macros are not affected by block structure. A macro lasts until it is undefined with the `#undef` preprocessor directive
+
+```c++
+#define TABLE_SIZE 100
+int table1[TABLE_SIZE];
+#undef TABLE_SIZE
+#define TABLE_SIZE 200
+int table2[TABLE_SIZE];
+```
+
+becomes
+
+```c++
+int table1[100];
+int table2[200];
+```
+
+
+
+`#` in the RHS replaces the argument with a string literal
+
+```c++
+#define str(x) #x
+cout << str(test);
+```
+
+becomes
+
+```c++
+cout << "test";
+```
+
+
+
+`##` on the RHS simply concatenates two arguments
+
+```c++
+#define glue(a,b) a ## b
+glue(c,out) << "test";
+```
+
+becomes
+
+```c++
+cout << "test";
+```
+
+
+
+Because preprocessor replacements happen before C++ syntax check, complex preprocessor replacements can make the code less readable.
+
+
+
+
+
+
+
+**Conditional inclusions (#ifdef, #ifndef, #if, #endif, #else, and #elif)**
+
+These directives allow to include or discard part of the code of a program if a certain condition is met.
+
+```c++
+// If defined
+#ifdef TABLE_SIZE
+int table[TABLE_SIZE];
+#endif  
+
+// If no defined
+#ifndef TABLE_SIZE
+#define TABLE_SIZE 100
+#endif
+int table[TABLE_SIZE];
+
+#if TABLE_SIZE>200
+#undef TABLE_SIZE
+#define TABLE_SIZE 200
+ 
+#elif TABLE_SIZE<50
+#undef TABLE_SIZE
+#define TABLE_SIZE 50
+ 
+#else
+#undef TABLE_SIZE
+#define TABLE_SIZE 100
+#endif
+ 
+int table[TABLE_SIZE];
+```
+
+
+
+The behavior of `#ifdef` and `#ifndef` can also be achieved by using the special operators `defined` and `!defined` respectively in any `#if` or `#elif` directive:
+
+```c++
+#if defined ARRAY_SIZE
+#define TABLE_SIZE ARRAY_SIZE
+#elif !defined BUFFER_SIZE
+#define TABLE_SIZE 128
+#else
+#define TABLE_SIZE BUFFER_SIZE
+#endif 
+```
+
+
+
+
+
+**Line control (#line)**
+
+Basically let us specify the line number and file name (e.g., when exceptions are thrown)
+
+```c++
+#line number "filename"
+```
+
+Example:
+
+```c++
+#line 20 "assigning variable"
+int a?;
+```
+
+Where `number` is the new line number that will be assigned to the next code line. `"filename"` is an optional parameter that allows to redefine the file name that will be shown.
+
+The following lines will increase line number by 1 incrementally.
+
+
+
+
+
+**Error directive (#error)**
+
+This directive aborts the compilation process when it is found, generating a compilation error that can be specified as its parameter
+
+```c++
+#ifndef __cplusplus
+#error A C++ compiler is required!
+#endif 
+```
+
+
+
+
+
+**Source file inclusion (#include)**
+
+When the preprocessor finds an `#include` directive it replaces it by the entire content of the specified header or file.
+
+```c++
+#include <header>
+#include "file" 
+```
+
+
+
+
+
+**Predefined macro names**
+
+The following macro names are always defined (they all begin and end with two underscore characters, `_`):
+
+| macro             | value                                                        |
+| :---------------- | :----------------------------------------------------------- |
+| `__LINE__`        | Integer value representing the current line in the source code file being compiled. |
+| `__FILE__`        | A string literal containing the presumed name of the source file being compiled. |
+| `__DATE__`        | A string literal in the form "Mmm dd yyyy" containing the date in which the compilation process began. |
+| `__TIME__`        | A string literal in the form "hh:mm:ss" containing the time at which the compilation process began. |
+| `__cplusplus`     | An integer value. All C++ compilers have this constant defined to some value. Its value depends on the version of the standard supported by the compiler: **`199711L`**: ISO C++ 1998/2003**`201103L`**: ISO C++ 2011Non conforming compilers define this constant as some value at most five digits long. Note that many compilers are not fully conforming and thus will have this constant defined as neither of the values above. |
+| `__STDC_HOSTED__` | `1` if the implementation is a *hosted implementation* (with all standard headers available) `0` otherwise. |
+
+The following macros are optionally defined, generally depending on whether a feature is available:
+
+| macro                              | value                                                        |
+| :--------------------------------- | :----------------------------------------------------------- |
+| `__STDC__`                         | In C: if defined to `1`, the implementation conforms to the C standard. In C++: Implementation defined. |
+| `__STDC_VERSION__`                 | In C: **`199401L`**: ISO C 1990, Ammendment 1**`199901L`**: ISO C 1999**`201112L`**: ISO C 2011In C++: Implementation defined. |
+| `__STDC_MB_MIGHT_NEQ_WC__`         | `1` if multibyte encoding might give a character a different value in character literals |
+| `__STDC_ISO_10646__`               | A value in the form `yyyymmL`, specifying the date of the Unicode standard followed by the encoding of `wchar_t` characters |
+| `__STDCPP_STRICT_POINTER_SAFETY__` | `1` if the implementation has *strict pointer safety* (see `get_pointer_safety`) |
+| `__STDCPP_THREADS__`               | `1` if the program can have more than one thread             |
+
+
+
+Example
+
+```c++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+  cout << "This is the line number " << __LINE__;
+  cout << " of file " << __FILE__ << ".\n";
+  cout << "Its compilation began " << __DATE__;
+  cout << " at " << __TIME__ << ".\n";
+  cout << "The compiler gives a __cplusplus value of " << __cplusplus;
+  return 0;
+}
+```
+
+
+
+
+
+
+
+
+
+## File I/O *
+
+
 
