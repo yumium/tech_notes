@@ -1191,6 +1191,467 @@ A few tips:
 
 
 
+
+
+
+
+## Managing State
+
+
+
+### Sharing State Between Components
+
+To share/sync state between components, you lift the state to the lowest common ancestor, then pass it down to them via props.
+
+To pass information from child to parent components, you pass down an event handler to the child that defines the logic. This way, we can keep the state information strictly in the parent.
+
+Example => have two panels where only one is extended at once
+
+```xml
+<>
+   <Panel
+		isActive={activeIndex === 0}
+		onShow = {() => setActiveIndex(0)}
+   >
+       ...
+   </Panel>
+   <Panel
+		isActive={activeIndex === 1}
+		onShow={() => setActiveIndex(1)}
+   >
+       ...
+   </Panel>
+</>
+```
+
+
+
+
+
+
+
+## React Router
+
+The `react-router` library implements client-side routing for React.
+
+The idea is that when routes change, instead of request an entire new page from the server, we can make local changes to the UI, perhaps additionally fetch some data. This makes the user experience a lot smoother.
+
+
+
+It does this by creating primitives that allow the triple sync between the data model, the UI, and the URL.
+
+It also contains new components that mimic other components (such as <form>) but instead of doing a GET/POST request to the server, it gives the request to the router instead.
+
+
+
+Main features:
+
+- Nested routing: couple with nested layouts
+- Dynamic segments: segment of URL parsed and consumed by APIs
+- Ranked route matching: ranking to pick the most specific match
+- Relative links
+- Data loading: data for multiple layouts of a specific URL are loaded in parallel
+  - For example, when navigating to `https://exampe.com/real-salt-late/45face3`, the root component (example.com), the team component (real-salt-lake), and the game component (45face3) are loaded in parallel
+- Redirects: redirect user to a different route when loading data
+- and many more ...
+
+
+
+
+
+
+
+### Main concepts
+
+`src/main.jsx`
+
+```jsx
+import * as React from "react";
+import * as ReactDOM from "react-dom/client";
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
+import "./index.css";
+import Root, { 
+    loader as rootLoader,
+	action as rootAction
+} from "./routes/root"
+import ErrorPage from "./error-page"
+import Contact, {
+    loader as contactLoader
+} from "./routes/contact"
+import Index from "./routes/index"
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Root />,
+    errorElement: <ErrorPage />  // Displays this page if there's an error
+    loader: rootLoader, // Loads data into element (here it's <Root />)
+    action: rootAction, // Uses this handler on GET/POST request on this element
+    children: [	// children pages will be displayed within the parent page
+  	  { index: true, element: <Index /> },  // Displayed when child route is empty
+      {
+      	path: "contacts/:contactId", // Dynamic url is passed into the loader of this element (as `params.contactID`)
+      	loader: contactLoader,
+      	element: <Contact />,
+      	errorElement: <div>Oops!</div> // Display error page in child Outlet only if error is caught at this level
+  	  }
+	]
+  },
+]);
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <RouterProvider router={router} />
+  </React.StrictMode>
+);
+```
+
+
+
+Define `<Outlet>` in parent page to specify where to render the children page
+
+```jsx
+import { Outlet } from "react-router-dom";
+
+export default function Root() {
+  return (
+    <>
+      {/* all the other elements */}
+      <div id="detail">
+        <Outlet />
+      </div>
+    </>
+  );
+}
+```
+
+
+
+Define `<Link>` in place of `<a>` for routing to happen on client side with the router, instead of requesting from the server.
+
+```jsx
+import Link from "react-router-dom"
+
+export default function Root(){
+    {/*other elements */}
+    <Link to={`contacts/1`}>Your name</Link>
+}
+```
+
+
+
+Define `loader` and `useLoaderData` function in the element you need to load data from and display loaded data
+
+```jsx
+import useLoaderData from "react-router-dom";
+import { getContacts } from "../contacts"; 	// Backend service
+
+// Define the loader for loading from backend service
+export async function loader() {
+    const contacts = await getContacts()
+    return { contacts }
+}
+
+export default function Root() {
+  const { contacts } = useLoaderData();	// Get loaded data
+    
+  return (
+    <>
+      <div id="sidebar">
+        {/* other code */}
+
+        <nav>
+          {contacts.length ? (	// Display loaded data
+            {/*UI component for a contact */}
+          ) : (
+            <p>
+              <i>No contacts</i>
+            </p>
+          )}
+        </nav>
+
+        {/* other code */}
+      </div>
+    </>
+  );
+}
+```
+
+React Router will handle the synchronization between backend service and UI. (??)
+
+
+
+Define `action` and add it to the router for how you want `GET` and `POST` request handled on client side.
+
+```jsx
+import Form from "react-router-dom"
+import { getContacts, createContact } from "../contacts"
+
+export async function action() {
+    const contact = await createContact()
+    return { contact }
+}
+
+export default function Root() {
+	return (
+    	<Form method="post">
+        	<button type="submit">New</button>
+        </Form>
+    )
+}
+```
+
+Note, after an action (POST request), React Router will update the hook `useLoaderData` etc. to refresh the UI automatically.
+
+Note we use the `Form` element here that will send the `GET/POST` request. The difference between form elements and normal links is that normal links change the URL, but forms can change the request method (`GET` or `POST`). The serialised form data is put in the request body for `POST`, and as URLSearchParams for `GET`
+
+Note, with `<Form action="edit">`, after clicking the URL will automatically be appended with `/edit`. So add a route in the router to handle this.
+
+
+
+
+
+Redirecting
+
+`src/routes/root.jsx`
+
+```jsx
+import redirect from "react-router-dom"
+
+export async function action() {
+    const contact = await createContact()
+    return redirect(`/contacts/${contact.id}/edit`)	// Redirect to edit page for that contact
+}
+```
+
+
+
+`<NavLink/>` element to replace `<Link/>` element for additional styling based on the state of that link.
+
+```jsx
+  <NavLink
+    to={`contacts/${contact.id}`}
+    className={({ isActive, isPending }) =>
+      isActive
+        ? "active"
+        : isPending
+        ? "pending"
+        : ""
+    }
+  >
+    {/* other code */}
+  </NavLink>
+```
+
+When the user is at the URL in the `NavLink`, then `isActive` will be true. When it's *about* to be active (the data is still loading) then `isPending` will be true. 
+
+
+
+`useNavigation` hook lets your element know about the navigation state, so can display loading screen etc. as we wait for the backend API to return.
+
+```jsx
+import useNavigation from "react-router-dom"
+
+export default function Root() {
+    const navigation = useNavigation()
+    
+   	return (
+      <div
+        id="detail"
+        className={
+          navigation.state === "loading" ? "loading" : ""
+        }
+      >
+        <Outlet />
+      </div>
+    )
+}
+```
+
+[`useNavigation`](https://reactrouter.com/en/main/hooks/use-navigation) returns the current navigation state: it can be one of `"idle" | "submitting" | "loading"`.
+
+Other functions:
+
+- Navigate back once step
+
+```jsx
+<button type="button" onClick={() => { navigate(-1) }}
+```
+
+
+
+
+
+
+
+Creating a search bar
+
+```jsx
+import useSubmit from "react-router-dom"
+
+// Amend the loader function to only load what is inbound of the search value
+export async function loader({ request }) {
+  const url = new URL(request.url);
+  const q = url.searchParams.get("q");
+  const contacts = await getContacts(q);
+  return { contacts, q };
+}
+
+export default function Root() {
+    const { contacts, q } = useLoaderData()
+
+	/*
+    The navigation.location will show up when the app is navigating to a new URL and loading the data for it. It then goes away when there is no pending navigation anymore.
+    */
+    const searching =
+		navigation.location &&
+        new URLSearchParams(navigation.location.search).has("q")
+
+    // Display the correct search value on the search bar when going back
+    useEffect(() => {
+        document.getElementById("q").value = q
+    }, [q])
+    
+    return (
+        {/* other code */}
+        
+        // Search bar
+        <Form id="search-form" role="search">
+          <input
+            id="q"
+			className={searching ? "loading" : ""}  // Searching graphic
+            aria-label="Search contacts"
+            placeholder="Search"
+            type="search"
+            name="q"
+            defaultValue={q} // Search bar still contains search value upon refreshing
+            onChange={(event) => {
+				const isFirstSearch = q == null
+				submit(event.currentTarget.form, {
+                    replace: !isFirstSearch	// Replace previous search history, so you don't get a train of search history
+                })
+			}} // Submit new search on each keystroke
+          />
+          <div
+          	id="search-spinner"  
+            aria-hidden
+            hidden={!searching}	// Search spinner
+          />
+          <div id="search-spinner" aria-hidden hidden={true} />
+          <div className="sr-only" aria-live="polite"></div>
+        </Form>
+    )
+}
+
+// After submitting, the URL becomes: previous/url/?q=searchWords
+```
+
+
+
+`useFetcher` for mutating the data model without navigation
+
+```jsx
+import useFetcher from "react-router-dom"
+
+function Favorite({ contact }) {
+    const fetcher = useFetcher()
+    
+    return (
+    	<fetcher.Form method="post"
+          <button
+            name="favorite"
+            value={favorite ? "false" : "true"}
+            aria-label={
+              favorite
+                ? "Remove from favorites"
+                : "Add to favorites"
+            }
+          >
+            {favorite ? "★" : "☆"}
+          </button>
+        </fetcher.Form>    
+    )
+}
+```
+
+This will trigger a POST request and hit the action handler, but no causing of navigation.
+
+
+
+Throwing responses
+
+```jsx
+export async function loader({ params }) {
+  const contact = await getContact(params.contactId);
+  if (!contact) {
+    throw new Response("", {
+      status: 404,
+      statusText: "Not Found",
+    });
+  }
+  return { contact };
+}
+```
+
+You can throw response to get this error message caught and displayed on the error element. Instead of allowing the error to propagate in uncontrolled fashion.
+
+
+
+JSX routes
+
+Some people prefer creating routes in JSX. It's a purely syntactical choice, not on functionality
+
+```jsx
+import {
+  createRoutesFromElements,
+  createBrowserRouter,
+  Route,
+} from "react-router-dom";
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route
+      path="/"
+      element={<Root />}
+      loader={rootLoader}
+      action={rootAction}
+      errorElement={<ErrorPage />}
+    >
+      <Route errorElement={<ErrorPage />}>
+        <Route index element={<Index />} />
+        <Route
+          path="contacts/:contactId"
+          element={<Contact />}
+          loader={contactLoader}
+          action={contactAction}
+        />
+        <Route
+          path="contacts/:contactId/edit"
+          element={<EditContact />}
+          loader={contactLoader}
+          action={editAction}
+        />
+        <Route
+          path="contacts/:contactId/destroy"
+          action={destroyAction}
+        />
+      </Route>
+    </Route>
+  )
+);
+```
+
+
+
+
+
+
+
+
+
 ## Miscellaneous
 
 **Object reference**

@@ -294,6 +294,13 @@ Jenkins typical workflow
 
 
 
+What is a container?
+
+- Creating, distributing, and deploying applications in a single image
+- Each image packages binaries and dependencies that can be transported in a single object
+
+
+
 VM architecture
 
 - Hardware => Host OS => Hypervisor => Multiple VMs with own Guest OS
@@ -313,6 +320,19 @@ VM vs Containers:
 - Memory usage
   - VMs: 1GB machine x 1000 instances => 1000GB
   - Containers: 1GB machine x 1000 instances => 1GB
+
+
+
+Other container advantages:
+
+- Standardization of environment: from development to UAT, Performance Testing, and PROD
+- Rapid scaling, just need to spin up another application with the same image
+- Simplified config management: config variables live outside the container as environment variables
+- Efficiency: lightweight sandboxed containers that multiple can run on the same hardware => better cost efficiency
+- Abandoning monolithic architecture: microservices work together, easier to maintain, flexible, and robust
+- Industry standardization
+
+**Summary: standardized, scalable, configurable, fast deployment, computationally efficient, flexible**
 
 
 
@@ -410,6 +430,69 @@ Tells docker how to spin up multiple containers together (specify name of contai
 
 
 You can configure Jenkins to automate a build and deploy on a Docker container.
+
+
+
+
+
+BCP
+
+
+
+<u>Access control</u>
+
+User assigned to AD groups during onboarding
+
+User get access associated with their AD groups
+
+5 common roles and permissions:
+
+- Admin: create, edit, delete, list, patch, and update objects. No secrets, `exec` or `rsh` in production
+- Breakglass: Admin + secrets, `exec`, or `rsh`
+- Builder: Build in Non PROD only
+- Owner: Admin rights on projects (Admin minus build)
+- View: Read-only for all non-sensitive objects
+
+
+
+Ways to access containers:
+
+- CLI <- preferred
+- Browser-based Web GUI tool
+- Call API directly, but this is better used in applications, scripts, or pipelines.
+
+
+
+OpenShift commands
+
+- `oc login`
+- `oc login -u myusername <username>`
+- `oc logout`
+- `oc whoami --show-token`
+
+- `oc get project`
+- `oc project 1234` -> switch project
+- `oc get [object-type]` -> list all objects of given type (build, pod, route, service, endpoints ...)
+- `oc get all` -> list all objects
+
+- `oc get --export -o yaml [object-type] [object-name]` -> view the shape/content of the object
+  - `oc get --export route myrout`
+- `oc describe [object-type] [object-name]`
+  - `oc describe route myroute`
+- `oc create [object-type] [object-name]`
+- `oc delete [object-type] [object-name]`
+- `oc edit [object-type] [object-name]`
+- `oc replace -f filename`
+- `oc patch [object-type] [object-name] -p [patch]` -> make amendment to the YAML of the object
+
+- `oc label [object-type] [object-name] [key]=[value]`
+- `oc rollout dc/[deploymentconfig-name]` -> rollout a deployment
+
+GUI is easier to use, but one should be familiar with doing things first on the CLI, as it is more finegrained and teaches you how things work under the hood.
+
+
+
+
 
 
 

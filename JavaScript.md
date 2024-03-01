@@ -1046,12 +1046,6 @@ Remember Date.now() and Math.floor()? They are static methods.
 
 
 
-
-
-
-
-
-
 ## Promise
 
 Created to get result from asynchronous operations, so code can run in a non-blocking manner
@@ -1086,7 +1080,211 @@ promise.then(handleSuccess).catch(handleFailure);
 
 Note, to avoid the chaining of hell (when you have handlers for handlers), ES6 have made it so that `.then` will produce a new promise, so `.then` can be chained. This is an adaption of the continuation monad.
 
-Details see documentation
+`.then` takes 2 arguments, the success handler followed by the reject handler. The reject handler is optional.
+
+`.catch` just takes the reject handler. You can think of it as `.then` without success handlers.
+
+??: If a handler returns a value, the promise is settled to resolved state. If a handler returns an error, the promise is settled to reject state.
+
+
+
+Promise allows writing asynchronous code. After a promise is called, control continues to the rest of the code. Control is transferred back to the Promise when it resolves and the handler is run.
+
+```javascript
+const promise = new Promise((resolve) => resolve(777))
+promise.then((val) => console.log("asynchronous logging has val:", val))
+console.log("immediate logging")
+
+// produces output in this order:
+// immediate logging
+// asynchronous logging has val: 777
+```
+
+
+
+During runtime, promises are run upon creation.
+
+
+
+
+
+### Async functions
+
+
+
+Async functions always return a promise. 
+
+If the function returns another value that is not a promise (including `undefined`), it'll be implicitly converted to do so
+
+```javascript
+async function foo() {
+	return 1
+}
+
+// is equivalent to
+async function foo() {
+	return Promise.resolve(1)
+}
+```
+
+There can be zero or more `await` calls inside an `async` function. Await acts like a breakpoint for a `.then` clause. It takes in a promise and blocks the control of the function until the promise returns, and returns the resolved result (if it's resolved). If it's not resolved, an error is raised. This allows `try` and `catch` to be used with promises.
+
+Using `await`, we can build the promise chain progressively.
+
+
+
+```javascript
+async function foo() {
+    a = 1
+    b = 2
+    const result1 = await new Promise((resolve) => {
+        setTimeout(() => resolve(a), 1000)
+    })
+    const result2 = await new Promise((resolve) => {
+        setTimeout(() => resolve(b), 1000)
+    })
+    return result1 + result2
+}
+foo().then((val) => console.log(val))	// Returns 3 after 2 seconds
+```
+
+This function is equivalent to
+
+?? -> how to write this as 
+
+```javascript
+function foo() {
+	a = 1
+    b = 2
+    let result1
+    let result2
+    p = Promise.resolve(true)
+    .then(() => {
+        setTimeout(() => {
+			result1 = a
+        }, 1000)
+    })
+    .then((resolve) => {
+        setTimeout(() => {
+            result2 = b
+        }, 1000)
+    })
+    .then(() => result1 + result2)
+    
+    return p
+}
+foo().then((res) => console.log(res))
+```
+
+The issue with this code is that `setTimeout` is non-blocking. Normally we'll have something like this where the return will block on an operation
+
+```javascript
+function getUsr(user) {
+    return fetch(url).then(profileResponse => {
+        return profileResponse.json().then(profileData => {
+            return fetch(urlRepo).then(repoResponse) => {
+                return repoResponse.json().then(repoData => {
+                    return {
+                        profile: profileData,
+                        repos: repoData
+                    }
+                })
+            }
+        })
+    })
+}
+```
+
+
+
+Some more examples of concurrency using `async/await` syntax
+
+```javascript
+function resolveAfter2Seconds() {
+    console.log("starting slow promise")
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve("slow")
+            console.log("slow promise is done")
+        }, 2000)
+    })
+}
+
+function resolveAfter1Second() {
+    console.log("starting fast promise")
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve("fast")
+            console.log("fast promise is done")
+        }, 1000)
+    })
+}
+
+async function sequentialStart() {
+    const slow = resolveAfter2Seconds()
+    console.log(await slow)
+    
+    const fast = resolveAfter1Second()
+    console.log(await fast)
+}
+
+/*
+starting slow promise
+slow promise is done
+slow
+starting fast promise
+fast promise is done
+fast
+
+Sequential execution, the first promise is triggered, resolved, then logged. Then same with second promise
+
+Total execution time: 3s
+*/
+
+async function sequentialWait() {
+    const slow = resolveAfter2Seconds()
+    const fast = resolveAfter1Second()
+    
+    console.log(await slow)
+    console.log(await fast)    
+}
+
+/*
+starting slow promise
+starting fast promise
+fast promise is done
+slow promise is done
+slow
+fast
+
+Both promises are started together. The fast one is resolved before the slow one. But as we are blocked on logging the slow resolved value first, we get `slow` then `fast` in the end.
+
+Total execution time: 2s
+*/
+
+async function concurrent1() {
+    const results = await Promise.all([
+        resolveAfter2Seconds(),
+        resolveAfter1Second()
+    ])
+    
+    console.log(results[0])
+   	console.log(results[1])
+}
+
+/*
+starting slow promise
+starting fast promise
+fast promise is done
+slow promise is done
+slow
+fast
+
+Both promises are started together. Results returns when both promises finish and logged in order given
+
+Total execution time: 2s
+*/
+```
 
 
 
