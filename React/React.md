@@ -32,6 +32,225 @@ React CORE:
 
 
 
+
+
+
+
+## Thinking in React
+
+1. Break the UI into a component hierarchy
+
+The size of components depend on context. You can think of each component as following the single responsibility principle, or how the page is broken down.
+
+
+
+2. Build a static version
+
+This allows you to write out the components and data model. We only need to use props, no need for states (they are for interactivity)
+
+
+
+3. Find the minimal but complete representation of UI state
+
+State allows interactivity (the page isn't static). Values that can be computed or doesn't change are not states.
+
+Raise state usually to the components' lowest common parent.
+
+And add inverse data flow (pass mutators of state to children).
+
+
+
+
+
+## Describing the UI
+
+
+
+Component = reuseable piece of UI
+
+```jsx
+function Profile() {
+  return (
+    // JSX syntax is compiled to JS objects
+    <img
+      src="https://i.imgur.com/MK3eW3Am.jpg"
+      alt="Katherine Johnson"
+    />
+  )
+}
+
+export default function
+```
+
+
+
+Using components
+
+```jsx
+import Profile from "./components/profile"
+
+export default function Gallery() {
+  return (
+    <section>
+      <h1>Amazing scientists</h1>
+      <Profile />
+      <Profile />
+      <Profile />
+    </section>
+  );
+}
+```
+
+
+
+Components must start with capital letter (so when using other components as children, we know it's a component not regular HTML element).
+
+
+
+| Syntax  | Export statement                      | Import statement                        |
+| ------- | ------------------------------------- | --------------------------------------- |
+| Default | `export default function Button() {}` | `import Button from './Button.js';`     |
+| Named   | `export function Button() {}`         | `import { Button } from './Button.js';` |
+
+Each file can contain at most one default export. When importing the default, you can change the name like so
+
+```jsx
+import Banana from "./Button.js"
+```
+
+Likewise, for named export, you can change the name like so
+
+```jsx
+import { Button as Banana } from "./Button.js"
+```
+
+When a file contain just 1 component, we tend to make it default. Otherwise we make every component in that file a named export.
+
+
+
+JSX is HTML but a bit more strict:
+
+- A component have to return 1 root element
+  - Can use fragment `<> ... </>`
+- Attributes are almost always in camelCase => because JSX turns into JavaScript objects and attribute becomes keys
+
+
+
+In JSX, logic and UI live together. You can add JavaScript to your JSX objects using curly brackets
+
+```jsx
+<img
+    className="avatar"
+    src={avatar}		// JavaScript variables
+    alt={description}
+/>
+
+<p>The date is {Date.date}</p>
+
+// Double curly is passing objects
+<ul style={{backgroundColor: "black"}}> ... </ul>
+```
+
+
+
+You pass information from parent to children using props. Props allow components to work like functions, so decomposition can be done. The parents don't need to know the inner working of the children. The children take the props, without knowing where it came from.
+
+Parent passing props to children
+
+```jsx
+export default function Profile() {
+  return (
+    <Avatar
+      // Props
+      person={{ name: 'Lin Lanying', imageId: '1bX5QH6' }}
+      size={100}
+    />
+  );
+}
+```
+
+Children using props
+
+```jsx
+// We often use destructure, and default values for if the prop isn't passed
+function Avatar({ person, size = 100 }) {
+  // ...
+}
+```
+
+We can also use JS spread syntax when passing props straight down
+
+```jsx
+function Profile(props) {
+  return (
+    <div className="card">
+      // Expands to key-value pairs 
+      <Avatar {...props} />
+    </div>
+  );
+}
+```
+
+
+
+Props are immutable. Your component is a pure function that maps your data model to UI.
+
+1. No side effects
+2. Same set of inputs guarantee same set of outputs
+
+React offers a "Strict Mode" that renders each component twice. This helps detect impurity.
+
+The only part that can contain mutation is event handlers (they are the part that makes you interact with a single page!). This is fine as this modifies the data model, and hence changes the UI. The component is still pure.
+
+You can introduce impurity with `useEffect`, but use this as absolute last resort.
+
+
+
+Conditional rendering
+
+- In JSX, `{cond ? <A /> : <B />}` means *“if `cond`, render `<A />`, otherwise `<B />`”*.
+- In JSX, `{cond && <A />}` means *“if `cond`, render `<A />`, otherwise nothing”*.
+
+
+
+For loop in components
+
+Store objects as an array and generated UI using a `.map` function
+
+```jsx
+const listItems = people.map(person => <li>{person}</li>);
+```
+
+Use keys that are unique per element and immutable. Keys are helpful for the browser to locate each element (order can change etc.)
+
+If no good keys, just don't provide a key
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### 1. Hello World
 
 ```react
