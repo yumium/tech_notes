@@ -480,6 +480,11 @@ day = "Monday" ? monday_price : normal_price;
 feed.description?.contaions(searchKey)
 ```
 
+`??`: Null coalescing, if the value of LHS is `undefined` or `null`, evalutes to RHS, otherwise evaluates to LHS.
+
+```javascript
+(null || undefined) ?? "foo"; // returns "foo"
+```
 
 
 
