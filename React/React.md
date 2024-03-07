@@ -807,56 +807,6 @@ Controlled elements are hard, because you need to understand the HTML element.
 
 
 
-
-
-eg. <select> tag
-
-```react
-class FlavorForm extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {value: 'coconut'};
-
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  handleChange(event) {
-    this.setState({value: event.target.value});
-  }
-
-  handleSubmit(event) {
-    alert('Your favorite flavor is: ' + this.state.value);
-    event.preventDefault();
-  }
-
-  render() {
-    return (
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          Pick your favorite flavor:
-          <select value={this.state.value} onChange={this.handleChange}>
-            <option value="grapefruit">Grapefruit</option>
-            <option value="lime">Lime</option>
-            <option value="coconut">Coconut</option>
-            <option value="mango">Mango</option>
-          </select>
-        </label>
-        <input type="submit" value="Submit" />
-      </form>
-    );
-  }
-}
-```
-
-
-
-
-
-
-
-
-
 ### 10. Lifting State Up
 
 In React, sharing state is accomplished by moving it up to the closest common ancestor of the components that need it. This is called “lifting state up”.
@@ -1696,5 +1646,80 @@ Watch out for that.
 
 
 
+**Testing**
+
+There are a few ways to test React components. Broadly, they divide into two categories:
+
+- Rendering component trees in a simplified test environment and asserting on their output.
+- Running a complete app in a realistic browser environment (also known as “end-to-end” tests).
+
+Trade offs
+
+- Iteration speed vs Realistic environment: Loose modelling give faster iteration speed. More realistic modelling give slower iteration speed.
+- How much to mock: With components, "unit" is hard to define.
+
+Read more here: https://legacy.reactjs.org/docs/testing.html
 
 
+**Styling with CSS**
+
+Import the CSS file and pass the class as string to the `className` prop:
+
+```react
+render() {
+  let className = 'menu';
+  if (this.props.isActive) {
+    className += ' menu-active';
+  }
+  return <span className={className}>Menu</span>
+}
+```
+
+
+**File structure**
+
+Group by roots or features:
+
+```
+common/
+  Avatar.js
+  Avatar.css
+  APIUtils.js
+  APIUtils.test.js
+feed/
+  index.js
+  Feed.js
+  Feed.css
+  FeedStory.js
+  FeedStory.test.js
+  FeedAPI.js
+profile/
+  index.js
+  Profile.js
+  ProfileHeader.js
+  ProfileHeader.css
+  ProfileAPI.js
+```
+
+
+Group by file type:
+
+```
+api/
+  APIUtils.js
+  APIUtils.test.js
+  ProfileAPI.js
+  UserAPI.js
+components/
+  Avatar.js
+  Avatar.css
+  Feed.js
+  Feed.css
+  FeedStory.js
+  FeedStory.test.js
+  Profile.js
+  ProfileHeader.js
+  ProfileHeader.css
+```
+
+Avoid too much nesting and don't overthink it (5 minutes is fine).
