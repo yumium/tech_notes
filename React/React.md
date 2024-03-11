@@ -62,6 +62,8 @@ And add inverse data flow (pass mutators of state to children).
 
 
 
+
+
 ## Describing the UI
 
 
@@ -230,6 +232,231 @@ If no good keys, just don't provide a key
 
 
 
+
+
+
+
+
+
+
+
+
+## Adding Interactivity
+
+
+
+We use state to track memory of the webpage. 
+
+Having event handlers of components to update a locally variable won't work because:
+
+- Local variables don't persist between renders (your changes are wiped if you refresh)
+- A change in local variable does not trigger a re-render, so your changes aren't reflected in the UI
+
+The `useState` hook solves this problem by
+
+- Having the state variable persist the state across renders
+- Having the state setter function to trigger a re-render
+
+
+
+```javascript
+const [index, setIndex] = useState(0)
+```
+
+After calling `setIndex`, say
+
+```javascript
+setIndex(index + 1)
+```
+
+The component rerenders. The state hook remembers the new value and assigned `1` to variable `index`.
+
+
+
+Rule of Hook
+
+- Use hooks only at top level of functions (not in conditions, loops, event handlers ...)
+
+This way ever render will call the same hooks at the same order. This way, React knows what variable to return without needing you to provider a unique identifier => the UID is the index of the order, so states can be stored in an array like data structure.
+
+
+
+Each component have their states isolated from other components and private (cannot modify or access by default). For various components to access the same state, we lift state up to the lowest common ancestor.
+
+
+
+What happens when state changes?
+
+- Triggering a render
+- Rendering the right component => the component with state changed (and their children) will rerender
+- Committing to the DOM => only the delta of the DOM is inserted/updated. React calculates what needs to be changed
+
+Note, the initial render is done via
+
+```jsx
+import Image from './Image.js';
+import { createRoot } from 'react-dom/client';
+
+const root = createRoot(document.getElementById('root'))
+root.render(<Image />);
+```
+
+
+
+State acts like a snapshot. When you call the state setter function, it updates the state and schedules a rerender. The rerender happens after the event handler returns.
+
+```jsx
+return (
+    <>
+      <h1>{number}</h1>
+      <button onClick={() => {
+        setNumber(number + 1);
+        setNumber(number + 1);
+        setNumber(number + 1);
+      }}>+3</button>
+    </>
+)
+```
+
+The above button will only increase the state `number` by 1 after each click. This is because after each `setNumber` call, the next `setNumber` call is still using the old value of `number`, and so will be `setNumber(0 + 1)`. This sets the state to 1 again and schedules the rerender.
+
+```jsx
+return (
+    <>
+      <h1>{number}</h1>
+      <button onClick={() => {
+        setNumber(number + 5);
+        alert(number);
+      }}>+5</button>
+    </>
+)
+```
+
+The alert will return `0` the first time, `5` the second time etc.
+
+The state variable's value never changes within a render.
+
+
+
+State hook are batched between renders. If the same state setter function is called, then
+
+- If the state setter function is called of the form `setVariable(newValue)`, then it replaces all previous calls in the queue of this setter function
+- If the state setter function is called of the form `setVariable(oldValue => newValue)`, then it is added to the queue
+
+Batching is used to improve efficiency by reducing the number of state calculations between renders.
+
+```jsx
+// Sets to number + 6
+<button onClick={() => {
+        setNumber(number + 5);
+        setNumber(n => n + 1);
+    }}>Increase the number</button>
+
+// Sets to 42
+<button onClick={() => {
+        setNumber(number + 5);
+        setNumber(n => n + 1);
+        setNumber(42); 
+    }}>Increase the number</button>
+```
+
+For passing a function into the setter, we have convention of naming the parameter as first letters of the state variable name.
+
+
+
+Updating objects in state needs to use the setter function (not mutating the local state variable). So state variables are immutable. We tend to use the spread syntax for this.
+
+Changing the state variable changes the variable locally, but React does not trigger a rerender. So the change is never reflected.
+
+Because this copying is shallow, the implementation is fast.
+
+Note, with nested objects the spread syntax can get messy, perhaps consider flattening your objects
+
+```jsx
+setPerson({
+  ...person, // Copy other fields
+  artwork: { // but replace the artwork
+    ...person.artwork, // with the same one
+    city: 'New Delhi' // but in New Delhi!
+  }
+});
+```
+
+We can use a small framework like `Immer` to simplify the syntax
+
+```jsx
+// Using Immer
+updatePerson(draft => {
+  draft.artwork.city = 'Lagos';
+});
+```
+
+The `Immer` framework creates a "draft" that records the changes to the object, before committing it in the shallow copy. It essentially let you omit specifying copying the same elements.
+
+https://github.com/immerjs/use-immer?tab=readme-ov-file
+
+
+
+When the state is an array, we follow the same functional paradigm by using functional methods on arrays.
+
+- `...`, `filter`, `map`, `slice`, `concat`
+
+```jsx
+setArtists( // Replace the state
+  [ // with a new array
+    ...artists, // that contains all the old items
+    { id: nextId++, name: name } // and one new item at the end
+  ]
+);
+```
+
+There is nothing wrong with mutating the local array variable and calling the setter on the variable. But the code is ugly and harder to debug.
+
+Again, Immer can potentially simplify your code.
+
+
+
+A quick note about event handlers. By default, an event propagates from the child component in the DOM up through all the parents. The event handler of the component with the event is triggered first, followed by all the ancestors upwards to the root where a handler is defined.
+
+To stop the propagation, take the event and call `stopPropagation`
+
+```jsx
+return (
+    <form onSubmit={e => {
+      e.stopPropagation();
+      alert('Submitting!');
+    }}>
+      <input />
+      <button>Send</button>
+    </form>
+);
+```
+
+If you want to have your parents see all events (e.g, for logging), then instead of `onClick` use `onClickCapture`. This handler is called first for all parents after an event.
+
+
+
+
+
+## Managing State
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Escape Hatches
 
 
 
@@ -1823,7 +2050,7 @@ const router = createBrowserRouter(
 
 ## Miscellaneous
 
-**Object reference**
+### **Object reference**
 
 Because React promotes immutability, if a state is holding an object (by reference of course), then mutating the object and reassigning won't change the state. 
 
@@ -1851,13 +2078,13 @@ setStartDate(Object.assign(Object.assign({},startDate),ch))
 
 
 
-**Fragments**
+### **Fragments**
 
 https://reactjs.org/docs/fragments.html
 
 
 
-**State persisting**
+### **State persisting**
 
 If a component has its props changed, its internal state will persist.
 
@@ -1865,7 +2092,7 @@ Watch out for that.
 
 
 
-**Testing**
+### **Testing**
 
 There are a few ways to test React components. Broadly, they divide into two categories:
 
@@ -1880,7 +2107,8 @@ Trade offs
 Read more here: https://legacy.reactjs.org/docs/testing.html
 
 
-**Styling with CSS**
+
+### **Styling with CSS**
 
 Import the CSS file and pass the class as string to the `className` prop:
 
@@ -1895,7 +2123,8 @@ render() {
 ```
 
 
-**File structure**
+
+### **File structure**
 
 Group by roots or features:
 
@@ -1942,3 +2171,16 @@ components/
 ```
 
 Avoid too much nesting and don't overthink it (5 minutes is fine).
+
+
+
+### Performance tuning
+
+https://legacy.reactjs.org/docs/optimizing-performance.html
+
+Don't optimize prematurely
+
+
+
+
+
