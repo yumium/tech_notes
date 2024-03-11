@@ -486,7 +486,13 @@ feed.description?.contaions(searchKey)
 (null || undefined) ?? "foo"; // returns "foo"
 ```
 
+`...`: Spread syntax, used to enumerate iterables. Useful when writing code with immutable objects.
 
+```javascript
+myFunction(a, ...iterableObj, b)
+[1, ...iterableObj, '4', 'five', 6]
+{ ...obj, key: 'value'}
+```
 
 
 
