@@ -442,6 +442,90 @@ If you want to have your parents see all events (e.g, for logging), then instead
 
 
 
+Think UI declaratively.
+
+Your component is a function that maps state to UI.
+
+Interactions (from user, from computer) change state with defined logic, which in turn change the UI.
+
+The framework takes care of updating the UI. As the programmer, you don't worry about this.
+
+
+
+Tips for modelling states
+
+1. **Group related state.** Merge related states into a single state variable (usually an object).
+2. **Avoid contradictions in state.** When the state is structured in a way that several pieces of state may contradict and “disagree” with each other, you leave room for mistakes. Try to avoid this.
+3. **Avoid redundant state.** Information that can be calculated on the fly should not be as a state.
+4. **Avoid duplication in state.** When the same data is duplicated between multiple state variables, or within nested objects, it is difficult to keep them in sync. Reduce duplication when you can.
+
+```jsx
+// If you want store which item is selected, store the ID instead of copying the name. This way, when I modify the name of the time, the state will not be out of sync
+items = [{ id: 0, title: 'pretzels'}, ...]
+selectedId = 0
+```
+
+5. **Avoid deeply nested state.** Deeply hierarchical state is not very convenient to update. When possible, prefer to structure state in a flat way.
+
+
+
+To share states between components, lift state up to the lowest common parent, then pass both the state and state setter as props to children (latter allow children to change the state)
+
+
+
+State resets when component is removed and re-added (this prevents memory leaks). State only preserves if it's the same component at same position.
+
+```jsx
+// State persists across components
+return (
+    <div>
+      {isFancy ? (
+        <Counter isFancy={true} /> 
+      ) : (
+        <Counter isFancy={false} /> 
+      )}
+```
+
+To force a reset of state, you can render components at different positions of the render tree or pass a key to the component that changes
+
+```jsx
+  return (
+    <div>
+      {isPlayerA &&
+        <Counter person="Taylor" />
+      }
+      {!isPlayerA &&
+        <Counter person="Sarah" />
+      }
+	) 
+```
+
+```jsx
+  return (
+    <div>
+      {isPlayerA ? (
+        <Counter key="Taylor" person="Taylor" />
+      ) : (
+        <Counter key="Sarah" person="Sarah" />
+      )}
+          
+<Chat key={to.id} contact={to} />
+```
+
+
+
+How to preserve states for removed components?
+
+- Lift the state up to parent, which persists. This is most common option
+- Use `localStorage`
+- Render all components and do the hide with CSS, this can be slow
+
+
+
+
+
+
+
 
 
 
