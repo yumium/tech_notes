@@ -195,6 +195,34 @@ function Profile(props) {
 
 
 
+When you nest content inside a JSX tag, the parent component will receive that content in a prop called `children`. 
+
+```jsx
+function Card({ children }) {
+  return (
+    <div className="card">
+      {children}
+    </div>
+  );
+}
+
+export default function Profile() {
+  return (
+    <Card>
+      <Avatar
+        size={100}
+        person={{ 
+          name: 'Katsuko Saruhashi',
+          imageId: 'YfeOqp2'
+        }}
+      />
+    </Card>
+  );
+}
+```
+
+
+
 Props are immutable. Your component is a pure function that maps your data model to UI.
 
 1. No side effects
@@ -522,11 +550,242 @@ How to preserve states for removed components?
 
 
 
+When the state update logic is too complicated, it might be worth it to put it inside a reducer function
+
+```jsx
+const [tasks, setTasks] = useState(initialTasks)
+```
+
+becomes
+
+```jsx
+const [tasks, dispatch] = useReducer(tasksReducer, initialTasks)
+```
+
+We specify the reducer function, and it returns instead a dispatch function that we can call whenever an action is performed.
+
+We pass in an object that specifies the action that just took place and some additional information
+
+```jsx
+function handleAddTask(text) {
+    dispatch({
+        // We typically have the `type` member with a string that uniquely identifies a type of action
+        type: 'added',
+        id: nextId++,
+        text: text
+    })
+}
+```
+
+We then write the reducer function that takes in the current state and dispatched action, and returns the new state
+
+```jsx
+function tasksReducer(tasks, action) {
+  switch (action.type) {
+    case 'added': {
+      return [
+        ...tasks,
+        {
+          id: action.id,
+          text: action.text,
+          done: false,
+        },
+      ];
+    }
+    case 'changed': {
+      return tasks.map((t) => {
+        if (t.id === action.task.id) {
+          return action.task;
+        } else {
+          return t;
+        }
+      });
+    }
+    case 'deleted': {
+      return tasks.filter((t) => t.id !== action.id);
+    }
+    default: {
+      throw Error('Unknown action: ' + action.type);
+    }
+  }
+}
+```
+
+We call it the reducer because it acts like the `reduce` function in arrays. We essentially describe state changes using a state machine.
+
+`useState` vs `useReducer`:
+
+- `useReducer` generally needs more code, but makes logic easier to understand for complex interactions
+- `useState` is more readable for simple logic, `useReducer` more readable for complex logic
+- Reducer function is pure and can be tested on its own
+- Reducer is easier to debug, just log every state change
 
 
 
+To pass props deeply down the component tree, we can use contexts
+
+```jsx
+// LevelContext.js
+import { createContext } from 'react'
+
+export const LevelContext = createContext(1)
+```
+
+```jsx
+// Heading.js
+export default function Heading({ children }) {
+    const level = useContext(LevelContext)
+    // ...
+}
+```
+
+```jsx
+// Section.js
+import { useContext } from 'react'
+import { LevelContext } from './LevelContext.js'
+
+export default function Section({ level, children }) {
+    const level = useContext(LevelContext)
+    
+    return (
+    	<section className="section">
+        	<LevelContext.Provider value={level + 1}>
+            	{children}
+            </LevelContext.Provider>
+        </section>
+    )
+}
+```
+
+`<LevelContext.Provider>` means if a child asks for `LevelContext` context, give the value.
+
+Contexts can be nested, and the lowest level in scope is returned. So the case above will automatically track the depth of the nesting
+
+```jsx
+export default function Page() {
+  return (
+    <Section>
+      <Heading>Title</Heading>
+      <Section>
+        <Heading>Heading</Heading>
+        <Heading>Heading</Heading>
+        <Heading>Heading</Heading>
+        <Section>
+          <Heading>Sub-heading</Heading>
+          <Heading>Sub-heading</Heading>
+          <Heading>Sub-heading</Heading>
+          <Section>
+            <Heading>Sub-sub-heading</Heading>
+            <Heading>Sub-sub-heading</Heading>
+            <Heading>Sub-sub-heading</Heading>
+          </Section>
+        </Section>
+      </Section>
+    </Section>
+  );
+}
+```
+
+When not to use context:
+
+- When passing through props works well enough
+- When you can pass a grandchild down as a prop to the children (this way you avoid passing the prop)
+
+When to use context:
+
+- Theming
+- Current user account
+- Routing
 
 
+
+For more complicated UI, we can combine reducer with context, by adding the state and dispatch function to the context. This way, all children can access the state, and also dispatch actions to it.
+
+```jsx
+import { createContext } from 'react'
+
+export const TasksContext = createContext(null)
+export const TasksDispatchContext = createContext(null)
+
+// Custom hooks
+export function useTasks() {
+    return useContext(TasksContext)
+}
+
+export function useTasksDispatch() {
+    return useContext(TasksDispatchContext)
+}
+
+const initialTasks = {
+    // ...
+}
+
+function tasksReducer(state, action) {
+    // ...
+}
+
+export function TasksProvider({ children }) {
+    const [tasks, dispatch] = useReducer(tasksReducer, initialTasks)
+    
+    return (
+    	<TasksContext.Provider value={tasks}>
+        	<TasksDispatchContext.Provider value={dispatch}>
+            	{children}
+            </TasksDispatchContext.Provider>
+        </TasksContext.Provider>
+    )
+}
+```
+
+Then, on top level
+
+```jsx
+import AddTask from './AddTask.js';
+import TaskList from './TaskList.js';
+import { TasksProvider } from './TasksContext.js';
+
+export default function TaskApp() {
+  return (
+    <TasksProvider>
+      <h1>Day off in Kyoto</h1>
+      <AddTask />
+      <TaskList />
+    </TasksProvider>
+  );
+}
+```
+
+And for a child
+
+```jsx
+import { useState } from 'react';
+import { useTasksDispatch } from './TasksContext.js';
+
+export default function AddTask() {
+  const [text, setText] = useState('');
+  const dispatch = useTasksDispatch();
+  return (
+    <>
+      <input
+        placeholder="Add task"
+        value={text}
+        onChange={e => setText(e.target.value)}
+      />
+      <button onClick={() => {
+        setText('');
+        dispatch({
+          type: 'added',
+          id: nextId++,
+          text: text,
+        }); 
+      }}>Add</button>
+    </>
+  );
+}
+
+let nextId = 3;
+
+```
 
 
 
