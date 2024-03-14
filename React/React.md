@@ -803,6 +803,186 @@ let nextId = 3;
 
 
 
+refs are used when you want to track a value between renders but don't want it changing to trigger a rerender
+
+```jsx
+import { useRef } from 'react'
+
+/*
+returns object
+{
+	current: 0
+}
+*/
+const ref = useRef(0)
+
+// Access value
+console.log(ref.current)
+
+// Mutate value
+ref.current = ref.current + 1
+console.log(ref.current)  // 1
+```
+
+Example use case can be tracking the `setInterval` ID needed to stop a stop watch.
+
+Note, it is not safe to read/write to refs during rendering. It's best to leave using refs in event handlers and `useEffects`
+
+When to use refs:
+
+- Storing timeout IDs
+- Storing and manipulating DOM elements
+- Storing objects that are not used to calculate JSX
+
+Generally avoid manipulating DOM that is managed by React
+
+
+
+Pass the ref to the `ref` attribute of a DOM element to set the element as the `current` value of the ref
+
+```jsx
+import { useRef } from 'react'
+
+const myRef = useRef(null)
+
+//...
+<div ref={myRef}>
+```
+
+Once the DOM node loads, React will put the node as a reference to `myRef.current`. You can then manipulate it, perhaps in an event handler
+
+```jsx
+function handleClick() {
+	myRef.currrent.scrollIntoView()
+}
+```
+
+Sometimes you want refs to work on elements that can be arbitrarily many. We do this by passing a function into the `ref` attribute. React will call this function with the node when the DOM node is created, and with `null` when it's destroyed. 
+
+```jsx
+function scrollToId(itemId) {
+    const map = getMap()
+    const node = map.get(itemId)
+    node.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center'
+    })
+}
+
+function getMap() {
+    if (!itemsRef.current) {
+        // Initialize the Map on first usage
+        itemsRef.current = new Map()
+    }
+    return itemsRef.current()
+}
+
+//...
+<li
+    key={cat.id}
+    ref={(node) => {
+        const map = getMap()
+        if (node) {
+            map.set(cat.id, node)
+        } else {
+            // node is null => DOM node is getting destroyed
+            map.delete(cat.id)
+        }
+    }}
+```
+
+Here we have the ref store a mapping that maps cat ID to the DOM node.
+
+Access another React component's ref is forbidden unless the component specifically allows it with `forwardRef`
+
+```jsx
+const MyInput = forwardRef((props, ref) => {
+    return <input { ...props } ref={ref} />
+})
+```
+
+Sometimes we want the state change to update the DOM immediately instead of being queued. We can use the `flushSync` construct.
+
+```jsx
+flushSync(() => {
+    setTodos([ ...todos, newTodo])
+})
+
+// Scrolling no longer lags by 1 item
+listRef.current.lastChild.scrollIntoView()
+```
+
+
+
+Effects are useful for creating side effects that doesn't happen on events (using rendering needs the function to be pure). This is most often used when synchronizing React with an external service.
+
+```jsx
+function VideoPlayer({ src, isPlaying }) {
+    const ref = useRef(null)
+    
+    useEffect(() => {
+        if (isPlaying) {
+            ref.current.play()
+        } else {
+            ref.current.pause()
+        }    
+    })
+    
+    return <video ref={ref} src={src} loop playsInline />
+}
+```
+
+1. State/Props changes
+2. Component rerenders
+3. Effects are run
+
+If we don't leave the code block inside a `useEffect`, the `ref` component will be `null` (because the DOM node is not rendered yet)
+
+```jsx
+// Run at every render
+useEffect(() => { 
+    // do stuff
+})
+
+// Run at mount (when component is first rendered)
+useEffect(() => {
+    // do stuff
+}, [])
+
+// Run at mount and subsequent rerender if dependency change
+useEffect(() => {
+    // do stuff
+}, [state])
+
+// Causes infinite loop
+const [count, setCount] = useState(0)
+useEffect(() => {
+    setCount(count + 1)
+})
+
+// Adding clean up
+useEffect(() => {
+	const connection = createConnection()
+    connection.connect()
+    return () => connection.disconnect()	// Run before Effect run again, and once more before component unmount (delete from DOM)
+})
+```
+
+
+
+Use memorisation when a calculation is expensive
+
+```jsx
+// Only recalculated on rerenders where the dependency changes
+const calculatedVar = useMemo(() => expensiveOp(state), [state])
+
+// Instead of this
+const calculatedVar = expensiveOp(state)
+```
+
+
+
 
 
 
