@@ -2515,6 +2515,7 @@ components/
 
 Avoid too much nesting and don't overthink it (5 minutes is fine).
 
+When using `create-react-app`, there is a `public` folder that contains the `index.html`. You can modify this to change the page title etc.
 
 
 ### Performance tuning
