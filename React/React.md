@@ -1089,13 +1089,102 @@ export default function ChatRoom({ roomId }) {
 
 
 
+## Implementation notes
 
 
 
+- **React Core**:  Top level APIs on creating elements, components, refs, hooks. This builds the React Tree and React effects
+- **Renderers**: Code to "port" React trees to output
+  - `react-dom` outputs to DOM
+  - `react-native-renderer` outputs to native views used internally by React Native
+  - `react-test-renderer` outputs to JSON trees for Snapshot testing in Jest
+- **Reconcilers**: Code sharing between renderers to save code and provide a consistent experience across renderers
 
 
 
+<u>A closer look at reconcilers</u>
 
+React Core renders elements by calling the functional components recursively to build up the DOM.
+
+When there are updates, a naive algorithm could rebuild the DOM, but this is inefficient.
+
+Exact tree edit distance SOTA algorithms are O(N^3). (updates basically boils down to finding the least # of edits to transform the previous DOM to the new DOM)
+
+https://grfia.dlsi.ua.es/ml/algorithms/references/editsurvey_bille.pdf
+
+The reconciler relies on heuristics to drive down runtime to O(N) (of course, with this algorithm we loses guarantees about finding the least updates needed to change the tree).
+
+The heuristics are:
+
+- If the DOM elements or Components are different (`<a>` to `<img>`, `<Article>` to `<Comment>` ...), this triggers a new render
+- If the DOM elements or Components are the same, rerender only what is needed
+  - E.g., if the `style` attribute of a DOM element is changed, only change that part
+  - If Components are the same, render the new DOM with the updated props and recurse
+- Users can hint at which child components are stable across different renders with a `key` prop
+  - Specifically, when the new render produces a list of items `<li>` where the total number of items have changed, React will use the keys on the `<li>` items to figure out which items to add / remove, and which to keep as is
+
+^^ Example
+
+```jsx
+<ul>
+  <li>first</li>
+  <li>second</li>
+</ul>
+
+<ul>
+  <li>first</li>
+  <li>second</li>
+  <li>third</li>
+</ul>
+```
+
+Here, we represent the DOM tree before and after an update. When the algorithm runs through, the trees are compared. The first two `<li>` elements are the same, so via our heuristics no rerendering is done. We just add the third `<li>` element.
+
+But what is the orders are changed
+
+```jsx
+<ul>
+  <li>first</li>
+  <li>second</li>
+</ul>
+
+<ul>
+  <li>third</li>
+  <li>first</li>
+  <li>second</li>
+</ul>
+```
+
+Now, the `<li>` elements don't match as you iterate both lists from top to bottom. This leads to rerendering all `<li>` elements
+
+```jsx
+<ul>
+  <li key="1">first</li>
+  <li key="2">second</li>
+</ul>
+
+<ul>
+  <li key="3">third</li>
+  <li key="1">first</li>
+  <li key="2">second</li>
+</ul>
+```
+
+If we use keys, then React will know to only insert first `<li>` element in the rerender.
+
+
+
+The current implementation of the reconciler is synchronous.
+
+There is a push to move to a fibre architecture, with the following benefits
+
+- Split work in chunks to be carried out concurrently
+- Ability to pause work and come back to it later
+- Assign priority to work
+- Reuse previously completed work
+- Abort work if no longer needed (e.g., props changed)
+
+https://github.com/acdlite/react-fiber-architecture
 
 
 
@@ -1679,6 +1768,7 @@ components/
 Avoid too much nesting and don't overthink it (5 minutes is fine).
 
 When using `create-react-app`, there is a `public` folder that contains the `index.html`. You can modify this to change the page title etc.
+
 
 
 ### Performance tuning
