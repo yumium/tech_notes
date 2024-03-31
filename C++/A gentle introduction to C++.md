@@ -15,7 +15,7 @@ C++ is...
 Stack vs. Heap memory:
 
 - Stack memory is used to store local variables in a function. Stack size is determined at compiled time. Deallocation is automatic
-- Heap memory is used to store variables at runtime. Deallocation is done manually (can lead to memory leak if not done properly). Not thread safe like stack memory.
+- Heap memory is used to store variables at runtime. Deallocation is done manually (can lead to memory leak if not done properly). Not thread safe like stack memory                                                
 
 
 
@@ -310,7 +310,7 @@ a = 0x4b; // hexadecimal, digits preceded with 0x
 75l        // long
 75ul       // unsigned long 
 75lu       // unsigned long 
-    
+
 // Floating Point Numerals
 f = 3.14159;
 f = 6.02e23;  // Scientific notation
@@ -1121,7 +1121,7 @@ namespace new_name = current_name;
 Storage and namespaces
 
 - Global and namespace variables are allocated static storage. They are initialized to zeroes
-- Variables inside blocks (local variables) are allocated automated storage. They are no initialized.
+- Variables inside blocks (local variables) are allocated automated storage. They are not initialized.
 
 ```c++
 // static vs automatic storage
@@ -3916,6 +3916,152 @@ int main () {
 **Buffers and Synchronization**
 
 
+
+
+
+
+
+
+
+## Misc
+
+
+
+### C++ Concepts (metaprogramming)
+
+Metaprogramming helps performance
+
+But:
+
+- Hard to write and debug
+- Hard to read and reason about
+- Hard to compile (takes a long time)
+
+Concepts make metaprogramming more accessible
+
+
+
+Example for concept use:
+
+Imagine you have a tree, where components can send messages to each other.
+
+If you know the structure of the tree at compile time, you should be able to work out where messages will go at compile time, instead of having the compiled code simulating messages going through the tree at runtime.
+
+Concept allows you to define the structure of the tree as a concept, which compiler can use to optimise code at compile time.
+
+
+
+```c++
+template<typename Context_>
+void handle(const tock& message, Context_ context) {
+    puts("tock!")
+}
+```
+
+becomes
+
+```c++
+template<typename T>
+concept Context = sizeof(T) == 1;
+```
+
+and
+
+```c++
+void handle(const tock& message, Context auto context) {
+    puts("tock!")
+}
+```
+
+
+
+```c++
+template<typename T>
+concept Node = std::is_object_v<T>;
+
+template<typename T>
+concept Tree = requires (T t) {
+    { t.root } -> Node;
+    { T::childCount } -> std::convertible_to<std::size_t>;
+    requires T::childCount == 0 || requires {
+        t.template child<0>();
+    }
+}
+
+template<Node Root_, Tree... Children_>
+struct tree {
+    Root_ root;
+    std::tuple<Children_...> children;
+    static constexpr std::size_t childCount = sizeof...(Children)
+    
+    tree() = default;
+    
+    tree(std::convertible_to<Root_> auto&& root) 
+        : root(std::forward<decltype(root)>(root))
+    { }
+    
+    template<std::size_t index_>
+    	requires (index_ < sizeof ...(Children))
+    Tree auto& child() {
+        return std::get<index_>(children);
+    }
+}
+
+template<typename T>
+concept Context = requires (T t) {
+    t.tree;
+    requires Tree<std::remove_reference_t<decltype>(t.tree)>>;
+    { t.location } -> TreeLocation;
+};
+
+template<typename T>
+concept Message = std::is_object_v<T>
+
+// Omitting TreeLocation concept implementation for now
+
+template<typename Tree_, TreeLocation TreeLocation_ = tree_location<>>
+struct context {
+    Tree_& tree;
+    static constexpr const TreeLocation_ location;
+    
+    context(Tree_& tree) : tree{ tree } ( static_assert(Context<context>))
+    
+    void sendDown(...) {
+		Tree auto& current = tree.subtree(location);
+        current.childCount.times.with_index(
+            [&] (SizeConstant auto childIndex) {
+                Node auto& child = tree.subtree(location.ofChild(childIndex)).root;
+                Context auto childContext = ::context{tree, location.ofChild()};
+                if constexpr (requires { child.handle(message, childContext); }) {
+                    child.handle(message, childContext);
+                } else if constexpr (requires { child.handle(message); }) {
+                    child.handle(message);
+                    childContext.sendDown(message);
+                } else {
+                    childContext.sendDown(message);
+                }
+            }
+        );
+    }
+    
+    void sendUp(Message auto message) {
+        if constexpr (!location.isRoot) {
+            Node auto& parent = tree.subtree(location.ofParent()).root;
+            Context auto parentContext = ::context{tree, location.ofParent()};
+        	if constexpr (requires { parent.handle(message, parentContext); }) {
+                parent.handle(message, parentContext);
+            } else if constexpr (requires { parent.handle(message); }) {
+                parent.handle(message);
+                parentContext.sendUp(message);
+            } else {
+                parentContext.sendUp(message);
+            }
+        }
+    }
+}
+```
+
+Here we model the `context` function taking the whole tree and location of node in tree. This way we avoid defining tree recursively using nodes, where we run into cyclic dependency in types.
 
 
 
