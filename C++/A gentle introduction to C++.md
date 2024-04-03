@@ -3361,7 +3361,7 @@ Some exceptions thrown by functions in the standard library
 | `bad_function_call` | thrown by empty `function` objects                       |
 | `bad_weak_ptr`      | thrown by `shared_ptr` when passed a bad `weak_ptr`      |
 
-Some other exceptions defined in the `<excaption>` header
+Some other exceptions defined in the `<exception>` header
 
 | exception       | description                                        |
 | :-------------- | :------------------------------------------------- |
@@ -3914,6 +3914,247 @@ int main () {
 
 
 **Buffers and Synchronization**
+
+
+
+
+
+## Standard Library
+
+
+
+
+
+### std::vector
+
+Like a resizable array. Elements stored contiguously. Expands automatically as needed. Because of this extra space is allocated for future expansion (without needing to allocate memory and copy every time).
+
+Total amount of allocated memory queried using `capacity()` function. Extra memory can be freed using `shrink_to_fit()` function.
+
+Time complexity
+
+- Random access O(1)
+- Insertion and removal from end, amortized O(1)
+- Insertion and removal from anywhere, linear in distance to end of vector O(n)
+
+Attributes
+
+
+
+Methods
+
+- `front()`: First element, will run into errors if vector is empty (if uncaught most likely segmentation fault at runtime)
+- `back()`: Last element
+- `data()`: Return underlying array
+- `at(idx)`: Return value at `idx`, gives `std::out_of_range` error is idx < 0 or idx >= size
+- `[idx]`: Return value at `idx`
+- `emtpy()`: If container is empty
+- `size()`: # of elements
+- `max_size()`: Max # of elements possible due to system or library implementation limitations.
+- `reserve(new_cap)`: Reserve additional memory to such that capacity allows for up to `new_cap` elements. if `new_cap` < `.capacity()`, the function does nothing. If `new_cap` > `.max_size()`, throws `std::length_error`
+- `capacity()`: # of elements that can be held in currently allocated storage
+- `shrink_to_fit()`: Frees unused memory
+- `begin()`: Returns iterator to the first element of the vector. Returns `end()` if there are no elements.
+- `end()`: Returns iterator to `end()`
+- `clear()`: Erases all elements. `size()` returns to zero. `capacity()` is unchanged.
+- `insert()`: 
+  - `insert(pos, val)`: Inserts val at index pos, returns iterator pointing to the inserted value, O(N) where N is the # of elements between pos and end of container
+  - `insert(pos, count, val)`: Inserts count # of val at index pos, returns iterator pointing to first element inserted or pos if count == 0, O(count + N) where N is the # of elements between pos and end of container
+  - `insert(pos, first, last)`: Inserts from range [first, last) at index pos, returns iterator pointing to first element inserted or pos if first == last, O((last-first) + N) where N is the # of elements between pos and end of container
+  - `insert(pos, ilist)`: Inserts elements from initializer list `ilist` before pos, returns iterator pointing to the first element inserted or pos if ilist is empty, O(ilist.size + N) where N is the # of elements between pos and end of container
+- `insert_range(pos, rg)`: Inserts range `rg` at index pos
+- `erase()`:
+  - `erase(iterator pos)`: Removes the element at pos
+  - `erase(iterator first, iterator last)`: Removes elements [first, last)
+  - Returns iterator following the last removed element
+- `push_back(val)`: Appends val to the back. If new `size()` > `capacity()` then reallocation takes place (so old iterator references are invalidated). O(1) amortized
+- `pop_back()`: Removes last element, returns nothing, undefined behavior if vector is empty
+- `resize(count, [value])`: Resizes container to remove elements or add `value` or default elements (if `value` not provided). O(|count-size()|) plus time taken for reallocation if needed when adding elements
+- `swap(vector& other)`: Exchanges the contents and capacity of the container with those of other. No move or copy invoked.
+- `append_range(rg)`: Inserts range `rg` to the end of the vector, reallocation can happen. Complexity is O(|rg|) or O(|new_size|) if reallocation needed
+
+Logical operators (>= etc) compares 2 vectors lexicographically
+
+
+
+
+
+### iterators
+
+https://cplusplus.com/reference/iterator/
+
+An iterator is an object that points to some element and ability to iterate through the container of elements.
+
+There are 5 types of iterators: input, output, forward, bidirectional, and random access. Each supporting an additional set of methods.
+
+All categories:
+
+- `b = a`: Assignment
+- `++a`, `a++`: Increment
+
+Input:
+
+- `a == b`, `a != b`: Equality comparisons
+- `*a`, `a->m`: Dereferencing
+
+Output:
+
+- `*a = t`, `*a++ = t`: Assignable
+
+Forward:
+
+- `{ b=a; *a++; *b; }`: Multi-pass, neither dereferencing nor incrementing affects dereferenceability
+
+Bidirectional:
+
+- `--a`, `a--`, `*a--`: Can decrement
+
+Random access:
+
+- `a+n`, `a-n`: Support arthimetic operators
+- `a<b`, `a>=b`: Support inequality
+- `a += n`: Support compound assignment
+- `a[n]`: Supports offset dereference operator
+
+
+
+
+
+
+
+### std::format
+
+```c++
+std::format("{} {}!", "Hello", "world", "something"); // "Hello world!"
+```
+
+```c++
+char* a = "be";
+char* b = "the question"
+std::cout << std::format("To {0:} or not to {0:}, that is {1:}.\n", a, b);
+// To be or not to be, that is the question.
+```
+
+Formatters: https://en.cppreference.com/w/cpp/utility/format/formatter
+
+
+
+
+
+
+
+### `std::greater<T>`
+
+Function for std::greater ~= bool (val1, val2) { return val1 > val2; }
+
+
+
+
+
+
+
+### std::list
+
+Doubly linked list
+
+Element access: `front`, `back`
+
+Iterators: `begin`, `end`, `rbegin`, `rend`
+
+Capacity: `empty`, `size`, `max_size`
+
+Modifiers: `clear`, `insert`, `insert_range`, `erase`, `push_back`, `pop_back`, `push_front`, `pop_front`, `append_range`, `prepend_range`
+
+These functions behave as expected, identical to other containers like `std::vector`
+
+Additional functions:
+
+- `merge(list& other)`: Assume both lists sorted, merges both lists (stable) with no elements copied. The container `other` becomes empty after the operation
+  Does nothing if `other` points to the same list
+  Returns nothing
+  Complexity O(N+M)
+- `splice`: Transferring elements, does not modify the elements themselves just change the pointers
+  - `splice(iterator pos, list& other)`: Transfers all elements from other into *this. The elements are inserted before the element pointed to by pos. The container other becomes empty after the operation.
+  - `splice(iterator pos, list& other, iterator it)`: Transfers the element pointed to by it from other into *this. The element is inserted before the element pointed to by pos.
+  - `splice(iterator pos, list& other, iterator first, iterator last)`: Transfers the elements in the range `[`first`, `last`)` from other into *this. The elements are inserted before the element pointed to by pos.
+
+- `reverse()`: Reverses order of elements
+
+- `unique()`: Removes all *consecutive* duplicate elements from the container. Only the first element in each group of equal elements is left.
+
+- `sort([Compare comp])`: Sort elements, O(NlogN) e.g. via adapting mergesort
+
+  - Comparison function takes signature: `bool cmp(const Type1& a, const Type2& b);` which returns true if the first argument is *less* than (i.e. is ordered *before*) the second.
+
+  - ```c++
+    list.sort(std::greater<int>());
+    ```
+
+
+
+
+
+### std::forward_list
+
+Singly linked list
+
+Less storage than `std::list`, but doesn't support bidirectional move
+
+
+
+
+
+### std::shared_ptr
+
+A smart pointer introduced since C++11 that helps solve memory management problems.
+
+`shared_ptr` instances can point to the same object.
+
+A reference count is kept track of by `shared_ptr`, incremented when new `shared_ptr` points to the object, decremented the other way around (a `shared_ptr` goes out of scope or is reset).
+
+When reference count reaches 0, memory for that object is freed.
+
+
+
+`shared_ptr` helps prevent memory leaks, safely copy without worrying about double deletion.
+
+
+
+Though watch out for more overhead and potential for cycles (in this case, the reference count will neve reach 0 even though the object is out of scope)
+
+
+
+```c++
+int main()
+{
+    std::shared_ptr<Base> p = std::make_shared<Derived>();
+ 
+    print("Created a shared Derived (as a pointer to Base)", p);
+ 
+    std::thread t1{thr, p}, t2{thr, p}, t3{thr, p};
+    p.reset(); // release ownership from main
+ 
+    print("Shared ownership between 3 threads and released ownership from main:", p);
+ 
+    t1.join();
+    t2.join();
+    t3.join();
+ 
+    std::cout << "All threads completed, the last one deleted Derived.\n";
+}
+```
+
+
+
+
+
+
+
+### std::unordered_map
+
+https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2003/n1456.html
+
+
 
 
 
