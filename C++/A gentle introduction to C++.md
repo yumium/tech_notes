@@ -2061,6 +2061,8 @@ Const data members => immutable and read-only variable
 
 Const function members => no modifications to nonstatic data members, or call nonconst member functions (no change in state)
 
+Const return type => function will not modify the returned data ??
+
 ```c++
 int get() const { return x; }	// const member function
 const int& get() { return x; }	// member function returning a const&
@@ -2751,7 +2753,7 @@ Pointer to class of type `Polygon` can only access members of the base class `Po
 
 ### Virtual members
 
-Virtual members allow certain functions in the base class to be overriden in the derived class. Unlike simply defining a function with the same name in the derived class, overriden functions can be access in pointer class when type casted to base class.
+Virtual members allow certain functions in the base class to be overriden in the derived class. Unlike simply defining a function with the same name in the derived class, overriden functions can be accessed in pointer class when type casted to base class.
 
 ```c++
 #include <iostream>
@@ -4155,6 +4157,202 @@ int main()
 https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2003/n1456.html
 
 
+
+
+
+
+
+
+
+## GoogleTest
+
+Terms:
+
+- Assertions: success, nonfatal failure, fatal failure
+  - fatal failure => function aborts, otherwise it continues to run
+- If an assertion trips, the test fails
+- Test suite: many related tests grouped together
+- Test fixture: common objects and functions shared between tests
+- Test program: contains multiple test suites
+
+
+
+Assertions:
+
+- `ASSERT_*` for fatal failure version, `EXPECT_*` for nonfatal failure version
+  - As `ASSERT_*` breaks from function execution, clean up code is usually skipped. This can cause a memory leak
+- When assertion trips, GoogleTest prints  source file, line number location, and failure message
+- Custom failure message
+
+```c++
+ASSERT_EQ(x.size(), y.size()) << "Vectors x and y are of unequal length.";
+
+for (int i=0; i<x.size(); ++i) 
+    EXPECT_EQ(x[i], y[i]) << "Vectors x and y differ at index " << i;
+```
+
+Common assertions: https://google.github.io/googletest/reference/assertions.html
+
+- `SUCCEED()`: Assertion that always passes
+- `FAIL()`: Assertion that always fails fatally
+- `ADD_FAILURE()`: Assertion that always fails nonfatally
+- `ASSERT_THAT(value, matcher)`: Assert value matching to matcher
+  - E.g., `ASSERT_THAT(value, StartsWith("Hello"))` (using ::testing::StartsWith)
+- `ASSERT_TRUE(condition)`, `ASSERT_FALSE(condition)`
+- `ASSERT_EQ(val1, val2)`: Does pointer equality on pointers. Compare memory location for C strings, use `ASSERT_STREQ` if you want to check content
+- `ASSERT_NE`, `ASSERT_LT` ...
+- `ASSERT_STREQ`, `ASSERT_STRNE`: String content comparison for C strings
+- `ASSERT_STRCASEEQ`, `ASSERT_STRCASENE`: ^^ ignoring case
+- `ASSERT_FLOAT_EQ(val1, val2)`: abs(val1 - val2) <= 4 ULP (least significant places)
+- `ASSERT_DOUBLE_EQ(val1, val2)`: ^^ for doubles
+- `ASSERT_NEAR(val1, val2, abs_error)`: abs(val1 - val2) <= abs_error
+- `ASSERT_THROW(statement, exception_type)`: `statement` to throw an exception of type `exception_type`
+- `ASSERT_ANY_THROW(statement)`, `ASSERT_NO_THROW(statement)`
+- `ASSERT_PRED2(pred, val1, val2)`: pred(val1, val2) to be true. This gives better error messages than having the function inside `ASSERT_TRUE`
+  - E.g., `ASSERT_PRED2(MutuallyPrime, a, b);`
+  - Function works as expected for `ASSERT_PRED1`, `ASSERT_PRED3` ...
+
+
+
+Simple tests:
+
+```c++
+TEST(TestSuiteName, TestName) {
+    // Test body
+}
+```
+
+Note, `TestSuiteName` and `TestName` cannot contains underscores.
+
+The test body is just the body of an ordinary C++ function, returning no value.
+
+Example
+
+```c++
+// Tests factorial of 0.
+TEST(FactorialTest, HandlesZeroInput) {
+  EXPECT_EQ(Factorial(0), 1);
+}
+
+// Tests factorial of positive numbers.
+TEST(FactorialTest, HandlesPositiveInput) {
+  EXPECT_EQ(Factorial(1), 1);
+  EXPECT_EQ(Factorial(2), 2);
+  EXPECT_EQ(Factorial(3), 6);
+  EXPECT_EQ(Factorial(8), 40320);
+}
+```
+
+
+
+Test fixtures
+
+Test fixtures allow the same configuration to be used across tests (note, the objects are created before each test and destroyed after each test)
+
+```c++
+// Inherit from testing::Test 
+class QueueTest : public testing::Test {
+ // Use protected so fields available to subclasses
+ protected:
+  void SetUp() override {
+     // q0_ remains empty
+     q1_.Enqueue(1);
+     q2_.Enqueue(2);
+     q2_.Enqueue(3);
+  }
+
+  // void TearDown() override {}
+
+  // Objects and functions to share
+  Queue<int> q0_;
+  Queue<int> q1_;
+  Queue<int> q2_;
+};
+```
+
+1. GoogleTest constructs a `QueueTest` object (let’s call it `t1`).
+2. `t1.SetUp()` initializes `t1`.
+3. The first test (`IsEmptyInitially`) runs on `t1`.
+4. `t1.TearDown()` cleans up after the test finishes.
+5. `t1` is destructed.
+6. The above steps are repeated on another `QueueTest` object, this time running the `DequeueWorks` test.
+
+To use the fixture, use the `TEST_F` function and pass in the fixture class name
+
+```c++
+TEST_F(TestFixtureClassName, TestName) {
+  ... test body ...
+}
+```
+
+
+
+main() function
+
+```c++
+#include "this/package/foo.h"
+
+#include <gtest/gtest.h>
+
+namespace my {
+namespace project {
+namespace {
+
+// The fixture for testing class Foo.
+class FooTest : public testing::Test {
+ protected:
+  // You can remove any or all of the following functions if their bodies would
+  // be empty.
+
+  FooTest() {
+     // You can do set-up work for each test here.
+  }
+
+  ~FooTest() override {
+     // You can do clean-up work that doesn't throw exceptions here.
+  }
+
+  // If the constructor and destructor are not enough for setting up
+  // and cleaning up each test, you can define the following methods:
+
+  void SetUp() override {
+     // Code here will be called immediately after the constructor (right
+     // before each test).
+  }
+
+  void TearDown() override {
+     // Code here will be called immediately after each test (right
+     // before the destructor).
+  }
+
+  // Class members declared here can be used by all tests in the test suite
+  // for Foo.
+};
+
+// Tests that the Foo::Bar() method does Abc.
+TEST_F(FooTest, MethodBarDoesAbc) {
+  const std::string input_filepath = "this/package/testdata/myinputfile.dat";
+  const std::string output_filepath = "this/package/testdata/myoutputfile.dat";
+  Foo f;
+  EXPECT_EQ(f.Bar(input_filepath, output_filepath), 0);
+}
+
+// Tests that Foo does Xyz.
+TEST_F(FooTest, DoesXyz) {
+  // Exercises the Xyz feature of Foo.
+}
+
+}  // namespace
+}  // namespace project
+}  // namespace my
+
+int main(int argc, char **argv) {
+  testing::InitGoogleTest(&argc, argv);
+  // Runs all tests
+  // main function must return value of `RUN_ALL_TESTS()`, otherwise compilation fails
+  return RUN_ALL_TESTS(); // 0 if all tests successful, 1 otherwise
+}
+```
 
 
 
