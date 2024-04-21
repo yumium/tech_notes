@@ -561,6 +561,379 @@ def is_valid(condition):
 
 
 
+
+
+#### GroupBy
+
+
+
+GroupBy process is a sequence of 3 steps:
+
+- Splitting the data into groups based on some criteria
+- Applying a function to each group independently
+- Combining the results into a data structure 
+
+
+
+For apply step, generally one of 3 options
+
+- Aggregation: compute summary stats. for each group
+  - sums, means, sizes, counts
+- Transformation: 
+  - standardize data, fillling NAs
+- Filtration: 
+  - discard some groups 
+
+
+
+
+
+**Splitting an object into groups**
+
+Groupby options
+
+```python
+df.groupby(['A', 'B'],
+	sort=True,	# Sorts by group keys by default, slight performance improvement as sorting is not done
+	dropna=True, # Drops group keys with NA by default
+	as_index=True, # Have group keys are index by default 
+	group_key=True # Have group keys in result by default
+)
+```
+
+Showing groupings => keys are group keys, values are index values of members in each group
+
+```python
+>>> df
+   a    b  c
+0  1  2.0  3
+1  1  NaN  4
+2  2  1.0  3
+3  1  2.0  2
+
+>>> grouped = df.groupby('a')
+
+>>> grouped.groups
+{1: [0, 1, 3], 2: [2]}
+```
+
+Splitting with MultiIndex
+
+```python
+>>> s
+first  second
+bar    one       0.744977
+       two       0.201677
+baz    one      -1.444160
+       two       0.301844
+foo    one       0.556619
+       two       1.182560
+qux    one       1.163549
+       two       0.162515
+    
+>>> s.groupby(level=0).sum()
+first
+bar    0.946655
+baz   -1.142317
+foo    1.739180
+qux    1.326064
+
+>>> s.groupby(level='second').sum()
+second
+one    1.020985
+two    1.848596
+    
+>>> s.groupby(level=['first', 'second']).sum()
+first  second
+bar    one       0.744977
+       two       0.201677
+baz    one      -1.444160
+       two       0.301844
+foo    one       0.556619
+       two       1.182560
+qux    one       1.163549
+       two       0.162515
+```
+
+You can group by a combination of index and columns using a Grouper
+
+```python
+df
+Out[63]: 
+              A  B
+first second      
+bar   one     1  0
+      two     1  1
+baz   one     1  2
+      two     1  3
+foo   one     2  4
+      two     2  5
+qux   one     3  6
+      two     3  7
+    
+df.groupby([pd.Grouper(level=1), "A"]).sum()
+Out[64]: 
+          B
+second A   
+one    1  2
+       2  4
+       3  6
+two    1  4
+       2  5
+       3  7
+```
+
+You may want different operations for each column for the groups
+
+```python
+grouped = df.groupby(['A'])
+grouped_C = grouped['C']
+grouped_D = grouped['D']
+
+'''
+This is syntactic sugar to
+df['C'].groupby(df['A'])
+
+But of course saves the need to recompute the group keys
+'''
+```
+
+Iterating through groups => SLOW! Don't use for loops in dataframe operations
+
+```python
+for name, group in groups:
+    print(name)
+    print(group)
+```
+
+Selecting the dataframe belonging to a group
+
+```python
+grouped.get_group('bar')
+grouped_multi_index.get_group(('bar', 'one'))
+```
+
+
+
+
+
+
+
+**Aggregation**
+
+Maps each column in each group to a scalar, returning a dataframe.
+
+```python
+animals
+Out[80]: 
+  kind  height  weight
+0  cat     9.1     7.9
+1  dog     6.0     7.5
+2  cat     9.5     9.9
+3  dog    34.0   198.0
+
+animals.groupby("kind").sum()
+Out[81]: 
+      height  weight
+kind                
+cat     18.6    17.8
+dog     40.0   205.5
+
+# Resets index, otherwise index is group key by default
+animals.groupby("kind", as_index=False).sum()
+Out[82]: 
+  kind  height  weight
+0  cat    18.6    17.8
+1  dog    40.0   205.5
+```
+
+| Method                                                       | Description                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`any()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.any.html#pandas.core.groupby.DataFrameGroupBy.any) | Compute whether any of the values in the groups are truthy   |
+| [`all()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.all.html#pandas.core.groupby.DataFrameGroupBy.all) | Compute whether all of the values in the groups are truthy   |
+| [`count()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.count.html#pandas.core.groupby.DataFrameGroupBy.count) | Compute the number of non-NA values in the groups            |
+| [`cov()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.cov.html#pandas.core.groupby.DataFrameGroupBy.cov) * | Compute the covariance of the groups                         |
+| [`first()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.first.html#pandas.core.groupby.DataFrameGroupBy.first) | Compute the first occurring value in each group              |
+| [`idxmax()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.idxmax.html#pandas.core.groupby.DataFrameGroupBy.idxmax) | Compute the index of the maximum value in each group         |
+| [`idxmin()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.idxmin.html#pandas.core.groupby.DataFrameGroupBy.idxmin) | Compute the index of the minimum value in each group         |
+| [`last()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.last.html#pandas.core.groupby.DataFrameGroupBy.last) | Compute the last occurring value in each group               |
+| [`max()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.max.html#pandas.core.groupby.DataFrameGroupBy.max) | Compute the maximum value in each group                      |
+| [`mean()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.mean.html#pandas.core.groupby.DataFrameGroupBy.mean) | Compute the mean of each group                               |
+| [`median()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.median.html#pandas.core.groupby.DataFrameGroupBy.median) | Compute the median of each group                             |
+| [`min()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.min.html#pandas.core.groupby.DataFrameGroupBy.min) | Compute the minimum value in each group                      |
+| [`nunique()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.nunique.html#pandas.core.groupby.DataFrameGroupBy.nunique) | Compute the number of unique values in each group            |
+| [`prod()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.prod.html#pandas.core.groupby.DataFrameGroupBy.prod) | Compute the product of the values in each group              |
+| [`quantile()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.quantile.html#pandas.core.groupby.DataFrameGroupBy.quantile) | Compute a given quantile of the values in each group         |
+| [`sem()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.sem.html#pandas.core.groupby.DataFrameGroupBy.sem) | Compute the standard error of the mean of the values in each group |
+| [`size()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.size.html#pandas.core.groupby.DataFrameGroupBy.size) | Compute the number of values in each group                   |
+| [`skew()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.skew.html#pandas.core.groupby.DataFrameGroupBy.skew) * | Compute the skew of the values in each group                 |
+| [`std()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.std.html#pandas.core.groupby.DataFrameGroupBy.std) | Compute the standard deviation of the values in each group   |
+| [`sum()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.sum.html#pandas.core.groupby.DataFrameGroupBy.sum) | Compute the sum of the values in each group                  |
+| [`var()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.var.html#pandas.core.groupby.DataFrameGroupBy.var) | Compute the variance of the values in each group             |
+
+`aggregate()` method
+
+```python
+grouped['C'].agg(['sum', 'mean', 'std'])
+          sum      mean       std
+A                                
+bar  0.392940  0.130980  0.181231
+foo -1.796421 -0.359284  0.912265
+
+grouped['C'].agg('sum')
+
+# anonymous function
+animals.groupby("kind")[["height"]].agg(lambda x: x.astype(int).sum())
+
+(
+    grouped["C"]
+    .agg(["sum", "mean", "std"])
+    .rename(columns={"sum": "foo", "mean": "bar", "std": "baz"})
+)
+
+# named aggregation
+# syntax: new_column=(orig_column, func)
+animals.groupby("kind").agg(
+    min_height=("height", "min"),
+    max_height=("height", "max"),
+    average_weight=("weight", "mean"),
+)
+```
+
+
+
+**Transformation**
+
+DF => DF operations. Groupby index are not used as new index, keep original index.
+
+```python
+speeds
+Out[117]: 
+          class           order  max_speed
+falcon     bird   Falconiformes      389.0
+parrot     bird  Psittaciformes       24.0
+lion     mammal       Carnivora       80.2
+monkey   mammal        Primates        NaN
+leopard  mammal       Carnivora       58.0
+
+result = speeds.copy()
+
+result["cumsum"] = grouped.cumsum()
+
+result["diff"] = grouped.diff()
+
+result
+Out[124]: 
+          class           order  max_speed  cumsum   diff
+falcon     bird   Falconiformes      389.0   389.0    NaN
+parrot     bird  Psittaciformes       24.0   413.0 -365.0
+lion     mammal       Carnivora       80.2    80.2    NaN
+monkey   mammal        Primates        NaN     NaN    NaN
+leopard  mammal       Carnivora       58.0   138.2    NaN
+```
+
+| Method                                                       | Description                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`bfill()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.bfill.html#pandas.core.groupby.DataFrameGroupBy.bfill) | Back fill NA values within each group                        |
+| [`cumcount()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.cumcount.html#pandas.core.groupby.DataFrameGroupBy.cumcount) | Compute the cumulative count within each group               |
+| [`cummax()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.cummax.html#pandas.core.groupby.DataFrameGroupBy.cummax) | Compute the cumulative max within each group                 |
+| [`cummin()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.cummin.html#pandas.core.groupby.DataFrameGroupBy.cummin) | Compute the cumulative min within each group                 |
+| [`cumprod()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.cumprod.html#pandas.core.groupby.DataFrameGroupBy.cumprod) | Compute the cumulative product within each group             |
+| [`cumsum()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.cumsum.html#pandas.core.groupby.DataFrameGroupBy.cumsum) | Compute the cumulative sum within each group                 |
+| [`diff()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.diff.html#pandas.core.groupby.DataFrameGroupBy.diff) | Compute the difference between adjacent values within each group |
+| [`ffill()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.ffill.html#pandas.core.groupby.DataFrameGroupBy.ffill) | Forward fill NA values within each group                     |
+| [`pct_change()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.pct_change.html#pandas.core.groupby.DataFrameGroupBy.pct_change) | Compute the percent change between adjacent values within each group |
+| [`rank()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.rank.html#pandas.core.groupby.DataFrameGroupBy.rank) | Compute the rank of each value within each group             |
+| [`shift()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.shift.html#pandas.core.groupby.DataFrameGroupBy.shift) | Shift values up or down within each group                    |
+
+The `transform` method
+
+Can take any built-in transformation method, or a function that outputs a scalar for the group (so it can be broadcasted to the rows).
+
+```python
+# Normalising inside each group
+transformed = ts.groupby(lambda x: x.year).transform(
+    lambda x: (x - x.mean()) / x.std()
+)
+```
+
+
+
+
+
+**Filtration**
+
+Crushes each group into a single row
+
+```python
+speeds.groupby("class").nth(1)
+```
+
+| Method                                                       | Description                            |
+| ------------------------------------------------------------ | -------------------------------------- |
+| [`head()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.head.html#pandas.core.groupby.DataFrameGroupBy.head) | Select the top row(s) of each group    |
+| [`nth()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.nth.html#pandas.core.groupby.DataFrameGroupBy.nth) | Select the nth row(s) of each group    |
+| [`tail()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.core.groupby.DataFrameGroupBy.tail.html#pandas.core.groupby.DataFrameGroupBy.tail) | Select the bottom row(s) of each group |
+
+The `filter()` method => Returns a bool for each group, and result is subset of group where the method returned True.
+
+```python
+dff.groupby("B").filter(lambda x: len(x["C"]) > 2)
+```
+
+
+
+
+
+
+
+**Flexible `apply`**
+
+`apply` takes in DF of each group and spits out new DF. These new DFs are then combined together under each group key
+
+```python
+grouped["C"].apply(lambda x: x.describe())
+
+A
+bar  count    3.000000
+     mean     0.130980
+     std      0.181231
+     min     -0.077118
+     25%      0.069390
+                ...   
+foo  min     -1.143704
+     25%     -0.862495
+     50%     -0.575247
+     75%     -0.408530
+     max      1.193555
+```
+
+
+
+
+
+
+
+
+
+
+
+#### Windowing operations
+
+
+
+https://pandas.pydata.org/pandas-docs/stable/user_guide/window.html#window-expanding
+
+
+
+
+
+
+
+
+
+
+
 ### Series
 
 Creating a series

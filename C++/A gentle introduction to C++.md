@@ -1744,7 +1744,7 @@ Rectangle::Rectangle () {	// The default constructor, used when no parameters ar
 Rectangle::Rectangle (int a, int b) {
     width = a;
     height = b;
-}
+}mae
 
 int main () {
 	Rectangle rect (3,4);
@@ -4101,6 +4101,37 @@ Additional functions:
 Singly linked list
 
 Less storage than `std::list`, but doesn't support bidirectional move
+
+
+
+
+
+### std::map
+
+Sorted key-value pair container. Logarithmic complexity for search, insert, and delete. Typically implemented as a Red-Black tree.
+
+Element access: `at`, `operator[]`
+
+Iterators: `begin`, `end`, `rbegin`, `rend`
+
+Capacity: `empty`, `size`, `max_size`
+
+Modifiers: `clear`, `insert`, `insert_range`, `insert_or_assign`, `erase`, `swap`, `extract`, `merge`
+
+Lookup: `count(key)`, `find(key)`, `contains(key)`, 
+
+- `lower_bound(key)`: Return an iterator to the first element >= key
+- `upper_bound(key)`: Return an iterator to the first element <= key
+
+
+
+
+
+
+
+
+
+
 
 
 
