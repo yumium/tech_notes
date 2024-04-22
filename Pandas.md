@@ -597,7 +597,7 @@ df.groupby(['A', 'B'],
 	sort=True,	# Sorts by group keys by default, slight performance improvement as sorting is not done
 	dropna=True, # Drops group keys with NA by default
 	as_index=True, # Have group keys are index by default 
-	group_key=True # Have group keys in result by default
+	group_keys=True # Have group keys in result by default
 )
 ```
 
@@ -856,6 +856,39 @@ transformed = ts.groupby(lambda x: x.year).transform(
     lambda x: (x - x.mean()) / x.std()
 )
 ```
+
+Note, function inside `.transform` takes a series as argument. This function is applied to each column of each group.
+
+The returned DF will be in the original index, not ordered by group keys.
+
+Also note that group keys are dropped after transform (https://github.com/pandas-dev/pandas/issues/12495)
+
+```python
+df_simp = pd.DataFrame({
+    'A': [1,2,1,2,1],
+    'B': [10,20,30,40,50]
+})
+'''
+	A	B
+0	1	10
+1	2	20
+2	1	30
+3	2	40
+4	1	50
+'''
+
+df_simp.groupby('A').transform(lambda ser : ser * 10)
+'''
+B
+0	100
+1	200
+2	300
+3	400
+4	500
+'''
+```
+
+
 
 
 
