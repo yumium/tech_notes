@@ -594,7 +594,7 @@ Groupby options
 
 ```python
 df.groupby(['A', 'B'],
-	sort=True,	# Sorts by group keys by default, slight performance improvement as sorting is not done
+	sort=True,	# Sorts by group keys by default, slight performance improvement as sorting is not done (leave in same order as groups appear in the original data)
 	dropna=True, # Drops group keys with NA by default
 	as_index=True, # Have group keys are index by default 
 	group_keys=True # Have group keys in result by default
@@ -804,7 +804,7 @@ animals.groupby("kind").agg(
 
 **Transformation**
 
-DF => DF operations. Groupby index are not used as new index, keep original index.
+DF => DF operations. Return DF with same index as original, now with transformed values. 
 
 ```python
 speeds
