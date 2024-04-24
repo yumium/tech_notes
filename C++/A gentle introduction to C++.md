@@ -4392,6 +4392,39 @@ int main(int argc, char **argv) {
 
 
 
+## BOOST Test
+
+(https://www.boost.org/doc/libs/1_85_0/libs/test/doc/html/index.html)
+
+`BOOST_AUTO_TEST_SUITE(TestSuiteName)`
+
+`BOOST_FIXTURE_TEST_CASE(testCaseName, fixtureName)`
+
+`BOOST_AUTO_TEST_CASE(testCaseName)`
+
+For floating pointer comparison
+```c++
+double TOL = 0.000'1; // Relative error
+BOOST_CHECK_CLOSE(actual, expected, TOL);
+```
+
+To add information on which loop failed.
+```c++
+for (int i = 0; i < size; i++)
+{
+    BOOST_CHECK_EQUAL(actual, expected);
+}
+
+// Better to write this
+for (int i = 0; i < size; i++)
+{
+    BOOST_TEST_CONTEXT("i = " << i)
+    {
+        BOOST_CHECK_EQUAL(actual, expected);
+    }
+}
+```
+
 
 
 
