@@ -1176,6 +1176,41 @@ int main ()
 ### Strings!!!!
 
 
+`std::string` is a small struct with 
+
+```c++
+// string
+struct {
+    int len;
+    int capacity;
+    char* data;
+};
+```
+
+Under the hood it calls `malloc` and `free`. 
+
+Strings cannot be `constexpr` as it cannot be constructed during compile time. For this we need to use `string_view`.
+
+`string_view` is like strings but does not own the underlying object. If the string_view is deleted, the underlying data is kept in place. It's basically a pointer with length information
+
+```c++
+// string_view
+struct {
+    int len;
+    char* data;
+};
+```
+
+Because of this, `string_view` can be a constexpr, as the compiler just needs to store the data in `.rodata` vector at compile time and make the pointer point to it.
+
+```c++
+constexpr std::string_view my_string = "Hello World";
+```
+
+
+
+
+
 
 ### Arrays
 
