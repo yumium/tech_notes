@@ -856,6 +856,22 @@ int divide (int a, int b=2)
 ```
 
 
+Note, for default values can only be in .h files (not .cpp source files). So you want to do this:
+
+`MyClass.h` file
+
+```c++
+std::string to_string(bool compact=false) const;
+```
+
+`MyClass.cpp` file
+
+```c++
+std::string to_string(bool compact) const
+{
+    // Your code
+}
+```
 
 Declaring functions
 
