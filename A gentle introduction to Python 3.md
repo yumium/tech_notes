@@ -2358,7 +2358,7 @@ Common RE expression syntax
 
 | Character        | Notes                                                        |
 | ---------------- | ------------------------------------------------------------ |
-| `.`              | Match any character except newline                           |
+| `.`              | Match any character **except newline**                       |
 | `^`              | Match start of the string (before newline)                   |
 | `$`              | Match from end of the string or after newline at end of string (until the next newline) |
 | `*`              | Match preceding RE, greedily                                 |
