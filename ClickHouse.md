@@ -434,9 +434,7 @@ client = clickhouse_connect.get_client(host='localhost', username='default', pas
 client.command('CREATE TABLE new_table (key UInt32, value String, metric Float64) ENGINE MergeTree ORDER BY key')
 ```
 
-Use this when you want to execute commands that don't normally return data.
-
-You can also use commands for returning data that is a single row.
+Use this when you want to execute commands that don't return any data, returns a single value, or a single row.
 
 ```python
 result = client.command('SELECT count() FROM system.tables')
@@ -447,12 +445,25 @@ Out[7]: 110
 
 **Insertions**
 
+For more optional arguments: 
+
+https://clickhouse.com/docs/en/integrations/python#client-insert-method
+
 ```python
 row1 = [100, 'String Value 1000', 5.233]
 row2 = [200, 'String Value 2000', -107.04]
 data = [row1, row2]
 client.insert('new_table', data, column_names=['key', 'value', 'metric'])
 ```
+
+There are two specialized versions of the main insert method:
+
+- insert_df -- Instead of Python Sequence of Sequences data argument, the second parameter of this method requires a dfargument that must be a Pandas Dataframe instance. ClickHouse Connect automatically processes the Dataframe as a column oriented datasource, so the column_oriented parameter is not required or available.
+- insert_arrow -- Instead of a Python Sequence of Sequences data argument, this method requires an arrow_table. ClickHouse Connect passes the Arrow table unmodified to the ClickHouse server for processing, so only the database and settings arguments are available in addition to table and arrow_table.
+
+
+
+
 
 
 **Querying**
@@ -462,6 +473,46 @@ result = client.query('SELECT max(key), avg(metric) FROM new_table')
 result.result_rows
 Out[13]: [(2000, -50.9035)]
 ```
+
+Pass in `SELECT` or `DESCRIBE` query.
+
+
+
+The base `query` method returns a QueryResult object with the following public properties:
+
+- result_rows -- A matrix of the data returned in the form of a Sequence of rows, with each row element being a sequence of column values.
+- result_columns -- A matrix of the data returned in the form of a Sequence of columns, with each column element being a sequence of the row values for that column
+- column_names -- A tuple of strings representing the column names in the result_set
+- column_types -- A tuple of ClickHouseType instances representing the ClickHouse data type for each column in the result_columns
+- query_id -- The ClickHouse query_id (useful for examining the query in the system.query_log table)
+- summary -- Any data returned by the X-ClickHouse-Summary HTTP response header
+- first_item -- A convenience property for retrieving the first row of the response as a dictionary (keys are column names)
+- first_row -- A convenience property to return the first row of the result
+- column_block_stream -- A generator of query results in column oriented format. This property should not be referenced directly (see below).
+- row_block_stream -- A generator of query results in row oriented format. This property should not be referenced directly (see below).
+- rows_stream -- A generator of query results that yields a single row per invocation. This property should not be referenced directly (see below).
+- summary -- As described under the command method, a dictionary of summary information returned by ClickHouse
+- The *_stream properties return a Python Context that can be used as an iterator for the returned data. They should only be accessed indirectly using the Client *_stream methods.
+
+
+Query variants:
+
+Consuming query results with Numpy, Pandas or Arrow. There are three specialized versions of the main query method:
+
+- query_np -- This version returns a Numpy Array instead a ClickHouse Connect QueryResult.
+- query_df -- This version returns a Pandas Dataframe instead of a ClickHouse Connect QueryResult.
+- query_arrow -- This version returns a PyArrow Table. It utilizes the ClickHouse Arrow format directly, so it only accepts three arguments in common with the main query method: query, parameters, and settings. In addition, there is additional argument use_strings which determines whether the Arrow Table will render ClickHouse String types as strings (if True) or bytes (if False).
+
+
+Client Streaming Query Methods. The ClickHouse Connect Client provides multiple methods for retrieving data as a stream (implemented as a Python generator):
+
+- query_column_block_stream -- Returns query data in blocks as a sequence of columns using native Python object
+- query_row_block_stream -- Returns query data as a block of rows using native Python object
+- query_rows_stream -- Returns query data as a sequence of rows using native Python object
+- query_np_stream -- Returns each ClickHouse block of query data as a Numpy array
+- query_df_stream -- Returns each ClickHouse Block of query data as a Pandas Dataframe
+- query_arrow_stream -- Returns query data in PyArrow RecordBlocks
+
 
 
 
