@@ -405,6 +405,75 @@ Supports the usual JOIN operations and niche ones (e.g., ASOF join)
 
 
 
+## Data Formats
+
+
+
+
+
+## Clients and Drivers
+
+### Python
+
+https://clickhouse.com/docs/en/integrations/python
+
+We use the SQLAlchemy dialect in the package `clickhouse_connect.cc_sqlalchemy`
+
+**Connecting to clickhouse**
+
+```python
+import clickhouse_connect
+
+client = clickhouse_connect.get_client(host='localhost', username='default', password='password')
+```
+
+
+**Sending commands**
+
+```python
+client.command('CREATE TABLE new_table (key UInt32, value String, metric Float64) ENGINE MergeTree ORDER BY key')
+```
+
+Use this when you want to execute commands that don't normally return data.
+
+You can also use commands for returning data that is a single row.
+
+```python
+result = client.command('SELECT count() FROM system.tables')
+result
+Out[7]: 110
+```
+
+
+**Insertions**
+
+```python
+row1 = [100, 'String Value 1000', 5.233]
+row2 = [200, 'String Value 2000', -107.04]
+data = [row1, row2]
+client.insert('new_table', data, column_names=['key', 'value', 'metric'])
+```
+
+
+**Querying**
+
+```python
+result = client.query('SELECT max(key), avg(metric) FROM new_table')
+result.result_rows
+Out[13]: [(2000, -50.9035)]
+```
+
+
+
+## SQL Reference
+
+Clickhouse have similar statements and functionalities to most other DB vendors (e.g., Postgresql)
+
+
+
+
+
+
 
 
 
