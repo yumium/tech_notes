@@ -2362,8 +2362,8 @@ Common RE expression syntax
 | `^`              | Match start of the string (before newline)                   |
 | `$`              | Match from end of the string or after newline at end of string (until the next newline) |
 | `*`              | Match preceding RE, greedily                                 |
-| `+`              | Match preceding RE, at least 1 time                          |
-| `?`              | Match preceding RE, 0 or 1 time                              |
+| `+`              | Match preceding RE, at least 1 time, greedily                |
+| `?`              | Match preceding RE, 0 or 1 time, greedily                    |
 | `*?`, `+?`, `??` | Match minimally for `*`, `+`, or `? ` (match as few as possible) |
 | `*+`, `++`, `?+` | Does not algorithmically backtrack when expression fails to match.<br />e.g. `a*+a` will fail to match `aaaa`, as once the `*` portion eats the end 3 `a`s, it will not backtrack to fit the last `a` in the pattern, but instead fail as there are no more characters in the string left to match the last `a` |
 | `{m}`            | Match exactly m copies of previous RE                        |
