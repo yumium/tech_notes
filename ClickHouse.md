@@ -407,7 +407,9 @@ Supports the usual JOIN operations and niche ones (e.g., ASOF join)
 
 ## Data Formats
 
+https://clickhouse.com/docs/en/integrations/data-formats/binary-native
 
+Pretty straight forward, check for specifics.
 
 
 
