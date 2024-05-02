@@ -1864,6 +1864,8 @@ Rectangle::Rectangle (int x, int y) : width(x), height(y) { }	// No other statem
 
 For class members that are not initiated in the constructor, if they are fundamental types (int, char ...) they are left uninitialized, if they are class types they need to be initialized in the constructors.
 
+Note, if instead of using member initialisation, you assign it in the constructor. The member will be initialised to default first (see above) then assigned the new value. This can cause performance overhead.
+
 ```c++ 
 #include <iostream>
 using namespace std;
