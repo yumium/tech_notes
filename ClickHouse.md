@@ -522,16 +522,86 @@ Client Streaming Query Methods. The ClickHouse Connect Client provides multiple 
 
 Clickhouse have similar statements and functionalities to most other DB vendors (e.g., Postgresql)
 
+Syntax matters:
+
+- Spaces between syntactical constructions don't matter
+- Comments: --, #, /* ... */
+- SQL keywords (SELECT ...) is case insensitive. All other keywords (e.g., function names) are case sensitive
 
 
+### Data Types
+
+**Integer**
+
+Signed:
+
+- Int8 — TINYINT, INT1, BYTE, TINYINT SIGNED, INT1 SIGNED.
+-Int16 — SMALLINT, SMALLINT SIGNED.
+- Int32 — INT, INTEGER, MEDIUMINT, MEDIUMINT SIGNED, INT SIGNED, INTEGER SIGNED.
+- Int64 — BIGINT, SIGNED, BIGINT SIGNED, TIME.
+
+Unsigned:
+
+- Int8 — TINYINT, INT1, BYTE, TINYINT SIGNED, INT1 SIGNED.
+- Int16 — SMALLINT, SMALLINT SIGNED.
+- Int32 — INT, INTEGER, MEDIUMINT, MEDIUMINT SIGNED, INT SIGNED, INTEGER SIGNED.
+- Int64 — BIGINT, SIGNED, BIGINT SIGNED, TIME.
+
+**Float**
+
+Same type as the C types.
+
+- Float32 — FLOAT, REAL, SINGLE.
+- Float64 — DOUBLE, DOUBLE PRECISION.
+
+Supports: Inf, -Inf, NaN
+
+**Decimal**
+
+https://clickhouse.com/docs/en/sql-reference/data-types/decimal
+
+Fixed decimal places for precision. Addition, subtraction and multiplication don't lose precision. Division will truncate. Represented as integers.
+
+Example: `1 - 0.9` evaluates to 0.09999999999999998 for `double`, but `0.1` for decimal.
+
+Value ranges:
+
+- Decimal32(S) - ( -1 * 10^(9 - S), 1 * 10^(9 - S) )
+- Decimal64(S) - ( -1 * 10^(18 - S), 1 * 10^(18 - S) )
+- Decimal128(S) - ( -1 * 10^(38 - S), 1 * 10^(38 - S) )
+- Decimal256(S) - ( -1 * 10^(76 - S), 1 * 10^(76 - S) )
+
+As most machines can't do 128-bit and 256-bit integer calculations natively, they are emulated. So these operations are slow.
 
 
+**String**
+
+Arbitrary length
 
 
+**FixedString(N)**
+
+Up to N bytes. More efficient when values are exactly N bytes. Examples: IP addresses, language codes, currency codes ...
 
 
+**Date**
 
+Stored in 2 bytes as # of days since unix epoch time.
 
+```SQL
+CREATE TABLE dt
+(
+	`timestamp` Date,
+	`event_id` UInt8
+)
+ENGINE = TinyLog;
+```
+
+```SQL
+INSERT INTO dt VALUES ('2019-01-01', 1), (17897, 2), (1546300800, 3);
+
+SELECT * FROM dt;
+```
 
 
 
