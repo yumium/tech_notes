@@ -4176,7 +4176,7 @@ Lookup: `count(key)`, `find(key)`, `contains(key)`,
 - `lower_bound(key)`: Return an iterator to the first element >= key
 - `upper_bound(key)`: Return an iterator to the first element <= key
 
-
+Note: `operator[]` insertion will overwrite if key exists. `insert` will do no-op if key exists.
 
 
 
