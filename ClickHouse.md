@@ -604,6 +604,133 @@ SELECT * FROM dt;
 ```
 
 
+**Date32**
+
+Date stored as 32-bit integer (+/- Unix Epoch time). 
+
+
+**DateTime**
+
+Stored as 32-bit integer in Unix Timestamp format (resolution: second).
+
+Generally slower than `Date`. This is because time is less compressible.
+
+
+**DateTime64**
+
+Stored as 64-bit integer in Unix Timestamp format, variable resolution
+
+```SQL
+DateTime64(precision, [timezone])
+```
+
+Example:
+
+```SQL
+CREATE TABLE dt64
+(
+	`timestamp` DateTime64(3, 'Asia/Istanbul'),
+	`event_id` UInt8
+)
+```
+
+Precision range [0:9]. Typical use: 3 (milliseconds), 6 (microseconds), 9 (nanoseconds).
+
+
+
+**Enum**
+
+Stored as 8-bit or 16-bit integers (range [-128, 127] and [-32768, 32767] respectively)
+
+```SQL
+CREATE TABLE t_enum
+(
+	x Enum('hello' = 1, 'world' = 2)
+)
+ENGINE = TinyLog
+```
+
+By default it assigns from 1, or you can specify starting enum.
+
+
+**Bool**
+
+Generally stored as UInt8. Possible values are `true` (1) and `false` (0).
+
+
+**IPv4**
+
+4 bytes as UInt32
+
+
+**IPv6**
+
+16 bytes as UInt128 big-endian
+
+
+**Array(T)**
+
+Example of creating an array
+
+```SQL
+SELECT array(1,2) AS x, toTypeName(x)
+```
+
+**Tuple(T1, T2 ...)**
+
+**Map(K, V)**
+
+**Variant(T1, T2 ...)**
+
+Union of types
+
+
+**LowCardinality(T)**
+
+Convert datatype to dictionary encoding. Works especially well for data with less than 10,000 distinct values.
+
+`LowCardinality` can provide same or higher efficiency than `Enums`. Prefer to use this for strings.
+
+
+
+**Nullable(T)**
+
+
+
+
+### Statements
+
+
+#### SELECT
+
+```SQL
+[WITH expr_list|(subquery)]
+SELECT [DISTINCT [ON (column1, column2, ...)]] expr_list
+[FROM [db.]table | (subquery) | table_function] [FINAL]
+[SAMPLE sample_coeff]
+[ARRAY JOIN ...]
+[GLOBAL] [ANY|ALL|ASOF] [INNER|LEFT|RIGHT|FULL|CROSS] [OUTER|SEMI|ANTI] JOIN (subquery)|table (ON <expr_list>)|(USING <column_list>)
+[PREWHERE expr]
+[WHERE expr]
+[GROUP BY expr_list] [WITH ROLLUP|WITH CUBE] [WITH TOTALS]
+[HAVING expr]
+[WINDOW window_expr_list]
+[QUALIFY expr]
+[ORDER BY expr_list] [WITH FILL] [FROM expr] [TO expr] [STEP expr] [INTERPOLATE [(expr_list)]]
+[LIMIT [offset_value, ]n BY columns]
+[LIMIT [n, ]m] [WITH TIES]
+[SETTINGS ...]
+[UNION  ...]
+[INTO OUTFILE filename [COMPRESSION type [LEVEL level]] ]
+[FORMAT format]
+```
+
+
+
+
+
+
+
 
 
 
