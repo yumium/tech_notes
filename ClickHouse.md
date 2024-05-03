@@ -706,12 +706,17 @@ Convert datatype to dictionary encoding. Works especially well for data with les
 ```SQL
 [WITH expr_list|(subquery)]
 SELECT [DISTINCT [ON (column1, column2, ...)]] expr_list
-[FROM [db.]table | (subquery) | table_function] [FINAL]
-[SAMPLE sample_coeff]
+-- Read data
+[FROM [db.]table | (subquery) | table_function] [FINAL]  -- subquery = (SELECT ...); table1, table2 is like cross-join; FINAL merges the data before querying
+-- Sampling subset of data (used for low latency, low data quality, or privacy reasons)
+[SAMPLE sample_coeff]  -- SAMPLE 0.1 (fraction of data); SAMPLE 10000 (min # of rows); SAMPLE 1/10 OFFSET 1/2 (10% from 2nd half of data)
 [ARRAY JOIN ...]
+-- Joining tables
 [GLOBAL] [ANY|ALL|ASOF] [INNER|LEFT|RIGHT|FULL|CROSS] [OUTER|SEMI|ANTI] JOIN (subquery)|table (ON <expr_list>)|(USING <column_list>)
-[PREWHERE expr]
-[WHERE expr]
+-- Filter optimisation
+[PREWHERE expr]  -- Only blocks with rows where `expr` is true is read. By default `WHERE` goes to `PREWHERE`
+-- Filter
+[WHERE expr]  -- E.g. WHERE (number > 10) AND (number % 3 == 0);
 [GROUP BY expr_list] [WITH ROLLUP|WITH CUBE] [WITH TOTALS]
 [HAVING expr]
 [WINDOW window_expr_list]
@@ -724,6 +729,28 @@ SELECT [DISTINCT [ON (column1, column2, ...)]] expr_list
 [INTO OUTFILE filename [COMPRESSION type [LEVEL level]] ]
 [FORMAT format]
 ```
+
+Examples (roughly in order of statements)
+
+```SQL
+SELECT
+    Title,
+    count() * 10 AS PageViews
+FROM hits_distributed
+SAMPLE 0.1
+WHERE
+    CounterID = 34
+GROUP BY Title
+ORDER BY PageViews DESC LIMIT 1000
+```
+
+```SQL
+SELECT sum(PageViews * _sample_factor)
+FROM visits
+SAMPLE 10000000
+```
+
+
 
 
 
