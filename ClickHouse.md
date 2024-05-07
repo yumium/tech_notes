@@ -712,7 +712,7 @@ SELECT [DISTINCT [ON (column1, column2, ...)]] expr_list
 -- Sampling subset of data (used for low latency, low data quality, or privacy reasons)
 [SAMPLE sample_coeff]  -- SAMPLE 0.1 (fraction of data); SAMPLE 10000 (min # of rows); SAMPLE 1/10 OFFSET 1/2 (10% from 2nd half of data)
 [ARRAY JOIN ...]
--- Joining tables
+-- Joining tables (see later)
 [GLOBAL] [ANY|ALL|ASOF] [INNER|LEFT|RIGHT|FULL|CROSS] [OUTER|SEMI|ANTI] JOIN (subquery)|table (ON <expr_list>)|(USING <column_list>)
 -- Filter optimisation
 [PREWHERE expr]  -- Only blocks with rows where `expr` is true is read. By default `WHERE` goes to `PREWHERE`
@@ -723,7 +723,9 @@ SELECT [DISTINCT [ON (column1, column2, ...)]] expr_list
 [GROUP BY expr_list] [WITH ROLLUP|WITH CUBE] [WITH TOTALS]
 -- Like WHERE but performed after aggregation
 [HAVING expr]
+-- See later
 [WINDOW window_expr_list]
+-- See later
 [QUALIFY expr]
 -- ORDER BY col1, col2; ORDER BY 2, 1 (idx of col); ORDER BY ALL (all cols); return order for rows with same selected col values is arbitrary
 [ORDER BY expr_list] [ASC (default) / DESC] [WITH FILL] [FROM expr] [TO expr] [STEP expr] [INTERPOLATE [(expr_list)]]
@@ -732,8 +734,11 @@ SELECT [DISTINCT [ON (column1, column2, ...)]] expr_list
 -- LIMIT n = first n rows of result; LIMIT n m / LIMIT m OFFSET n = first m rows after skipping first n rows of result
 [LIMIT [n, ]m] [WITH TIES]
 [SETTINGS ...]
-[UNION  ...]
+-- INTERSECT (rows in both subqueries, result can contain duplicated rows); EXCEPT (rows in first subquery not second)
+[UNION, INTERSECT, EXCEPT] [DISTINCT]
+-- Redirect output to file
 [INTO OUTFILE filename [COMPRESSION type [LEVEL level]] ]
+-- Convert output to specific format
 [FORMAT format]
 ```
 
@@ -784,7 +789,10 @@ Gives
 ```
 
 
+#### JOIN
 
+
+#### WINDOW
 
 
 
