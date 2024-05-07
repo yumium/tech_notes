@@ -705,6 +705,7 @@ Convert datatype to dictionary encoding. Works especially well for data with les
 
 ```SQL
 [WITH expr_list|(subquery)]
+-- DISTINCT = unique rows, DISTINCT ON (col1, col2 ...) = rows with unique values in cols specified
 SELECT [DISTINCT [ON (column1, column2, ...)]] expr_list
 -- Read data
 [FROM [db.]table | (subquery) | table_function] [FINAL]  -- subquery = (SELECT ...); table1, table2 is like cross-join; FINAL merges the data before querying
@@ -717,12 +718,18 @@ SELECT [DISTINCT [ON (column1, column2, ...)]] expr_list
 [PREWHERE expr]  -- Only blocks with rows where `expr` is true is read. By default `WHERE` goes to `PREWHERE`
 -- Filter
 [WHERE expr]  -- E.g. WHERE (number > 10) AND (number % 3 == 0);
+-- NULL is a value for group keys and NULL=NULL
+-- SELECT, HAVING, and ORDER BY must follow with group cols or agg(non group cols)
 [GROUP BY expr_list] [WITH ROLLUP|WITH CUBE] [WITH TOTALS]
+-- Like WHERE but performed after aggregation
 [HAVING expr]
 [WINDOW window_expr_list]
 [QUALIFY expr]
-[ORDER BY expr_list] [WITH FILL] [FROM expr] [TO expr] [STEP expr] [INTERPOLATE [(expr_list)]]
-[LIMIT [offset_value, ]n BY columns]
+-- ORDER BY col1, col2; ORDER BY 2, 1 (idx of col); ORDER BY ALL (all cols); return order for rows with same selected col values is arbitrary
+[ORDER BY expr_list] [ASC (default) / DESC] [WITH FILL] [FROM expr] [TO expr] [STEP expr] [INTERPOLATE [(expr_list)]]
+-- First n rows for each distinct value of `expression`
+[LIMIT [offset_value, ]n BY expression]
+-- LIMIT n = first n rows of result; LIMIT n m / LIMIT m OFFSET n = first m rows after skipping first n rows of result
 [LIMIT [n, ]m] [WITH TIES]
 [SETTINGS ...]
 [UNION  ...]
@@ -750,9 +757,31 @@ FROM visits
 SAMPLE 10000000
 ```
 
+```SQL
+SELECT * FROM limit_by ORDER BY id, val LIMIT 2 OFFSET 1 by id
+```
 
+On
 
+```
+┌─id─┬─val─┐
+│  1 │  10 │
+│  1 │  11 │
+│  1 │  12 │
+│  2 │  20 │
+│  2 │  21 │
+└────┴─────┘
+```
 
+Gives
+
+```
+┌─id─┬─val─┐
+│  1 │  11 │
+│  1 │  12 │
+│  2 │  21 │
+└────┴─────┘
+```
 
 
 
