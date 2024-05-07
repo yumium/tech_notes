@@ -314,8 +314,9 @@ Read the chapter on `Refspec`, p.458
 - `.gitignore`: [specify](https://git-scm.com/docs/gitignore) intentionally untracked files to ignore
 - `git cherry-pick <commitSHA>`: Apply changes in that commit to current branch and commits it, this allows change applied from any arbitrary commit in any order.
 
+# Selected topics
 
-# Submodules
+## Submodules
 
 Submodules are repositories that are contained inside another repository (called the supermodule). The supermodule doesn't actually contain all the **code** of the submodule, but instead just have a special pointer-like object to the submodule **repo** and its commit. This can be seen when you look at a particular commit of a supermodule:
 
@@ -462,6 +463,24 @@ Other commands
 
 
 
+
+
+## Viewing diff across MRs for one piece of work using `cherry-pick`
+
+Often one piece of work will be spread across multiple MRs/PRs. Overtime you may lose track of all the changes you made.
+
+You could use `cherry-pick` to execute all the changes across MRs in order, then compare that branch to where you started to get an aggregated view of the changes.
+
+Luckily, `cherry-pick` can be used on a merge request, so now you are picking the MRs you want instead of all the commits one by one.
+
+Apply the following command
+
+```
+git cherry-pick -m 1 <mergecommithash> -n
+```
+
+- `-m`: Pick which parent you want to apply the changes from. View the parents of a merge using `git show --pretty=raw <mergecommithash>`
+- `-n`: Don't commit the changes, just stage them
 
 
 
