@@ -2102,7 +2102,81 @@ int main ()
 
 Static functions are the same but for functons.
 
+Static members have "static storage duration". They are always created before program execution and destroyed after program halts.
 
+Initialisation of static members can be static or dynamic. Static initialisation happens at compile time and doesn't need to be run during runtime. Compiler prefers static initialisation whenever it is possible. Example:
+
+```c++
+//a.h
+struct MyStruct
+{
+	static int a;
+};
+
+//a.cpp
+int MyStruct::a = 67;
+```
+
+Here, the value `67` is a constant expression, so the compiler knows that it can be evaluated and initialised at compile time. At times, you may want to tell the compiler it is a constant expression using `constexpr`
+
+In C++20, we have `constinit`, which acts like `constexpr` (compiler can evaluate its value at compile time) but allows the value to be mutated at runtime.
+
+Sometimes we have to use dynamic initialisation, such as initialising strings (due to how memory is managed for strings)
+
+```c++
+const auto VERSION = "3.4.1";
+```
+
+This string will be evaluated during each run of the program.
+
+Try to avoid SIOF (static initialisation order fiasco), where there is dependency between initialisation of static members. Initialisation within the same compilation unit is done in order of definition in the source file. But initialisation across compilation units is random.
+
+```c++
+// a.cpp
+int duplicate(int n)
+{
+	return n * 2;
+}
+auto A = duplicate(7);
+
+// b.cpp
+extern int a;
+auto B = A;
+
+int main()
+{
+	std::cout << B << std::endl;  // print 14 or 0 depends on init order
+	return EXIT_SUCCESS;
+}
+```
+
+One way to avoid SIOF is to have initialisation done when the value is accessed for the first time.
+
+```c++
+// a.cpp
+int duplicate(int n)
+{
+    return n * 2;
+}
+
+auto& A()
+{
+  static auto a = duplicate(7); // Initiliazed first time A() is called
+  return a;
+}
+
+// b.cpp
+#include <iostream>
+#include "a.h"
+
+auto B = A();
+
+int main()
+{
+  std::cout << B << std::endl;
+  return EXIT_SUCCESS;
+}
+```
 
 
 
