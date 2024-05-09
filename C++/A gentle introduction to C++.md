@@ -1640,8 +1640,13 @@ enum months_t { january=1, february, march, april,
                 september, october, november, december} y2k;
 ```
 
+Conversion to and from int
 
-
+```c++
+colors_t mycolor = blue;
+int i = static_cast<int>(mycolor);
+colors_t thecolor = static_cast<colors_t>(i);
+```
 
 
 **Enumerated types with enum class**
