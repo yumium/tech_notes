@@ -487,6 +487,10 @@ git cherry-pick -m 1 <mergecommithash> -n
 
 # Miscellaneous
 
+- `git fetch origin master:master`: you can execute this command when in another branch to fetch from master
+- `git checkout master@{two.days.ago}`
+
+
 - **GUIs**: there are many [GUI clients](https://git-scm.com/downloads/guis) out there for Git. We personally don’t use them and use the command-line interface instead.
 - **Shell integration**: it’s super handy to have a Git status as part of your shell prompt ([zsh](https://github.com/olivierverdier/zsh-git-prompt), [bash](https://github.com/magicmonty/bash-git-prompt)). Often included in frameworks like [Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh).
 - **Editor integration**: similarly to the above, handy integrations with many features. [fugitive.vim](https://github.com/tpope/vim-fugitive) is the standard one for Vim.
