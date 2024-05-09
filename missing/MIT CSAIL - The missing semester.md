@@ -677,7 +677,7 @@ sed -n '/boot/,/boot/ p' a_file
 **head, tail**
 
 - `-n`: specify how many lines (eg. `-n5` for 5 lines)
-
+- `-n +NUM` for tail: get all lines starting from line NUM. So to get first m lines with offset n you can do `tail -n +n | head -n m`
 
 
 **uniq**
