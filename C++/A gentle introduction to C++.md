@@ -4565,6 +4565,12 @@ for (int i = 0; i < size; i++)
 
 ## Misc
 
+### Headers vs. Source files
+
+- In general, we will put everything in source (.cpp) file, unless it's impossible (e.g., templates)
+- This way, any changes in source file means only that file needs to be recompiled, not all files that depend on the header
+- Only exception perhaps is putting code in header to speed up compilation
+
 
 
 ### C++ Concepts (metaprogramming)
