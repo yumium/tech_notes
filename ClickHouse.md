@@ -961,7 +961,16 @@ https://clickhouse.com/docs/en/sql-reference/statements/create/table#column-comp
 General purpose codecs
 
 - `NONE`: No compression
-- `LZ4`: 
+- `LZ4`: Lossless data compression algo
+- `LZ4HC[level]`: Higher compression
+- `ZSTD[level]`: ZSTD compression algo
+- `ZSTD_QAT[level]`: Variant of ZSTD
+- `DEFLATE_QPL`: Deflate compression algo
+
+Specialized Codecs
+
+- `Delta`:
+- 
 
 
 
