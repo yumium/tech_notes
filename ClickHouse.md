@@ -791,6 +791,37 @@ Gives
 
 #### JOIN
 
+https://clickhouse.com/blog/clickhouse-fully-supports-joins-part1#left--right-semi-join
+
+```SQL
+SELECT <expr_list>
+FROM <left_table>
+[GLOBAL] [INNER|LEFT|RIGHT|FULL|CROSS] [OUTER|SEMI|ANTI|ANY|ALL|ASOF] JOIN <right_table>
+(ON <expr_list>)|(USING <column_list>) ...
+```
+
+- [INNER|LEFT|RIGHT|FULL|CROSS]: As you expect. Default is [INNER]
+- [OUTER]: Can be omitted
+
+Other fancy join types in ClickHouse:
+
+(explanation is given for LEFT variant. RIGHT variant is symmetrically defined)
+
+- `LEFT SEMI JOIN`, `RIGHT SEMI JOIN`: For each row in LEFT, return column values if there is join key match on RIGHT, but only for first match. 
+- `LEFT ANTI JOIN`, `RIGHT ANTI JOIN`: Return only rows in LEFT with no matching join key.
+- `LEFT ANY JOIN`, `RIGHT ANY JOIN`: LEFT SEMI JOIN, and adding rows from LEFT with no join key with default values (e.g., NULL). So like SEMI + OUTER. (so return row count is same as LEFT).
+- `INNER ANY JOIN`: 
+- `ASOF JOIN`, `LEFT ASOF JOIN`: Join on closest join key matches instead of exact match.
+- `PASTE JOIN`: Horizontal concat of the two tables
+
+`ASOF JOIN` example:
+```SQL
+-- query
+ASOF LEFT JOIN quotes q ON t.symbol = q.symbol AND t.time >= q.time
+```
+
+`ON` part is for exact match. `AND` part is for closest match (here match first row in `q` with time <= that in `t`)
+
 
 #### WINDOW
 
