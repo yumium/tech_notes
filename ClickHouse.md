@@ -823,6 +823,150 @@ ASOF LEFT JOIN quotes q ON t.symbol = q.symbol AND t.time >= q.time
 `ON` part is for exact match. `AND` part is for closest match (here match first row in `q` with time <= that in `t`)
 
 
+#### CREATE
+
+**DATABASE**
+
+```SQL
+CREATE DATABASE [IF NOT EXISTS] db_name [ON CLUSTER cluster] [ENGINE = engine(...)] [COMMENT 'Comment']
+```
+
+**TABLE**
+
+```SQL
+CREATE TABLE [IF NOT EXISTS] [db.]table_name [ON CLUSTER cluster]
+(
+    name1 [type1] [NULL|NOT NULL] [DEFAULT|MATERIALIZED|EPHEMERAL|ALIAS expr1] [compression_codec] [TTL expr1] [COMMENT 'comment for column'],
+    name2 [type2] [NULL|NOT NULL] [DEFAULT|MATERIALIZED|EPHEMERAL|ALIAS expr2] [compression_codec] [TTL expr2] [COMMENT 'comment for column'],
+    ...
+) ENGINE = engine
+  COMMENT 'comment for table, write description here'
+```
+
+- MATERIALIZED: Value of such columns always calculated at table init. They cannot be inserted.
+- EPHEMERAL: Cannot be selected as they're not stored in table. They are only used in cases of generating a different column.
+- ALIAS: Columns calculated from other columns. Not possible to insert into them
+
+```SQL
+CREATE OR REPLACE TABLE test
+(
+    id UInt64,
+    unhexed String EPHEMERAL,
+    hexed FixedString(4) DEFAULT unhex(unhexed)
+)
+ENGINE = MergeTree
+ORDER BY id;
+
+INSERT INTO test (id, unhexed) Values (1, '5a90b714');
+
+SELECT
+    id,
+    hexed,
+    hex(hexed)
+FROM test
+FORMAT Vertical;
+
+Row 1:
+──────
+id:         1
+hexed:      Z��
+hex(hexed): 5A90B714
+```
+
+```SQL
+CREATE OR REPLACE TABLE test
+(
+    id UInt64,
+    size_bytes Int64,
+    size String Alias formatReadableSize(size_bytes)
+)
+ENGINE = MergeTree
+ORDER BY id;
+
+INSERT INTO test Values (1, 4678899);
+
+SELECT id, size_bytes, size FROM test;
+┌─id─┬─size_bytes─┬─size─────┐
+│  1 │    4678899 │ 4.46 MiB │
+└────┴────────────┴──────────┘
+
+SELECT * FROM test SETTINGS asterisk_include_alias_columns=1;
+┌─id─┬─size_bytes─┬─size─────┐
+│  1 │    4678899 │ 4.46 MiB │
+└────┴────────────┴──────────┘
+```
+
+PRIMARY KEYS:
+
+```SQL
+CREATE TABLE db.table_name
+(
+    name1 type1, name2 type2, ...,
+    PRIMARY KEY(expr1[, expr2,...])
+)
+ENGINE = engine;
+```
+
+OR
+
+```SQL
+CREATE TABLE db.table_name
+(
+    name1 type1, name2 type2, ...
+)
+ENGINE = engine
+PRIMARY KEY(expr1[, expr2,...]);
+```
+
+
+CONSTRAINTS:
+
+```SQL
+CREATE TABLE [IF NOT EXISTS] [db.]table_name [ON CLUSTER cluster]
+(
+    name1 [type1] [DEFAULT|MATERIALIZED|ALIAS expr1] [compression_codec] [TTL expr1],
+    ...
+    CONSTRAINT constraint_name_1 CHECK boolean_expr_1,
+    ...
+) ENGINE = engine
+```
+
+Lots of constraints can degrade insertion performance.
+
+
+ASSUME:
+
+Like a constraint but assumed to be true. Used by optimisation engine to optimise queries
+
+```SQL
+CREATE TABLE users_a (
+    uid Int16, 
+    name String, 
+    age Int16, 
+    name_len UInt8 MATERIALIZED length(name), 
+    CONSTRAINT c1 ASSUME length(name) = name_len   -- When length(name) is queries, optimiser can just return value of `name_len`, instead of calling `length()` function
+) 
+ENGINE=MergeTree 
+ORDER BY (name_len, name);
+```
+
+
+
+### CODECS
+
+https://clickhouse.com/docs/en/sql-reference/statements/create/table#column-compression-codecs
+
+`lz4` compression by default
+
+General purpose codecs
+
+- `NONE`: No compression
+- `LZ4`: 
+
+
+
+
+
 #### WINDOW
 
 
