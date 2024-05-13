@@ -969,8 +969,16 @@ General purpose codecs
 
 Specialized Codecs
 
-- `Delta`:
-- 
+- `Delta(delta_bytes)`: Raw values replaced by difference in neighbors, useful when values don't change much across rows. delta_bytes = 1, 2, 4, or 8
+- `DoubleDelta(delta_bytes)`: Stores delta of delta, useful when first order derivative across rows is doesn't change much (e.g., storing consecutive timestamps)
+- `GCD()`: Calculates GCD of all values in column, then divide all values by GCD
+- `Gorilla(bytes_size)`: Takes the XOR of neighbors. Small if changes small
+- `FPC(level, float_size)`: Use prediction function to predict next float, then XOR the prediction with actual and stores that. Again, compression strong if value changes are small. 
+- `T64`: Crop unused high bits of values in integer data types for each whoe data part
+
+Encryption Codecs
+
+- ^^ These don't compress data, but encrypts data on disk
 
 
 
