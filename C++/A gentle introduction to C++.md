@@ -1464,8 +1464,10 @@ A data structure is a group of data element together under one name.
 struct product {
     // members of the struct
     int weight;
-    double price;
+    double price = 0;  // default values upon construction for struct
     char[] name;
+
+    void raise_price(double by) { };  // methods
 } apple;
 
 product banana, melon;
