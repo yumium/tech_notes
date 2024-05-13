@@ -997,7 +997,7 @@ CREATE MATERIALIZED VIEW ...
 View but result of query is stored
 
 
-**USE**
+#### USE
 
 Set current database for the session.
 
@@ -1006,7 +1006,7 @@ USE db
 ```
 
 
-**SHOW**
+#### SHOW
 
 Show the creation code
 
@@ -1044,7 +1044,29 @@ SHOW INDEX FROM [<db>.]<table>
 ```
 
 
+#### CHECK TABLE
 
+Check data in table for data integrity (using checksums and size comparisons)
+
+```SQL
+CHECK TABLE test_table;
+```
+
+
+
+
+#### DESCRIBE TABLE
+
+Describe table columns
+
+```SQL
+DESCRIBE TABLE table_name
+```
+
+
+#### EXPLAIN
+
+https://www.youtube.com/watch?v=hP6G2Nlz_cA
 
 
 
