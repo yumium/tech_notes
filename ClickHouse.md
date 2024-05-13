@@ -950,6 +950,105 @@ ENGINE=MergeTree
 ORDER BY (name_len, name);
 ```
 
+**VIEW**
+
+*Normal View*
+
+No data is stored, basically acts as a stored query
+
+```SQL
+CREATE VIEW view AS SELECT ...
+```
+
+Using normal view
+
+```SQL
+SELECT a, b, c FROM view
+```
+
+which is equivalent to
+
+```SQL
+SELECT a, b, c FROM (SELECT ...)
+```
+
+
+*Parameterized View*
+
+Like normal view but contains parameters
+
+```SQL
+CREATE VIEW raw_data_parametrized AS SELECT * FROM raw_data WHERE id BETWEEN {id_from:UInt32} AND {id_to:UInt32}
+```
+
+Using this parameterized view
+
+```SQL
+SELECT count() FROM raw_data_parametrized(id_from=0, id_to=50000)
+```
+
+
+*Materialized View*
+
+```SQL
+CREATE MATERIALIZED VIEW ...
+```
+
+View but result of query is stored
+
+
+**USE**
+
+Set current database for the session.
+
+```SQL
+USE db
+```
+
+
+**SHOW**
+
+Show the creation code
+
+```SQL
+SHOW CREATE TABLE|DICTIONARY|VIEW name
+```
+
+Show databases
+
+```SQL
+SHOW DATABASES
+SHOW DATABASES LIKE '%de%'
+SHOW DATABASES NOT LIKE '%de%'
+```
+
+Show tables
+
+```SQL
+SHOW TABLES FROM system LIKE '%user%'
+```
+
+If `FROM` is not specified, use current database
+
+
+Show columns
+
+```SQL
+SHOW COLUMNS FROM [<db>.]<table>
+```
+
+Show index
+
+```SQL
+SHOW INDEX FROM [<db>.]<table>
+```
+
+
+
+
+
+
+
 
 
 ### CODECS
