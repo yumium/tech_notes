@@ -1085,6 +1085,94 @@ Check server logs to see how it's actually executed
 
 
 
+### Database Engines
+
+
+
+
+
+
+
+### Table Engines
+
+
+MergeTree Family: For fast inserion of data. Data is added in chunks, then merged to be written in the background. `SummingMergeTree` and `AggregatingMergeTree` are where rows with same index are aggregated up before storing
+Log Family
+Integrations: Integrates with external vendors
+Special
+
+
+
+### Functions
+
+#### Regular Functions
+
+Applied to each row separately. (in contrast to aggregate functions)
+
+Strong Typing: No implicit type conversions => type conversion functions may be used
+Common Subexpression Elimination: Done at AST optimisation
+NULL processing: If at least one argument is `NULL`, the result is `NULL`
+Constancy: Functions are pure = no change to arguments
+Higher-order functions, `->` operator and lambda(params, expr) function: Higher-order functions can only be called on lambda expressions, which are written by `->`
+
+```SQL
+x -> 2 * x
+str -> str != Referer
+```
+
+
+
+**Arithmetic**
+
+**Bit**
+
+**Comparison**
+
+**Conditional**
+
+**Dates and Times**
+
+**Distance**
+
+**Encoding**
+
+**Encryption**
+
+**Hash**
+
+**Logical**
+
+**Math**
+
+**Random**
+
+**Replacing in Strings**
+
+**Splitting in Strings**
+
+**Rounding**
+
+**Searching in Strings**
+
+**Type Conversion**
+
+**URLs**
+
+
+
+
+
+
+
+**UDFs**
+
+
+
+
+
+
+
+
 
 
 ### CODECS
