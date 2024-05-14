@@ -515,7 +515,7 @@ df['wordcount'] = df['wordcount'].astype('int32')	# cast a column and map back
 
 `.iterrows()`: Returns an iterator through the rows of the data frame, each row is a tuple of (index: Label or Tuple of Label, data: Series)
 
-
+`.reindex(columns=)`: Conform DataFrame to new index with optional filling logic
 
 
 
