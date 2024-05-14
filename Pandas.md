@@ -521,7 +521,7 @@ df['wordcount'] = df['wordcount'].astype('int32')	# cast a column and map back
 
 ^^ Some of these methods/attributes also work on series
 
-`.apply()`: Used in column creation for more complex patterns
+`.apply()`: Used in column creation for more complex patterns. Apply a function along an axis of the DataFrame. Function takes in series as input (column if axis=0, row if axis=1)
 
 ```python
 df = pd.DataFrame([[4, 9]] * 3, columns=['A', 'B'])
