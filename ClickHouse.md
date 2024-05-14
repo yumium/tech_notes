@@ -1068,6 +1068,20 @@ DESCRIBE TABLE table_name
 
 https://www.youtube.com/watch?v=hP6G2Nlz_cA
 
+Execution steps for executing a query
+
+TCPHandler => executeQuery ==parse==> ASTPtr ==normalise&optimise==> TreeRewriterResult ==create_plan==> QueryPlan ==concrete==> QueryPipeline => BlockIO => PipelineExecutor
+
+EXPLAIN AST for ASTPtr
+EXPLAIN SYNTAX for TreeRewriterResult
+EXPLAIN PLAN for QueryPlan
+EXPLAIN PIPELINE for QueryPipeline (how plan is executed in parallel by multiple CPU cores)
+
+`graph = 1`: visualise with graph
+`graph = 1, compact = 0`: don't make graphs compact
+
+Check server logs to see how it's actually executed
+
 
 
 
