@@ -517,6 +517,7 @@ df['wordcount'] = df['wordcount'].astype('int32')	# cast a column and map back
 
 `.reindex(columns=)`: Conform DataFrame to new index with optional filling logic
 
+`.assign(**{col_name : func / ser})`: Assigns new column or overwrite existing column if name clash. Takes in keyword args that maps column name to the series for the column or a function that takes in the existing DF and returns a series.     => Note: Later items in `**kwargs` may refer to newly created or modified columns in `df`; items are computed and assigned into `df` in order.
 
 
 ^^ Some of these methods/attributes also work on series
