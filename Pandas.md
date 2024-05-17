@@ -37,9 +37,26 @@ df = pd.DataFrame(
 
 **Types**
 
-- Integers (int64)
-- Floats (float64)
-- Strings (object)
+
+| Pandas dtype  | Python type  | NumPy type                                                     | Usage                                        |
+|---------------|--------------|----------------------------------------------------------------|----------------------------------------------|
+| object        | str or mixed | string_, unicode_, mixed types                                 | Text or mixed numeric and non-numeric values |
+| int64         | int          | int_, int8, int16, int32, int64, uint8, uint16, uint32, uint64 | Integer numbers                              |
+| float64       | float        | float_, float16, float32, float64                              | Floating point numbers                       |
+| bool          | bool         | bool_                                                          | True/False values                            |
+| datetime64    | NA           | datetime64[ns]                                                 | Date and time values                         |
+| timedelta[ns] | NA           | NA                                                             | Differences between two datetimes            |
+| category      | NA           | NA                                                             | Finite list of text values                   |
+
+Why use `object` type for strings in Pandas?
+
+- numpy strings have fixed length, which isn't very flexible
+- numpy strings also don't hold unicode properly
+- numpy strings are mutable
+
+So Pandas uses Python strings which are objects.
+
+Note: Integers can be casted to `object` but they are not strings underneath.
 
 
 
