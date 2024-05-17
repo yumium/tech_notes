@@ -1110,7 +1110,25 @@ monthly_max.index.freq
 
 - If you do df['col'] you get a series. You can either do df['col'].to_frame() to get the DF, or df[['col']]
 
+- To read csv as string, do this:
 
+```python
+from io import StringIO
+import pandas as pd
+
+TESTDATA = StringIO("""col1;col2;col3
+    1;4.4;99
+    2;4.5;200
+    3;4.7;65
+    4;3.2;140
+    """)
+
+df = pd.read_csv(TESTDATA, sep=";")
+```
+
+- Iterating through DFs:
+  - `df.itertuples()`: rows as named tuples
+  - `df.iterrows()`: rows as (index, Series) pairs
 
 
 
