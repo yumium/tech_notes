@@ -1146,39 +1146,99 @@ SELECT if(1, plus(2, 2), plus(2, 6))
 
 `multiIf` => a chain of if else statements
 
+```SQL
+    multiIf(left < right, 'left is smaller', left > right, 'left is greater', left = right, 'Both equal', 'Null value')
+```
 
+`greatest`
+
+```SQL
+SELECT greatest(1, 2, toUInt8(3), 3.) result,  toTypeName(result) type;
+```
+
+`least`
+
+```SQL
+SELECT least(1, 2, toUInt8(3), 3.) result,  toTypeName(result) type;
+```
 
 
 
 **Dates and Times**
 
+https://clickhouse.com/docs/en/sql-reference/functions/date-time-functions
+
+Similar to stuff you can do in `Pandas`
+
 **Distance**
+
+L1Norm, L2Norm, L1Distance, L2Distance, ...
 
 **Encoding**
 
+
+
 **Encryption**
+
+Supports common encrypton/decryption schemes.
+
+```SQL
+INSERT INTO encryption_test VALUES('aes-256-ofb no IV', encrypt('aes-256-ofb', 'Secret', '12345678910121314151617181920212'))
+```
+
+```SQL
+SELECT comment, decrypt('aes-256-cfb128', secret, '12345678910121314151617181920212') as plaintext FROM encryption_test
+```
 
 **Hash**
 
+Support common hash functions
+
+```SQL
+SELECT halfMD5(array('e','x','a'), 'mple', 10, toDateTime('2019-06-15 23:00:00')) AS halfMD5hash, toTypeName(halfMD5hash) AS type;
+```
+
 **Logical**
+
+and, or, not, xor
 
 **Math**
 
+Constants: e(), pi()
+
+Functions: exp, log, log2, sqrt, sin, cos, tan, sign, sigmoid, factorial ...
+
 **Random**
+
+Simplest function: 
+
+```SQL
+SELECT rand();  -- Returns random UInt32
+```
 
 **Replacing in Strings**
 
-**Splitting in Strings**
+```SQL
+replaceOne(haystack, pattern, replacement)  -- Replaces first occurence
+```
+
+```SQL
+replaceAll(haystack, pattern, replacement)
+```
 
 **Rounding**
 
-**Searching in Strings**
+floor, ceil, trunc, round, roundDown
+
+**Searching/Splitting in Strings**
 
 **Type Conversion**
 
+toInt32, toUInt32, toFloat64, toDate, parseDateTime ...
+
 **URLs**
 
-
+domain(url), queryString(url) ...
 
 
 
