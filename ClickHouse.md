@@ -1097,8 +1097,11 @@ Check server logs to see how it's actually executed
 
 
 MergeTree Family: For fast inserion of data. Data is added in chunks, then merged to be written in the background. `SummingMergeTree` and `AggregatingMergeTree` are where rows with same index are aggregated up before storing
+
 Log Family
+
 Integrations: Integrates with external vendors
+
 Special
 
 
@@ -1250,8 +1253,11 @@ domain(url), queryString(url) ...
 
 
 
+#### Aggregate Functions
 
+All rows where the arguments in the function is `NULL` will be skipped.
 
+Common functions: count, min, max, sum, avg, any, first_value, last_value, stddevPop(col1, col2), varPop(col1, col2), topK, deltaSum, boundingRatio (slope of min and max in group)
 
 
 
