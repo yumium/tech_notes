@@ -1109,26 +1109,46 @@ Special
 
 Applied to each row separately. (in contrast to aggregate functions)
 
-Strong Typing: No implicit type conversions => type conversion functions may be used
-Common Subexpression Elimination: Done at AST optimisation
-NULL processing: If at least one argument is `NULL`, the result is `NULL`
-Constancy: Functions are pure = no change to arguments
-Higher-order functions, `->` operator and lambda(params, expr) function: Higher-order functions can only be called on lambda expressions, which are written by `->`
+`Strong Typing`: No implicit type conversions => type conversion functions may be used
+
+`Common Subexpression Elimination`: Done at AST optimisation
+
+`NULL processing`: If at least one argument is `NULL`, the result is `NULL`
+
+`Constancy`: Functions are pure = no change to arguments
+
+`Higher-order functions, -> operator and lambda(params, expr) function`: Higher-order functions can only be called on lambda expressions, which are written by `->`
 
 ```SQL
 x -> 2 * x
 str -> str != Referer
 ```
 
-
-
 **Arithmetic**
+
+plus, minus, multiply, divide, modulo, negate, abs, gcd, lcm, max, min
 
 **Bit**
 
+bitAnd, bitOr, bitXor, bitNot, bitShiftLeft, bitShiftRight, bitRotateLeft, bitRotateRight
+
 **Comparison**
 
+equals/`=`/`==`, notEquals/`!=`/`<>`, `<`, `>`, `<=`, `>=`
+
 **Conditional**
+
+`if`
+
+```SQL
+SELECT if(1, plus(2, 2), plus(2, 6))
+```
+
+`multiIf` => a chain of if else statements
+
+
+
+
 
 **Dates and Times**
 
