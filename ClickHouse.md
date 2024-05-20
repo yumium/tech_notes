@@ -1295,7 +1295,25 @@ Encryption Codecs
 
 #### WINDOW
 
+https://clickhouse.com/docs/en/sql-reference/window-functions
 
+Example
+
+```SQL
+SELECT
+    metric,
+    ts,
+    value,
+    avg(value) OVER (
+        PARTITION BY metric 
+        ORDER BY ts ASC 
+        Rows BETWEEN 2 PRECEDING AND CURRENT ROW
+    ) AS moving_avg_temp
+FROM sensors
+ORDER BY
+    metric ASC,
+    ts ASC;
+```
 
 
 
