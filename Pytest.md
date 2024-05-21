@@ -287,6 +287,146 @@ class PhoneBookTest(unittest.TestCaes):
 
 
 
+### unittest
+
+Built-in testing framework, adapted from JUnits so not very "Pythonic".
+
+Pytest will discover unittest test cases, so you can use Pytest as a test runner. You can also use Pytest fixtures with unittest test cases.
+
+
+Example 
+
+```python
+import unittest
+
+class TestStringMethods(unittest.TestCase):
+
+    def test_upper(self):
+        self.assertEqual('foo'.upper(), 'FOO')
+
+    def test_isupper(self):
+        self.assertTrue('FOO'.isupper())
+        self.assertFalse('Foo'.isupper())
+
+    def test_split(self):
+        s = 'hello world'
+        self.assertEqual(s.split(), ['hello', 'world'])
+        # check that s.split fails when the separator is not a string
+        with self.assertRaises(TypeError):
+            s.split(2)
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+
+Skipping tests:
+
+```python
+class MyTestCase(unittest.TestCase):
+
+    @unittest.skip("demonstrating skipping")
+    def test_nothing(self):
+        self.fail("shouldn't happen")
+
+    @unittest.skipIf(mylib.__version__ < (1, 3),
+                     "not supported in this library version")
+    def test_format(self):
+        # Tests that work for only a certain version of the library.
+        pass
+
+    @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
+    def test_windows_support(self):
+        # windows specific testing code
+        pass
+
+    def test_maybe_skipped(self):
+        if not external_resource_available():
+            self.skipTest("external resource not available")
+        # test code that depends on the external resource
+        pass
+```
+
+TestCase class:
+
+```python
+class MyClassTestCase(unittest.TestCase):
+    def setUp(self):
+        # Run before each test method
+	pass
+
+    def tearDown(self):
+	# Run after each test method
+	pass
+
+    @classmethod
+    def setUpClass(cls):
+	# Run before all test methods
+	pass
+
+    @classmethod
+    def tearDownClass(cls):
+	# Run after all test methods
+	pass
+
+    def test_my_function(self):
+	# Individual test method
+	pass
+```
+
+Built in test assersions
+
+| Method                    | Checks that          |
+|---------------------------|----------------------|
+| assertEqual(a, b)         | a == b               |
+| assertNotEqual(a, b)      | a != b               |
+| assertTrue(x)             | bool(x) is True      |
+| assertFalse(x)            | bool(x) is False     |
+| assertIs(a, b)            | a is b               |
+| assertIsNot(a, b)         | a is not b           |
+| assertIsNone(x)           | x is None            |
+| assertIsNotNone(x)        | x is not None        |
+| assertIn(a, b)            | a in b               |
+| assertNotIn(a, b)         | a not in b           |
+| assertIsInstance(a, b)    | isinstance(a, b)     |
+| assertNotIsInstance(a, b) | not isinstance(a, b) |
+
+Built in exception assertions
+
+| Method                                        | Checks that                                                    |
+|-----------------------------------------------|----------------------------------------------------------------|
+| assertRaises(exc, fun, *args, **kwds)         | fun(*args, **kwds) raises exc                                  |
+| assertRaisesRegex(exc, r, fun, *args, **kwds) | fun(*args, **kwds) raises exc and the message matches regex r  |
+| assertWarns(warn, fun, *args, **kwds)         | fun(*args, **kwds) raises warn                                 |
+| assertWarnsRegex(warn, r, fun, *args, **kwds) | fun(*args, **kwds) raises warn and the message matches regex r |
+| assertLogs(logger, level)                     | The with block logs on logger with minimum level               |
+| assertNoLogs(logger, level)                   | The with block does not log on logger with minimum level       |
+
+Built in numeric checks
+
+| Method                     | Checks that                                                                   |
+|----------------------------|-------------------------------------------------------------------------------|
+| assertAlmostEqual(a, b)    | round(a-b, 7) == 0                                                            |
+| assertNotAlmostEqual(a, b) | round(a-b, 7) != 0                                                            |
+| assertGreater(a, b)        | a &gt; b                                                                      |
+| assertGreaterEqual(a, b)   | a &gt;= b                                                                     |
+| assertLess(a, b)           | a &lt; b                                                                      |
+| assertLessEqual(a, b)      | a &lt;= b                                                                     |
+| assertRegex(s, r)          | r.search(s)                                                                   |
+| assertNotRegex(s, r)       | not r.search(s)                                                               |
+| assertCountEqual(a, b)     | a and b have the same elements in the same number, regardless of their order. |
+
+Built in data structure check
+
+| Method                     | Used to compare    |
+|----------------------------|--------------------|
+| assertMultiLineEqual(a, b) | strings            |
+| assertSequenceEqual(a, b)  | sequences          |
+| assertListEqual(a, b)      | lists              |
+| assertTupleEqual(a, b)     | tuples             |
+| assertSetEqual(a, b)       | sets or frozensets |
+| assertDictEqual(a, b)      | dicts              |
+
 
 
 
