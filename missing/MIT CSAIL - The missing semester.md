@@ -512,7 +512,7 @@ Resources:
 
 - Tutorial: https://regexone.com/
 
-- # **/^1?\$|^(11+?)\1+​\$/**
+- **/^1?\$|^(11+?)\1+​\$/**
 
 - This above expression matches any non-prime number. Note the capture group \1 can contain arbitrarily large amount of information, so it is not a regular language
   https://www.noulakaz.net/2007/03/18/a-regular-expression-to-check-for-prime-numbers/
@@ -557,19 +557,20 @@ Tools in this chapter:
 
 - `xargs`: very cool util that takes input and feed them as argument to a command, will learn to use it when the need arises
 
+- `wc`: word count
+
+- `tr`: translate characters
+
+- `cut`
+
+- `paste`
+
+- `comm`
+
+- `join`
 
 
-**Getting content from ssh**
-
-```bash
-# Use quotation to specify the pipe
-$ sshox 'journalctl | grep sshd | grep "Disconnected from"' > ssh.log
-$ less ssh.log
-```
-
-
-
-**grep**
+#### grep
 
 In the simplest terms, grep (global regular expression print) will search input files for a search string, and print the lines that match it. Beginning at the first line in the file, grep copies a line into a buffer, compares it against the search string, and if the comparison passes, prints the line to the screen. Grep will repeat this process until the file runs out of lines. Notice that nowhere in this process does grep store lines, change lines, or search only a part of a line. 
 
