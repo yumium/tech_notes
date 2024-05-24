@@ -13,6 +13,7 @@ Parking:
 
 - Join vs Merge, apparently Join needs common column to be an index??
 
+- np.datetime64 type vs. pd.Timestamp vs. python datetime types
 
 
 ### DataFrame
