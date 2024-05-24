@@ -1130,6 +1130,7 @@ df = pd.read_csv(TESTDATA, sep=";")
   - `df.itertuples()`: rows as named tuples
   - `df.iterrows()`: rows as (index, Series) pairs
 
+- Currently Pandas `int` cannot take NaN. When you do say an outer join, you may introduce NaN in `int` columns. In that case Pandas will convert those columns into `float` type to allow for NaN.
 
 
 
