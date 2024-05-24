@@ -695,6 +695,17 @@ Convert datatype to dictionary encoding. Works especially well for data with les
 
 **Nullable(T)**
 
+Allow the type `T` to additionally take the value NULL.
+
+Uses more storage as it creates a UInt8 column as mask on whether the value is NULL or not.
+
+Up to 2x performance slow down.
+
+Alternative would be to use a default value (which isn't always neat)
+
+https://gist.github.com/den-crane/e43f8d0ad6f67ab9ffd09ea3e63d98aa
+
+
 
 
 
