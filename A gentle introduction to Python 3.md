@@ -582,6 +582,13 @@ with open("text") as f:
 # file closed after codeblock
 ```
 
+Here is a one liner. The python garbage collector will eventually destroy the resource, but the `with` clause makes it more explicit.
+
+```python
+content = open('text', 'r').read()
+```
+
+
 
 
 
