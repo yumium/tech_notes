@@ -489,6 +489,7 @@ git cherry-pick -m 1 <mergecommithash> -n
 
 - `git fetch origin master:master`: you can execute this command when in another branch to fetch from master
 - `git checkout master@{two.days.ago}`
+- `git push origin -d branch-name`: to delete a remote branch
 
 
 - **GUIs**: there are many [GUI clients](https://git-scm.com/downloads/guis) out there for Git. We personally don’t use them and use the command-line interface instead.
