@@ -559,6 +559,12 @@ To run a single test
 python -m pytest test_file.py -k 'test_name'
 ```
 
+To run using multiple CPU cores in parallel (install https://pytest-xdist.readthedocs.io/en/latest/index.html)
+
+```
+pytest -n auto  # Use auto number of CPUs
+pytest -n 8     # Use 8 CPUs
+```
 
 
 StdOut
