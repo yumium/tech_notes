@@ -570,6 +570,51 @@ Tools in this chapter:
 - `join`
 
 
+#### tr
+
+Syntax:
+
+```bash
+tr [OPTIONS] SET1 [SET2]
+```
+
+Replaces characters in SET1 with that in SET2. 
+The characters are read from left to right, each character in SET1 is mapped to the character in SET2 in the same position. If characters repeat in SET1, we overwrite.
+
+```bash
+# w -> W
+tr w W
+
+# w -> W
+tr www WWW
+
+# w -> W
+tr www abW
+```
+
+If len(SET1) > len(SET2), last character in SET2 is repeated to match the length
+If len(SET1) < len(SET2), SET2 is truncated to match the length
+
+`tr` then takes input from `stdin` and does character replacement, and write to `stdout`
+
+See characters sets (e.g., `[:digit:]`, `[a-d]` ...) here: https://phoenixnap.com/kb/linux-tr
+
+Flags:
+- `-c`: take complement of SET1  `tr -c [:alpha:] _ # turn all non-letters into underscores`
+- `-d`: deletes characters from SET1  `tr -cd [:alpha:]  # delete everything that are not letters`
+- `-s`: process the output by replaces repeated character in the last operand (SET2, or SET1 if SET2 not specified)  `echo "abc" | tr -s abc s   # returns s`
+- `-t`: truncates SET1 to length of SET2 (overwrites default behaviour)
+
+Example
+
+```sh
+cat genesis | tr -sc [A-Z][a-z] '\n' | sort | uniq -c > genesis.hist
+
+# This counts the occurence of words in genesis
+# The `tr` command replaces all non-alpha character with spaces, and -s ensures only 1 consecutive one, effectly putting words in a list
+```
+
+
 #### grep
 
 In the simplest terms, grep (global regular expression print) will search input files for a search string, and print the lines that match it. Beginning at the first line in the file, grep copies a line into a buffer, compares it against the search string, and if the comparison passes, prints the line to the screen. Grep will repeat this process until the file runs out of lines. Notice that nowhere in this process does grep store lines, change lines, or search only a part of a line. 
