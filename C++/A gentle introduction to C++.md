@@ -202,7 +202,7 @@ int main()
 - If you use the namespace `std` with the `using` keyword, you can call names inside `std` in an unqualified manner
 - Note, using qualified name is the easiest way to avoid introducing name collisions
 
-
+- When C++ searches in namespaces, it does backward search. Say if the current namespace is `foo::bar`, and C++ cannot find the variable `baz` inside `foo::bar`, it'll try to find `baz` in namespace `foo`
 
 
 
@@ -4573,6 +4573,9 @@ for (int i = 0; i < size; i++)
 - This way, any changes in source file means only that file needs to be recompiled, not all files that depend on the header
 - Only exception perhaps is putting code in header to speed up compilation
 
+## Random pieces
+
+- In C++, local definition of a function inside a function is not allowed, only exception is defining lambdas inside another function
 
 
 ### C++ Concepts (metaprogramming)
