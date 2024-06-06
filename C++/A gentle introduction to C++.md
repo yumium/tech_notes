@@ -4573,7 +4573,7 @@ for (int i = 0; i < size; i++)
 - This way, any changes in source file means only that file needs to be recompiled, not all files that depend on the header
 - Only exception perhaps is putting code in header to speed up compilation
 
-## Random pieces
+### Random pieces
 
 - In C++, local definition of a function inside a function is not allowed, only exception is defining lambdas inside another function
 
