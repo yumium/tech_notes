@@ -1097,6 +1097,8 @@ air_quality["month"] = air_quality["datetime"].dt.month
 
 # Resampling a time series to another frequency
 # This aggregates datetime by month and retain the maximum value
+# Note, resample returns continuous groups, filling intermediate ones with value NaN (usually we pair resample with ffill(), e.g., df.set_index('time').resample('T').sum().ffill() )
+# Each group is in range [base, base+1). So if we're doing resample('T') ie. in minutes, the ranges are [16:00:00, 16:01:00), [16:01:00, 16:02:00), ...
 monthly_max = no_2.resample("M").max()
 # The frequency of time series above is provided by the `freq` attribute
 monthly_max.index.freq
