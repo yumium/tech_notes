@@ -629,6 +629,20 @@ Flags:
 - `-c <bytes>`: Get first `bytes` bytes of the input
 
 
+#### tail
+
+Print last 10 lines from `stdin` or file
+
+Flags:
+
+- `-n <num>`: Get last `num` lines instead of 10
+- `-c <bytes>`: Output last `bytes` bytes instead
+- `-f`: Output appended data as the file grows
+- `-s <N>`: with `-f`, sleep for approximately N seconds (default 1) between iterations
+- `--pid <PID>`: with `-f`, terminates after PID dies
+- `--retry`: keep trying to open the file if inaccessible
+
+
 #### grep
 
 In the simplest terms, grep (global regular expression print) will search input files for a search string, and print the lines that match it. Beginning at the first line in the file, grep copies a line into a buffer, compares it against the search string, and if the comparison passes, prints the line to the screen. Grep will repeat this process until the file runs out of lines. Notice that nowhere in this process does grep store lines, change lines, or search only a part of a line. 
