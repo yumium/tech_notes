@@ -614,6 +614,20 @@ cat genesis | tr -sc [A-Z][a-z] '\n' | sort | uniq -c > genesis.hist
 # The `tr` command replaces all non-alpha character with spaces, and -s ensures only 1 consecutive one, effectly putting words in a list
 ```
 
+#### less
+
+Easier to navigate files. And as it doesn't need to read entire file to display it, start up is quick on large files.
+
+
+#### head
+
+Get first 10 lines from `stdin`.
+
+Flags:
+
+- `-n <num>`: Get first `num` lines instead of 10
+- `-c <bytes>`: Get first `bytes` bytes of the input
+
 
 #### grep
 
