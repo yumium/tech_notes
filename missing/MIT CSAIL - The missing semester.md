@@ -643,6 +643,29 @@ Flags:
 - `--retry`: keep trying to open the file if inaccessible
 
 
+#### sort
+
+sort lines of text files
+
+Flags:
+
+- `-b`: Ignore leading blanks
+- `-f`: Ignores case, fold lower case to upper case characters
+- `-g`: General numeric sort, sorts according to parsed numbers, not lexicographic ('3' comes before '111')
+- `-n`: Numeric sort
+- `-h`: Human numeric sort, in addition ('2k' < '1G' etc.)
+- `-M`: Month sort (unknown < 'JAN' < ... < 'DEC')
+- `-r`: Reverse the result of comparisons
+- `-c`: Check for sorted input, do not sort
+- `-C`: Check for sorted input, but do not print first wrong line
+- `-o`: Write result to file instead of `stdout`
+- `-s`: Stable sort
+- `--parallel <N>`: Number of parallel sorting processes
+- `-u`: Output only first of an equal run
+- `-z`: Delimiter is NUL, not `\n`
+
+
+
 #### grep
 
 In the simplest terms, grep (global regular expression print) will search input files for a search string, and print the lines that match it. Beginning at the first line in the file, grep copies a line into a buffer, compares it against the search string, and if the comparison passes, prints the line to the screen. Grep will repeat this process until the file runs out of lines. Notice that nowhere in this process does grep store lines, change lines, or search only a part of a line. 
