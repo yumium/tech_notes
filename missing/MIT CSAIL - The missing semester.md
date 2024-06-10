@@ -269,7 +269,7 @@ echo 'Value is $foo'
 
 A program:
 
-```bash
+```shell
 mcd () {
 	mkdir -p "$1"  # access first arg with $1, similarly for $2 - $9
 	cd "$1"
@@ -561,11 +561,11 @@ Tools in this chapter:
 
 - `tr`: translate characters
 
-- `cut`
+- `cut`: Remove sections from each line of files
 
-- `paste`
+- `paste`: Merge lines of files
 
-- `comm`
+- `comm`: compare files
 
 - `join`
 
@@ -574,14 +574,14 @@ Tools in this chapter:
 
 Syntax:
 
-```bash
+```shell
 tr [OPTIONS] SET1 [SET2]
 ```
 
 Replaces characters in SET1 with that in SET2. 
 The characters are read from left to right, each character in SET1 is mapped to the character in SET2 in the same position. If characters repeat in SET1, we overwrite.
 
-```bash
+```shell
 # w -> W
 tr w W
 
@@ -665,12 +665,76 @@ Flags:
 - `-z`: Delimiter is NUL, not `\n`
 
 
+#### uniq
+
+Report or omit repeated lines
+
+- `-c`: prefix lines by # of occurences
+- `-u`: only print unique lines
+- `-d`: only print duplicated lines, one for each group
+- `-D`: only print duplicated lines, print all
+- `-f <N>`: avoid comparing the first N fields
+- `--group`: show all items, separating groups with an empty line
+- `-i`: ignore case when comparing
+- `-s <N>`: avoid comparing the first N characters
+- `-z`: delimiter is NUL, not default `\n`
+
+
+#### cut
+
+Remove sections from each line of files
+
+- `-b <LIST>`: output only these bytes
+- `-c <LIST>`: output only these characters
+- `-d <DELIM>`: use DELIM instead of TAB for field delimiter
+- `-s`: do not print lines not containing delimiters
+- `--complement`: complement the set of selected bytes, characters, or fields
+- `-z`: line delimiter is NUL, not `\n`
+
+Here `LIST` is the list of positions. Example:
+
+```shell
+echo abcd | cut -b 1 --complement   # bcd
+```
+
+
+#### paste
+
+Merge lines of files
+
+- `-d <LIST>`: Use <LIST> delimiter instead of TAB (default)
+- `-s`: paste one file at a time instead of in parallel
+
+Examples:
+```shell
+paste file1 file2 file3
+# line1_of_file_1 <TAB> line1_of_file_2 <TAB> line1_of_file_3
+# line2_of_file_1 <TAB> line2_of_file_2 <TAB> line2_of_file_3
+# ...
+````
+
+```shell
+paste -d <DELIM> file1 file2 file3
+# line1_of_file_1 <DELIM> line1_of_file_2 <DELIM> line1_of_file_3
+# line2_of_file_1 <DELIM> line2_of_file_2 <DELIM> line2_of_file_3
+# ...
+````
+
+```shell
+paste -s file1 file2 file3
+# line1_of_file_1 <DELIM> line2_of_file_1 <DELIM> line3_of_file_1 ...
+# line1_of_file_2 <DELIM> line2_of_file_2 <DELIM> line3_of_file_2
+# line1_of_file_3 <DELIM> line2_of_file_2 <DELIM> line3_of_file_3
+````
+
+
+
 
 #### grep
 
 In the simplest terms, grep (global regular expression print) will search input files for a search string, and print the lines that match it. Beginning at the first line in the file, grep copies a line into a buffer, compares it against the search string, and if the comparison passes, prints the line to the screen. Grep will repeat this process until the file runs out of lines. Notice that nowhere in this process does grep store lines, change lines, or search only a part of a line. 
 
-```bash
+```shell
 vim a_file
 
 boot
@@ -722,7 +786,7 @@ grep -E "boots?" a_file
 
 sed performs basic text transformations on an input stream (a file or input from a pipeline) in a single pass through the stream, so it is very efficient. However, it is sed's ability to filter text in a pipeline which particularly distinguishes it from other types of editor.
 
-```bash
+```shell
 # Scan every line, replace longest string that match the regexp pattern with the replacement, output on STOUT
 # not 100% sure what the -e part does
 # note you can also add more files as arguments
@@ -787,7 +851,7 @@ sed -n '/boot/,/boot/ p' a_file
 
 **paste and bc**
 
-```bash
+```shell
 # -s combines all lines with delimitor (-d) +
 # -l then tells bc to interpret it as matlab???
 # adds all numbers.
@@ -1221,7 +1285,7 @@ There are many debuggers, each for a particular language. For profilers,
 - Having each level with a different colour is useful, esp. when you have thousands of logs
   Colours can be set using ANSI escape code in terminals
 
-  ```bash
+  ```shell
   printf "\e[38;2;255;0;0m  This is red     \e[0m"
   ```
 
@@ -1261,7 +1325,7 @@ But that's the **real time**, which is time from start to finish of the call. Th
 
 There is **user time** which is amount of CPU time spent in user-mode code for the process, **system time** the same as user time but counting the time spent in the kernel for the process
 
-```bash
+```shell
 # `time` gets you the 3 times
 time curl https://www.google.com/ &> /dev/null
 ```
@@ -1275,7 +1339,7 @@ For python, you can use **cProfile**
 
 Example:
 
-```bash
+```shell
 # -m means use module, -s tottime means sort by total time spent
 2007:~/Tech/Python/Saves/Project Euler$ ▷ python3 -m cProfile -s tottime ~/Tech/missing/part6/grep.py 1000 '^(import|\s*def)[^,]*$' *.py | less
 ```
@@ -1284,7 +1348,7 @@ most time spent on: printing, compiling re, searching for pattern
 
 Another example:
 
-```bash
+```shell
 # tac is like cat but reversed, which basically prints the last line first
 python3 -m cProfile -s tottime get_url.py | tac
 ```
@@ -1386,7 +1450,7 @@ Daemons usually have their name ending in the letter d
 
 In Linux, `systemd` is the master daemon that spawns smaller daemons. To create your own daemon, add it to systemd.
 
-```bash
+```shell
 # /etc/systemd/system/myapp.service
 [Unit]
 Description=My Custom App
@@ -1444,7 +1508,7 @@ Tool to chain different APIs: https://ifttt.com/
 
 When your argument has the same shape as a flag, eg. a file called `-i`. To get around it, use `--`, which tells the program that whatever follows it aren't flags
 
-```bash
+```shell
 # remvoe file "-i"
 rm -- -i
 ```
@@ -1535,13 +1599,13 @@ A symbolic link is like a windows shortcut. We create it using the `ln` util
 
 To create a symbolic link for a directory, do
 
-```bash
+```shell
 ln -s [absolute path to the folder you want to create symlink] [absolute path to folder to place the symlink in]
 ```
 
 For example
 
-```bash
+```shell
 ln -s ~/Project/mycroft-core/skills/ ~/Documents/skills/
 ```
 
