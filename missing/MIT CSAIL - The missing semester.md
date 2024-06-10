@@ -728,6 +728,44 @@ paste -s file1 file2 file3
 ````
 
 
+#### join
+
+Join lines of files on chosen field.
+
+Each line of file is broken into field by delimiter (default ' '). So line 'A 1 A' has fields ['A', '1', 'A'].
+
+We join the files on a field, default is 1st field for both files, then print out each line `<joined_value> <other_fields_in_line_in_file1> <other_fields_in_line_in_file2> 
+
+Flags:
+
+- `-a <1 or 2>`: also print unpaired lines for file 1 or 2
+- `-i`: ignores case on join field
+- `-t <DELIM>`: use custom delimiter to separate fields
+- `-v <1 or 2>`: same as `-a` but suppress joined lines
+- `-1 FIELD`: join on FIELD for file 1, FIELD is an index (1-based)
+- `-2 FIELD`: join on FIELD for file 2, FIELD is an index (1-based)
+- `-j FIELD`: equivalent to `-1 FIELD -2 FIELD`
+- `--check-order`: check input i correctly sorted
+- `--header`: treat first line as header, print it but don't involve in join
+- `-z`: line delimiter is NUL, not `\n`
+
+Example:
+```shell
+cat file1.txt
+# A 1 A
+# B 2 B
+# C 3 C
+
+cat file2.txt
+# 1 1
+# 1 2
+# 2 3
+
+join -1 2 file1.txt file2.txt
+# 1 A A 1
+# 1 A A 2
+# 2 B B 3
+```
 
 
 #### grep
