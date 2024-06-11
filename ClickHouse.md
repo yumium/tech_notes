@@ -314,6 +314,8 @@ If `PRIMARY KEY` and `ORDER BY` are both specified, then PRIMARY KEY must be a s
 
 
 
+
+
 **Inserting data**
 
 ```sql
@@ -1110,7 +1112,12 @@ Check server logs to see how it's actually executed
 ### Table Engines
 
 
-MergeTree Family: For fast inserion of data. Data is added in chunks, then merged to be written in the background. `SummingMergeTree` and `AggregatingMergeTree` are where rows with same index are aggregated up before storing
+MergeTree Family: For fast inserion of data. Data is added in chunks, then merged to be written in the background. 
+
+- `SummingMergeTree` and `AggregatingMergeTree` are where rows with same index are aggregated up before storing
+- `CollapsingMergeTree`: In background asynchronously remove rows with same matching values apart from one "SIGN" column where one is 1 and another is -1.
+- `ReplacingMergeTree`: Background remove duplicated rows. This task is in background and currently can't be controlled, so your queries can't rely on now having duplicated rows. More that it's a convenient background task that can clear up space.
+
 
 Log Family
 
