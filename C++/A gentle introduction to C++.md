@@ -1540,7 +1540,7 @@ cout << charlie.favorite_movie.year;
 
 More on initialization: https://en.cppreference.com/w/c/language/struct_initialization
 
-For "keyword" initialisation, the order of arguments must follow that of struct declaration.
+For "keyword" initialisation, the order of arguments must follow that of struct declaration. A good rule of thumb is to declare struct fields to be in alphabetical order, this way the caller will know the order of declaration (without needing to check at the definition each time).
 
 ```c++
 struct Point
