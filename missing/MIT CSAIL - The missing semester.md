@@ -663,6 +663,9 @@ Flags:
 - `--parallel <N>`: Number of parallel sorting processes
 - `-u`: Output only first of an equal run
 - `-z`: Delimiter is NUL, not `\n`
+- `+<FIELD>.<CH>`: Sort starting with <CH>-th character of field FIELD (0-based). E.g. `sort +1.50` sorts starting with 50th character of field 1 
+
+
 
 
 #### uniq
