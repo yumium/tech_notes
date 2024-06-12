@@ -885,6 +885,16 @@ std::string to_string(bool compact) const
 }
 ```
 
+In addition, you can only define arguments with default values from left to right. You cannot skip like you do in Python. This makes default values in C++ rather limited.
+
+```c++
+void do_stuff(int a = 1; int b = 2; int c = 3) { //blah }
+
+do_stuff(4, 5);  // this specifies a and b. There's no way in the language to specify only a and c
+```
+
+
+
 Declaring functions
 
 Functions must be declared textually before they are used. However, it's possible to declare a protofunction (its signature), use it, then define it later further down in the code
