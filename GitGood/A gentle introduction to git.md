@@ -461,7 +461,7 @@ Other commands
 
 - `git submodule sync`: update url in .gitmodule if url of submodules changed
 
-
+- `git rev-list -1 --before 8.weeks.ago origin/master`: get the last commit that is before the before date (from now). `git checkout master@{two.days.ago}` only checks local rev-list
 
 
 
