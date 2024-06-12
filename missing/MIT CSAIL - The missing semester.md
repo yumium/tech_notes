@@ -772,8 +772,32 @@ join -1 2 file1.txt file2.txt
 
 In the simplest terms, grep (global regular expression print) will search input files for a search string, and print the lines that match it. Beginning at the first line in the file, grep copies a line into a buffer, compares it against the search string, and if the comparison passes, prints the line to the screen. Grep will repeat this process until the file runs out of lines. Notice that nowhere in this process does grep store lines, change lines, or search only a part of a line. 
 
+Syntax: `grep PATTERNS [FILES ...]`
+
+Flags:
+
+- `-e`: Use extended regex. Can be abbreviated to `egrep`
+- `-f`: Interpret pattern as fixed strings, not regex. Can be abbreviated to `fgrep`
+- `-g`: Basic regex. This is the default
+- `-e PATTERN`: Use PATTERN pattern. Can be applied multiple times to return lines that match at least of these patterns.
+- `-f FILE`: Obtain patterns from FILE. Can also be used multiple times
+- `-i`: Ignore case distinctions in patterns and input data
+- `-v`: Invert match
+- `-w`: Matches must form whole words
+- `-x`: Matches must form whole lines, equivalent to wrapping pattern with ^ and $
+- `-c`: Suppress normal output, instead output the # of matching lines
+- `--color`: Colour your outputs!
+- `-m NUM`: Stop reading a file after NUM matching lines
+- `-o`: Print only the matched portion of each line
+- `-q`: Write nothing to `stdout`. Exit with zero status immediately if any match is found
+- `-H`: Output each line with the file name. Default when there is more than 1 file to search
+- `-h`: Suppress outputting file name
+- `-n`: Prefix each output line with 1-based line number in the file
+- `-r`: Read all files under each directory
+
+
 ```shell
-vim a_file
+cat a_file
 
 boot
 book
