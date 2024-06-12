@@ -288,6 +288,18 @@ auto bar = foo;  // the same as: int bar = foo;
 deltype(foo) baz;  // the same as: int baz;
 ```
 
+Generally use of `auto` is preferred than explicitly stating the type. Arguments published by microsoft:
+
+We recommend that you use the auto keyword for most situations—unless you really want a conversion—because it provides these benefits:
+
+- Robustness: If the expression's type is changed—including when a function return type is changed—it just works.
+- Performance: You're guaranteed that there's no conversion.
+- Usability: You don't have to worry about type name spelling difficulties and typos.
+- Efficiency: Your coding can be more efficient.
+
+Conversion cases in which you might not want to use auto:
+- You want a specific type and nothing else will do.
+- In expression template helper types—for example, (valarray+valarray).
 
 
 
