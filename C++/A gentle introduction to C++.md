@@ -1528,6 +1528,22 @@ struct friends_t {
 cout << charlie.favorite_movie.year;
 ```
 
+More on initialization: https://en.cppreference.com/w/c/language/struct_initialization
+
+For "keyword" initialisation, the order of arguments must follow that of struct declaration.
+
+```c++
+struct Point
+{
+    int a;
+    int b;
+}
+
+Point right{.a=10; .b=20};
+Point wrong{.b=20; .a=10};  // Compiler error
+```
+
+
 
 
 
