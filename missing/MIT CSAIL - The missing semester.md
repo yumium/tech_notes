@@ -636,11 +636,13 @@ Print last 10 lines from `stdin` or file
 Flags:
 
 - `-n <num>`: Get last `num` lines instead of 10
+- `+<NUM>`: Print from line NUM (1-based)
 - `-c <bytes>`: Output last `bytes` bytes instead
 - `-f`: Output appended data as the file grows
 - `-s <N>`: with `-f`, sleep for approximately N seconds (default 1) between iterations
 - `--pid <PID>`: with `-f`, terminates after PID dies
 - `--retry`: keep trying to open the file if inaccessible
+
 
 
 #### sort
