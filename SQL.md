@@ -339,7 +339,7 @@ Join types: $$
 - RIGHT [OUTER] JOIN: + rows in right table
 - FULL [OUTER] JOIN: + rows in both tables
 - CROSS JOIN: regular product on rows
-
+- ASOF JOIN: left join, but if join column on left table cannot find exact match, it finds *closest* match on right table based on some inequalities. So join columns need to be a total order (not just partial order)
 
 
 Example of join types:
