@@ -835,6 +835,8 @@ ASOF LEFT JOIN quotes q ON t.symbol = q.symbol AND t.time >= q.time
 
 `ON` part is for exact match. `AND` part is for closest match (here match first row in `q` with time <= that in `t`)
 
+ClickHouse currently doesn't support joins with no strict matching. And join columns must be one of the following types: Int, UInt, Float, Date, DateTime, Decimal.
+
 
 #### CREATE
 
