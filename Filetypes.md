@@ -59,4 +59,18 @@ Properties of protocol buffers
 
 ## Parquet
 
+A column-oriented data storage format, provides encoding and benefits similar to other column-oriented data storage systems.
+
+- Column-wise compression and specialized encoding schemes coming out of the box
+- Fast query on "wide" tables where only a few columns are selected
+
+Implements the Dremel paper (https://github.com/julienledem/redelm/wiki/The-striping-and-assembly-algorithms-from-the-Dremel-paper) for nested data structure serialisation (essentially each "leaf" in the nested structure is a column, with some way to tracking levels).
+
+
+
+
+
+
+
+
 
