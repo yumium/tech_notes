@@ -849,49 +849,46 @@ grep -E "boots?" a_file
 
 
 
-**sed**
+#### sed
 
 sed performs basic text transformations on an input stream (a file or input from a pipeline) in a single pass through the stream, so it is very efficient. However, it is sed's ability to filter text in a pipeline which particularly distinguishes it from other types of editor.
 
+A `sed` program consists of one or more `sed` commands, passed in by one or more of the -e, -f options, or the first non-option argument if zero of these options are used. 
+
+Each `sed` command has the following syntax:
+
 ```shell
-# Scan every line, replace longest string that match the regexp pattern with the replacement, output on STOUT
-# not 100% sure what the -e part does
-# note you can also add more files as arguments
-sed 's/bo*/b/' a_file
-
-# Replace onto current file
-sed -i 's/bo*/b/' a_file_copy
-
-# NOTE: never do this in sed or any other program, as this can sometimes give race conditions
-sed 's/bo*/b/' a_file_copy > a_file_copy
-
-# & is the string that matches the regexp
-sed -E 's/[0-9]+/(&)/' numbers
-
-# Capture groups also work, but you need the -E (or -r) flag for extended regexp
-grep -E '\.ox\.ac\.uk$' emails |
-sed -E 's/(\w+).(\w+)@(keble|chch).ox.ac.uk/\1 \2 @ \3/'
-
-# even cooler
-grep -E '\.ox\.ac\.uk$' emails |
-sed -E 's/(\w+).(\w+)@(keble|chch).ox.ac.uk/\1,\2,\3/' >
-new_members.csv
-
-# There are many more sed commands, the general pattern is "sed '/pattern/ command/ my_file'"
-# Prints all lines starting with b, use -n to suppress the default printing as sed prints all lines by default
-sed -n '/^b/ p' a_file
-
-# Delete lines not starting with b
-sed '/^[^b]/ d' a_file
-
-# You can also specify a range (via line numbers) on the lines to execute the command on
-sed -n '1,5 p' a_file  # print line 1 to 5
-sed -n '2,$ p' a_file  # print line 2 to end of file (note ^ doesn't work for start of file, just use 1)
-
-# You can also specify range by regexp, start from first line that matches first regexp and end on first line after that matches second regexp (or stop at end of file)
-sed -n '/boot/,/boot/ p' a_file
-
+[addr]X[options]
 ```
+
+- `X` is the single character `sed` command identifier
+- `[addr]` Optional line address the command is applied to. Can be single line number, range of line, or regex (only operate on matched lines)
+- `[options]` Options specific to the `sed` command
+
+Commands within a *script* or *script-file* can be separated by semicolons (;)
+
+```shell
+sed [FLAGS] [COMMANDS] [input-file]
+```
+
+Flags:
+- `--debug`: annotate program execution
+- `-e script`: add scrip to the commands to be executed
+- `-f script-file`: add the contents of script-file to be commands to be executed
+- `-i`: edit file in-place
+- `-E/-r`: use extended regex in the script
+
+
+
+Commands:
+- `s`: substitute
+
+
+
+
+
+
+
 
 
 
