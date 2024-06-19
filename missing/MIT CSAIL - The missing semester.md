@@ -873,6 +873,7 @@ sed [FLAGS] [COMMANDS] [input-file]
 
 Flags:
 - `--debug`: annotate program execution
+- `-n`: suppress automatic printing
 - `-e script`: add scrip to the commands to be executed
 - `-f script-file`: add the contents of script-file to be commands to be executed
 - `-i`: edit file in-place
@@ -881,62 +882,27 @@ Flags:
 
 
 Commands:
-- `s`: substitute
-
-
-
-
-
-
-
-
-
-
-**sort**
-
-- `-r`: reverse order
-- `-n`: numeric order (lexicographic by default, which make 11 < 2)
-
-
-
-**head, tail**
-
-- `-n`: specify how many lines (eg. `-n5` for 5 lines)
-- `-n +NUM` for tail: get all lines starting from line NUM. So to get first m lines with offset n you can do `tail -n +n | head -n m`
-
-
-**uniq**
-
-- `-c`: count the # of repeats and put it in front of the line
-- `-d`: only print duplicated lines
-- `-u`: only print unique lines
-
-
-
-**paste and bc**
-
-```shell
-# -s combines all lines with delimitor (-d) +
-# -l then tells bc to interpret it as matlab???
-# adds all numbers.
-# the last 0 is for style points
-cat numbers <(echo 0) | paste -sd+ | bc -l
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- `s`: substitute. Syntax `s/regexp/replacement/flags`. Replaces first matched portion with `replacement`. Flags:
+  - `g`: Apply replacement to all matches, not just first
+  - `number`: Only replace *number*th match
+  - `p`: If substitution was made, print new pattern space
+  - `w filename`: If substitution was made, write result to named file
+  - `e`: 
+  - `i`: Regexp match in case in-sensitive manner
+  - `m`: 
+- `#`: comment. Begins a comment in sed scripts
+- `q`: exit. Exit without further operation
+- `d`: delete. Delete pattern space, go to next line
+- `P`: print. Print out pattern space, usually used with `-n` (e.g., `sed -n 2p` => prints only second line)
+- `n`: next. Does nothing for line and go to next line, usually used to skip lines. (e.g., seq 6 | sed 'n;n;s/./X/` => prints 1 2 X 4 5 X)
+- `{ commands }`: group. Group commands enclosed between { and } together, useful to apply a batch of commands to a single line (e.g., `sed -n '2{s/2/X/ ; p}`)
+- `y/source/dest`: transliterate. Works like `tr source dest`
+- `a text`: append. Append `text` after line
+- `i text`: insert. Insert `text` before line
+- `c text`: replace. Replace the line(s) with text
+- `=`: line number. Print out current line number before each line
+- `r filename`: read. Read file of `filename` and insert into current cycle. (e.g., `sed '2r/etc/hostname`, reads `/etc/hostname` and insert in)
+- `w filename`: write. Write the pattern space to `filename`. 
 
 
 
