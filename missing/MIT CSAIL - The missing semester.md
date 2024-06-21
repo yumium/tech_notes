@@ -799,7 +799,9 @@ Flags:
 - `-h`: Suppress outputting file name
 - `-n`: Prefix each output line with 1-based line number in the file
 - `-r`: Read all files under each directory
-
+- `-A NUM`: Print NUM lines after each matched line
+- `-B NUM`: Print NUM lines before each matched line
+- `-C NUM`: Print NUM lines around each matched line (half above half below)
 
 ```shell
 cat a_file
