@@ -1344,7 +1344,9 @@ ORDER BY
 ## Miscellaneous
 
 - View storage size with `system.parts` and `system.columns`, usually paired with function `formatReadableSize`
-
+  - A `part` is simply a file in the system. A `partition` is a logical grouping of data, where rows with the same partition are grouped together.
+  - Partition works well when operations tend to operate on 1 partition at a time (e.g., queries on one partition only (less reads if partitions are used), remove by partition (e.g., partition by date then retain only last 7 days of data))
+  - Recommend no more than 100 partitions. 1000 can be okay but may see performance degrade (reading across many partitions will be slower)
 
 
 
