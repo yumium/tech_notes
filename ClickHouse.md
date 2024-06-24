@@ -693,6 +693,8 @@ Convert datatype to dictionary encoding. Works especially well for data with les
 
 `LowCardinality` can provide same or higher efficiency than `Enums`. Prefer to use this for strings.
 
+However, avoid using for small datatypes (`Int8`, `FixedString(8_bytes_or_less)`) because of overhead from encoding/decoding when querying). More details here: https://clickhouse.com/docs/en/operations/settings/settings#allow_suspicious_low_cardinality_types
+
 
 
 **Nullable(T)**
