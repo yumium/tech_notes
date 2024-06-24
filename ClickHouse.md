@@ -1341,6 +1341,10 @@ ORDER BY
 ```
 
 
+## Miscellaneous
+
+- View storage size with `system.parts` and `system.columns`, usually paired with function `formatReadableSize`
+
 
 
 
