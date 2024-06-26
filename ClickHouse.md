@@ -1322,23 +1322,114 @@ Encryption Codecs
 
 https://clickhouse.com/docs/en/sql-reference/window-functions
 
-Example
+Syntax
 
-```SQL
-SELECT
-    metric,
-    ts,
-    value,
-    avg(value) OVER (
-        PARTITION BY metric 
-        ORDER BY ts ASC 
-        Rows BETWEEN 2 PRECEDING AND CURRENT ROW
-    ) AS moving_avg_temp
-FROM sensors
-ORDER BY
-    metric ASC,
-    ts ASC;
+```sql
+aggregate_function (column_name)
+  OVER ([[PARTITION BY grouping_column] [ORDER BY sorting_column] 
+        [ROWS or RANGE expression_to_bound_rows_withing_the_group]] | [window_name])
+FROM table_name
+WINDOW window_name as ([[PARTITION BY grouping_column] [ORDER BY sorting_column])
 ```
+
+Definitions
+
+-   `PARTITION BY` - defines how to break a resultset into groups. (like group by)
+-   `ORDER BY` - defines how to order rows inside the group during calculation aggregate_function.
+-   `ROWS or RANGE` - defines bounds of a frame, aggregate_function is calculated within a frame.
+-   `WINDOW` - allows multiple expressions to use the same window definition.
+
+Note, window functions currently don't support `DateTime` intervals, but you can use `DateTime` functions like `toStartOfFiveMinutes` then do a `PARTITION` or `GROUP BY`.
+
+
+```
+      PARTITION
+┌─────────────────┐  <-- UNBOUNDED PRECEDING (BEGINNING of the PARTITION)
+│                 │
+│                 │
+│=================│  <-- N PRECEDING  <─┐
+│      N ROWS     │                     │  F
+│  Before CURRENT │                     │  R
+│~~~~~~~~~~~~~~~~~│  <-- CURRENT ROW    │  A
+│     M ROWS      │                     │  M
+│   After CURRENT │                     │  E
+│=================│  <-- M FOLLOWING  <─┘
+│                 │
+│                 │
+└─────────────────┘  <--- UNBOUNDED FOLLOWING (END of the PARTITION)
+```
+
+Aggregation functions only allowed in window queries
+
+-   `row_number()` - Number the current row within its partition starting from 1.
+-   `first_value(x)` - Return the first non-NULL value evaluated within its ordered frame.
+-   `last_value(x)` - Return the last non-NULL value evaluated within its ordered frame.
+-   `nth_value(x, offset)` - Return the first non-NULL value evaluated against the nth row (offset) in its ordered frame.
+-   `rank()` - Rank the current row within its partition with gaps.
+-   `dense_rank()` - Rank the current row within its partition without gaps.
+-   `lagInFrame(x)` - Return a value evaluated at the row that is at a specified physical offset row before the current row within the ordered frame.
+-   `leadInFrame(x)` - Return a value evaluated at the row that is offset rows after the current row within the ordered frame.
+
+Examples
+
+```sql
+-- sliding frame - 1 PRECEDING ROW AND CURRENT ROW
+SELECT
+    part_key,
+    value,
+    order,
+    groupArray(value) OVER (
+        PARTITION BY part_key 
+        ORDER BY order ASC
+        Rows BETWEEN 1 PRECEDING AND CURRENT ROW
+    ) AS frame_values
+FROM wf_frame
+ORDER BY
+    part_key ASC,
+    value ASC;
+
+┌─part_key─┬─value─┬─order─┬─frame_values─┐
+│        1 │     1 │     1 │ [1]          │
+│        1 │     2 │     2 │ [1,2]        │
+│        1 │     3 │     3 │ [2,3]        │
+│        1 │     4 │     4 │ [3,4]        │
+│        1 │     5 │     5 │ [4,5]        │
+└──────────┴───────┴───────┴──────────────┘
+```
+
+```sql
+-- row_number does not respect the frame, so rn_1 = rn_2 = rn_3 != rn_4
+SELECT
+    part_key,
+    value,
+    order,
+    groupArray(value) OVER w1 AS frame_values,
+    row_number() OVER w1 AS rn_1,
+    sum(1) OVER w1 AS rn_2,
+    row_number() OVER w2 AS rn_3,
+    sum(1) OVER w2 AS rn_4
+FROM wf_frame
+WINDOW
+    w1 AS (PARTITION BY part_key ORDER BY order DESC),
+    w2 AS (
+        PARTITION BY part_key 
+        ORDER BY order DESC 
+        Rows BETWEEN 1 PRECEDING AND CURRENT ROW
+    )
+ORDER BY
+    part_key ASC,
+    value ASC;
+┌─part_key─┬─value─┬─order─┬─frame_values─┬─rn_1─┬─rn_2─┬─rn_3─┬─rn_4─┐
+│        1 │     1 │     1 │ [5,4,3,2,1]  │    5 │    5 │    5 │    2 │
+│        1 │     2 │     2 │ [5,4,3,2]    │    4 │    4 │    4 │    2 │
+│        1 │     3 │     3 │ [5,4,3]      │    3 │    3 │    3 │    2 │
+│        1 │     4 │     4 │ [5,4]        │    2 │    2 │    2 │    2 │
+│        1 │     5 │     5 │ [5]          │    1 │    1 │    1 │    1 │
+└──────────┴───────┴───────┴──────────────┴──────┴──────┴──────┴──────┘
+```
+
+
+
 
 
 ## Miscellaneous
