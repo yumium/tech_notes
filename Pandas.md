@@ -17,7 +17,7 @@ Parking:
 
 ### DataFrame
 
-**Creating a DataFrame**
+#### Creating a DataFrame
 
 ```python
 df = pd.DataFrame(
@@ -35,7 +35,7 @@ df = pd.DataFrame(
 
 
 
-**Types**
+#### Types
 
 
 | Pandas dtype  | Python type  | NumPy type                                                     | Usage                                        |
@@ -60,7 +60,7 @@ Note: Integers can be casted to `object` but they are not strings underneath.
 
 
 
-**Reading and writing**
+#### IO tools
 
 Reading
 
@@ -78,7 +78,7 @@ titanic.to_excel('titanic.xlsx', sheet_name='passengers', index=False)
 
 
 
-**Slicing**
+#### Slicing
 
 ```python
 titanic[['Age', 'Sex']]			# specifc columns
@@ -111,7 +111,7 @@ Condition: ~, |, &
 
 
 
-**Creating new columns**
+#### Creating new columns
 
 ```python
 # Creating new column, with values calculated by element
@@ -138,7 +138,7 @@ air_quality_renamed = air_quality_renamed.rename(columns=str.lower)
 
 
 
-**Aggregates**
+#### Aggregates
 
 ```python
 # Aggregates for each column
@@ -200,7 +200,7 @@ titanic[["Sex", "Age"]].groupby("Sex").mean()
 
 
 
-**Reshaping**
+#### Reshaping
 
 ```python
 # Pivoting is entirely reshaping of data (no aggregation is done)
@@ -435,7 +435,7 @@ df.melt(id_vars=['A'], value_vars=['B'],
 
 
 
-**Combining data**
+#### Combining data
 
 ```python
 # We can concatenate tables along axis 0 (row) or axis 1 (column), provided the other dimension match
@@ -485,7 +485,7 @@ air_quality = pd.merge(air_quality, air_quality_parameters,
 
 
 
-**DataFrame operations**
+#### DataFrame operations
 
 `.head(n)`: Display first `n` rows of data
 
