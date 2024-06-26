@@ -983,15 +983,55 @@ https://pandas.pydata.org/pandas-docs/stable/user_guide/window.html#window-expan
 
 ### Series
 
-Creating a series
+#### Creating a series
+
+From an ndarray
 
 ```python
-# Directly
-ser = pd.Series([22, 35, 58], name='Age')
+In [3]: s = pd.Series(np.random.randn(5), index=["a", "b", "c", "d", "e"])
 
-# From a column of a DataFrame
-ser = df['Age']
+In [4]: s
+Out[4]: 
+a    0.469112
+b   -0.282863
+c   -1.509059
+d   -1.135632
+e    1.212112
+dtype: float64
 ```
+
+From a dict
+
+```python
+In [7]: d = {"b": 1, "a": 0, "c": 2}
+
+In [8]: pd.Series(d)
+Out[8]: 
+b    1
+a    0
+c    2
+dtype: int64
+```
+
+From a scalar value
+
+```python
+In [12]: pd.Series(5.0, index=["a", "b", "c", "d", "e"])
+Out[12]: 
+a    5.0
+b    5.0
+c    5.0
+d    5.0
+e    5.0
+dtype: float64
+```
+
+#### Getting Series values
+
+
+
+
+
 
 
 
