@@ -1,6 +1,5 @@
 # Pandas
 
-https://app.codility.com/test/ARHDAN-VF2/
 
 
 
