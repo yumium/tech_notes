@@ -11,8 +11,6 @@ import pandas as pd
 
 Parking:
 
-- Join vs Merge, apparently Join needs common column to be an index??
-
 - np.datetime64 type vs. pd.Timestamp vs. python datetime types
   - In Pandas 1.4, pd.Timestamp has no concept of precision. It always stores till ns precision. Flooring just clears the lower bits. `unit` is only used at point of initialisation so the timestamp taken is converted to the correct time
 
