@@ -484,17 +484,63 @@ air_quality = pd.merge(air_quality, air_quality_parameters,
 
 
 
-#### DataFrame operations
+#### DataFrame attributes and operations
+
+Attributes
+
+`.dtypes`: Return dtypes of each column 
+
+`.shape`: Shape (# row, # col)
+
+`.index`: Index of DataFrame
+
+`.array`: Underlying numpy array
+
+Descriptive
+
+
+|Function|Description|
+| --- | --- |
+|`count` |Number of non-NA observations |
+|`sum` |Sum of values |
+|`mean` |Mean of values |
+|`median` |Arithmetic median of values |
+|`min` |Minimum |
+|`max` |Maximum |
+|`mode` |Mode |
+|`abs`|Absolute Value |
+|`prod` |Product of values |
+|`std` |Bessel-corrected sample standard deviation |
+|`var` |Unbiased variance |
+|`sem` |Standard error of the mean |
+|`skew` |Sample skewness (3rd moment) |
+|`kurt` |Sample kurtosis (4th moment) |
+|`quantile` |Sample quantile (value at %) |
+|`cumsum` |Cumulative sum |
+|`cumprod` |Cumulative product |
+|`cummax` |Cumulative maximum |
+|`cummin` |Cumulative minimum|
+
+Note, by default some numpy methods like `mean`, `std`, and `sum` will skip `NA`s
+
+`.describe()`: Summarize DF  `series.describe(percentiles=[0.05, 0.25, 0.75, 0.95])`, `frame.describe(include=["object"])`
+
+`idxmin()` / `idxmax()`: Index of min and max, returns first if multiple candidates (`df1.idxmin(axis=0)`, `df1.idxmax(axis=1)`)
+
+`.value_counts()`: Histogram
+
+`.cut()`: Discretization by value
+
+`.qcut()`: Discretization by sample quantiles
+
+
+Common operations
 
 `.head(n)`: Display first `n` rows of data
 
 `.tail(n)`: Display last `n` rows of data
 
-`.dtypes`: Return dtypes of each column 
-
 `.info()`: Detailed summary
-
-`.shape`: Shape (# row, # col)
 
 `.max(axis=0, numeric_only=False)`: Return max of each column/row, which is a series. If `numeric_only` is set to True, then leave only columns with float/int/boolean dtype.
 
@@ -505,8 +551,6 @@ air_quality = pd.merge(air_quality, air_quality_parameters,
 `.sort_values(by='Age')` / `.sort_values(by=['Pclass', 'Age'], ascending=False, inplace=False)`: Sorting values
 
 `.keys()`: Keys of DataFrame
-
-`.index`: Index of DataFrame
 
 `.drop_duplicates(subset='col1', keep='first', inplace=False)`: Drop duplicate rows
 
