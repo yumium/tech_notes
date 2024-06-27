@@ -534,6 +534,7 @@ df['wordcount'] = df['wordcount'].astype('int32')	# cast a column and map back
 `.reindex(columns=)`: Conform DataFrame to new index with optional filling logic
 
 `.assign(**{col_name : func / ser})`: Assigns new column or overwrite existing column if name clash. Takes in keyword args that maps column name to the series for the column or a function that takes in the existing DF and returns a series.     => Note: Later items in `**kwargs` may refer to newly created or modified columns in `df`; items are computed and assigned into `df` in order.
+   Also note that `assign` always copies data, so `.assign().assign().assign()` is anti-pattern, always use a single assign.
 
 `.apply()`: Used in column creation for more complex patterns. Apply a function along an axis of the DataFrame. Function takes in series as input (column if axis=0, row if axis=1)
 
@@ -572,6 +573,10 @@ def is_valid(condition):
 `.rename(columns)`: Rename column name (`columns` is mapping of old name => new name)
 
 `.any(axis=0)`: Return a series of the result of logical `any` on the axis (0 is over columns, 1 is over rows)
+
+`.transpose()`: Transposes the data frame, indices are now column names
+
+`.to_string()`: For displaying
 
 ^^ Some of these methods/attributes also work on series
 
@@ -1055,7 +1060,11 @@ e         NaN
 dtype: float64
 ```
 
+#### Name attribute
 
+Series has a `name` attribute which is the column name given to the series after `reset_index()`
+
+You can change the name by `s.name = 'new'` or call `s.rename('new')`
 
 
 
