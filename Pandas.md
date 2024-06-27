@@ -1029,13 +1029,37 @@ dtype: float64
 #### Getting Series values
 
 
+```python
+In [21]: s["a"]
+Out[21]: 0.4691122999071863
+
+# Safe get
+In [27]: s.get("f")
+
+In [28]: s.get("f", np.nan)
+Out[28]: nan
+```
+
+#### Series
+
+Pandas series work by matching indices. Binary operators work on the union of the left and right indices.
+
+```python
+In [32]: s.iloc[1:] + s.iloc[:-1]
+Out[32]: 
+a         NaN
+b   -0.565727
+c   -3.018117
+d   -2.271265
+e         NaN
+dtype: float64
+```
 
 
 
 
 
-
-Series operations
+#### Series operations
 
 `.max()`: Maximum of a series
 
