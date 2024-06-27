@@ -1140,7 +1140,15 @@ You can change the name by `s.name = 'new'` or call `s.rename('new')`
 
 
 
-### Misc
+### General
+
+#### Boolean functions
+
+
+
+#### Function application
+
+
 
 #### String methods
 
