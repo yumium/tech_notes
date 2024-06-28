@@ -10,8 +10,6 @@ import pandas as pd
 
 Parking:
 
-- np.datetime64 type vs. pd.Timestamp vs. python datetime types
-  - In Pandas 1.4, pd.Timestamp has no concept of precision. It always stores till ns precision. Flooring just clears the lower bits. `unit` is only used at point of initialisation so the timestamp taken is converted to the correct time
 
 
 ### DataFrame
@@ -134,6 +132,75 @@ air_quality_renamed = air_quality_renamed.rename(columns=str.lower)
 
 # For more advanced logic, use .apply()
 ```
+
+#### Reindexing and renaming
+
+`.reindex(index=, columns=[, method=])`: Reindex indices and columns. method can take "ffill", "bfill", and "nearest" for filling nan when new index are introduced
+	You can also add `limit` and `tolerance` when using ffill and bfill
+
+`.reindex_like(df2)`: Change current DF index to that of `df2`
+
+`.drop([...], axis=0)`: Drop labels from an axis
+
+`.rename(columns={'old': 'new'}, index={'old': 'new})`: Renaming labels
+`.rename(columns=str.upper)`: Can take functions too to apply to each label
+
+
+#### Iteration
+
+By columns
+
+```python
+for label, ser in df.items():
+    print(label)
+    print(ser)
+```
+
+By rows
+
+```python
+for row_index, row in df.iterrows():
+    print(row_index, row, sep="\n")
+```
+
+By rows as named tuple
+
+```
+In [271]: for row in df.itertuples():
+   .....:     print(row)
+   .....: 
+Pandas(Index=0, a=1, b='a')
+Pandas(Index=1, a=2, b='b')
+Pandas(Index=2, a=3, b='c')
+```
+
+
+
+
+#### Datetime operations
+
+- np.datetime64 type vs. pd.Timestamp vs. python datetime types
+  - In Pandas 1.4, pd.Timestamp has no concept of precision. It always stores till ns precision. Flooring just clears the lower bits. `unit` is only used at point of initialisation so the timestamp taken is converted to the correct time
+
+**Series** have `.dt` accessor that return a Series of datetime like values
+
+`.dt.hour`: Integer representing the hour (similar `.dt.second`, `.dt.day` ...)
+
+`.dt.tz_localize(timezone_string | None)`: Set timezone of datetime
+
+`.dt.tz_convert(timezone_string)`: Convert time to target timezone
+
+`.dt.strftime("%Y/%m/%d")`: Formats datetime to a string
+
+`.dt.components`: Breaks down datetime to component (days, hours, minutes ...)
+
+
+
+
+
+
+
+
 
 
 
@@ -495,6 +562,8 @@ Attributes
 `.index`: Index of DataFrame
 
 `.array`: Underlying numpy array
+
+`.empty`: If it's empty
 
 Descriptive
 
@@ -1144,9 +1213,20 @@ You can change the name by `s.name = 'new'` or call `s.rename('new')`
 
 #### Boolean functions
 
+`.any()`: Over an axis (DF -> Series), default 0 so by row
+`.all()`: All ^^
 
 
 #### Function application
+
+`.pipe(func -> DF, *args)`: Applies function to the current data frame, `df.pipe(func, *args)` returns `func(df, *args)`
+
+`.apply(func, axis=0)`: Apply function to each column or row, default to each column
+
+`.applymap(arg, na_action=None|'ignore')`: Apply function element-wise, default nan behaviour is passing into the function as usual
+^^ renamed to `.map` in 2.1
+
+
 
 
 
