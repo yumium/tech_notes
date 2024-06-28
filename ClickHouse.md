@@ -1434,11 +1434,45 @@ ORDER BY
 
 ## Miscellaneous
 
+#### system.parts, system.columns
 - View storage size with `system.parts` and `system.columns`, usually paired with function `formatReadableSize`
   - A `part` is simply a file in the system. A `partition` is a logical grouping of data, where rows with the same partition are grouped together.
   - Partition works well when operations tend to operate on 1 partition at a time (e.g., queries on one partition only (less reads if partitions are used), remove by partition (e.g., partition by date then retain only last 7 days of data))
   - Recommend no more than 100 partitions. 1000 can be okay but may see performance degrade (reading across many partitions will be slower)
 
+#### clickhouse-benchmark
+
+Benchmarking critical queries
+
+```
+$ clickhouse-benchmark --query ["single query"] [keys]
+```
+
+#### Query caching
+
+If a query is expensive, you can enable query caching on the query level. Further execution of the same query will reuse the computed result.
+
+If the underlying table changes or anything that may invalidate the cache, clickhouse will do a fresh execution.
+
+```sql
+SELECT some_expensive_calculation(column_1, column_2)
+FROM table
+SETTINGS use_query_cache = true;
+```
+
+You can use in addition `enable_writes_to_query_cache` and `enable_reads_from_query_cache` to add more fine-grain control. The below query can only use query cache passively
+
+```sql
+SELECT some_expensive_calculation(column_1, column_2)
+FROM table
+SETTINGS use_query_cache = true, enable_writes_to_query_cache = false;
+```
+
+Enable it in clickhouse config, how many bytes you want for query cache.
+
+You can check your query cache at `system.query_cache` table.
+
+Drop your query cache with `SYSTEM DROP QUERY CACHE`
 
 
 
