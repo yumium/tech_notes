@@ -1474,7 +1474,13 @@ You can check your query cache at `system.query_cache` table.
 
 Drop your query cache with `SYSTEM DROP QUERY CACHE`
 
+#### Query profiling
 
+You can read more details on performance in `system.processors_profile_log` table
+
+More details here: https://clickhouse.com/docs/en/operations/optimizing-performance/sampling-query-profiler
+
+Open MR to add `EXPLAIN ANALYZE` command to parse this table: https://github.com/ClickHouse/ClickHouse/issues/40051
 
 
 
