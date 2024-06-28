@@ -194,8 +194,7 @@ Pandas(Index=2, a=3, b='c')
 
 `.dt.components`: Breaks down datetime to component (days, hours, minutes ...)
 
-
-
+This accessor brings convenience when filtering, say `df[lambda x: x.date_col.dt.weekday == 0]`
 
 
 
@@ -1232,31 +1231,33 @@ You can change the name by `s.name = 'new'` or call `s.rename('new')`
 
 #### String methods
 
+Also a **Series** accessor (like `.dt`)
+
 `.str.lower()`
 
-`.upper()`
+`.str.upper()`
 
-`.len()`
+`.str.len()`
 
-`.strip()`
+`.str.strip()`
 
-`.lstrip()`
+`.str.lstrip()`
 
-`.rstrip()`
+`.str.rstrip()`
 
-`.split(sep, expand=False)`: Split column values with `sep`, turns string into list. If `expand` is set to True, then `.split` will return a DataFrame of columns, not a single column with list values
+`.str.split(sep, expand=False)`: Split column values with `sep`, turns string into list. If `expand` is set to True, then `.split` will return a DataFrame of columns, not a single column with list values
 
-`.get(idx)`: Gets the `idx` of a list value in the column
+`.str.get(idx)`: Gets the `idx` of a list value in the column
 
-`.contains(substring)`
+`.str.contains(substring)`
 
-`.replace(orig, new)`: Similar to Python .replace(). Note `str.replace` (here) is different from `.replace` for Series
+`.str.replace(orig, new)`: Similar to Python .replace(). Note `str.replace` (here) is different from `.replace` for Series
 
-`.capitalize()`: Make first character uppercase and all the rest lowercase
+`.str.capitalize()`: Make first character uppercase and all the rest lowercase
 
 `[1:3]`: Any indexing like you would with Python strings would work here
 
-`.match(pat)`: Return mask that matches the RE pattern `pat`
+`.str.match(pat)`: Return mask that matches the RE pattern `pat`
 
 
 
