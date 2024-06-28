@@ -2742,10 +2742,47 @@ python -m pyinstaller "app.py" --add-data "FreeSans.ttf;." --onefile --exclude n
 ANSI escape character sequences for colours
 
 
+### DiskCache
 
+Library for creating caches on disk
 
+```python
+from diskcache import Cache
+cache = Cache()
+```
 
+Each cache is thread safe and can be shared across threads. You can also create multiple caches on same directory.
 
+If no directory is given on creation (like above), uses temporary directory.
+
+Use `.close()` after using cache
+
+```python
+cache.close()
+with Cache(cache.directory) as reference:
+    reference.set('key', 'value')  # True
+```
+
+Otherwise it automatically opens cache but slower
+
+```python
+cache.close()
+cache.get('key')  # Automatically opens, but slower, returns 'value'
+```
+
+You can interact with a cache like how you would with dictionaries
+
+```python
+cache['key'] = 'value'
+cache['key']  #'value'
+'key' in cache  # True
+del cache['key']
+```
+
+You can add tags to your cache, these are used like comments.
+
+Question: how can multiple processes use same cache??
+Learn more about memoize, how are the keys computed
 
 
 
