@@ -107,6 +107,18 @@ Condition: ~, |, &
 
 
 
+#### Sorting
+
+- `.sort_index([key=func])`: Sort by index
+- `ser.sort_values()`: Sort series by values
+- `df.sort_values(by='col'/['col's][, na_position='first', key=func])`: Sort DF by column values
+- `ser.searchsorted(value, side='left, sorter=None)`: Return indices to insert `value` (can be list of values) to maintain sorted order
+- `ser.nsmallest(n)`: Like `head(n)`
+- `ser.nlargest(n)`: Like `tail(n)`
+- `df.nsmallest(n, cols)`
+- `df.nlargest(n, cols)`
+
+
 
 #### Creating new columns
 
