@@ -120,6 +120,13 @@ Condition: ~, |, &
 
 
 
+#### Copy-on-Write (CoW)
+
+`.copy()`: Deep copy of data frame.
+
+Note, this is used very rarely becaues pandas almost always creates a new object upon modification (so code looks functional)
+
+
 #### Creating new columns
 
 ```python
