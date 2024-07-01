@@ -2848,10 +2848,39 @@ with Cache(disk=JSONDisk, disk_compress_level=6) as cache:
     pass
 ```
 
+Keys don't go through Python's hash protocol (`__hash__`, `__eq__` ...). Instead, equality determined by bytes after serialisation method defined by `Disk` objects. 
+Default disk behaviour:
 
-Learn more about memoize, how are the keys computed
+- Four data types can be stored natively in the cache metadata database: integers, floats, strings, and bytes. Equality works like Python here.
+- Other datatypes are converted to bytes via the Pickle protocol. So there may be inconsistencies (e.g., for tuple keys)
 
+`@cache.memoize()`
 
+Cache result of function call. Call to the function with same arguments will return the cached value. (so make sure function is stateless)
+
+Parameters:
+
+-   **cache** -- cache to store callable arguments and return values
+-   **name** (*str*) -- name given for callable (default None, automatic)
+-   **typed** (*bool*) -- cache different types separately (default False)
+-   **expire** (*float*) -- seconds until arguments expire (default None, no expiry)
+-   **tag** (*str*) -- text to associate with arguments (default None)
+-   **ignore** (*set*) -- positional or keyword args to ignore (default ())
+
+The `__cache_key__` function for the method computes the cache key given arguments
+
+```python
+@cache.memoize(expire=1, tag='fib')
+def fibonacci(number):
+    if number == 0:
+        return 0
+    elif number == 1:
+        return 1
+    else:
+        return fibonacci(number - 1) + fibonacci(number - 2)
+
+key = fibonacci.__cache_key__(100)  # 354224848179261915075, the cache key when we pass 100 to `fibonacci`
+```
 
 
 
