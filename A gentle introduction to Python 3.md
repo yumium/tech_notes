@@ -2751,7 +2751,9 @@ from diskcache import Cache
 cache = Cache()
 ```
 
-Each cache is thread safe and can be shared across threads. You can also create multiple caches on same directory.
+Cache is a key-value store and all keys live in the same namespace per directory.
+
+Each cache object is thread safe and can be shared across threads. You can also create multiple cache objects (e.g., across multiple processes) on same directory, which operate on the underlying disk storage atomically.
 
 If no directory is given on creation (like above), uses temporary directory.
 
@@ -2781,7 +2783,72 @@ del cache['key']
 
 You can add tags to your cache, these are used like comments.
 
-Question: how can multiple processes use same cache??
+Other flavour of cache objects:
+
+- `FanoutCache`: Cache with automatic sharding (to reduce thread blocking)
+- `DjangoCache`: Django compatible
+- `Deque`: `collections.deque` compatible
+- `Index`: Like an ordered dictionary?
+- `Transactions`: Make a group of operations atomic
+
+```python
+with cache.transact():
+    total = cache.incr('total', 123.45)
+    count = cache.incr('count')
+```
+
+Settings
+
+- `size_limit`: Max size of cache on disk. `cache.size_limit`
+- `cull_limit`:
+- `statistics`: Enable to store cache statistics
+- `disk_min_file_size`: Min size to store a value in a file
+- `disk_pickle_protocol`: Pickle protocol to use for data types not natively supported
+- `eviction policy`:
+  - `least-recently-stored`: Default. Evict item that was stored earliest
+  - `least-recently-used`: 
+  - `least-frequently-used`: 
+  - `none`: Cache grows without bound, items with expiration are lazily removed
+
+All clients accessing the cache are expected to use the same eviction policy. Eviction happens when cache is full
+
+
+`diskcache.Disk`
+
+Used for serialising and deserialising data.
+
+```python
+class JSONDisk(diskcache.Disk):
+    def __init__(self, directory, compress_level=1, **kwargs):
+        self.compress_level = compress_level
+        super().__init__(directory, **kwargs)
+
+    def put(self, key):
+        json_bytes = json.dumps(key).encode('utf-8')
+        data = zlib.compress(json_bytes, self.compress_level)
+        return super().put(data)
+
+    def get(self, key, raw):
+        data = super().get(key, raw)
+        return json.loads(zlib.decompress(data).decode('utf-8'))
+
+    def store(self, value, read, key=UNKNOWN):
+        if not read:
+            json_bytes = json.dumps(value).encode('utf-8')
+            value = zlib.compress(json_bytes, self.compress_level)
+        return super().store(value, read, key=key)
+
+    def fetch(self, mode, filename, value, read):
+        data = super().fetch(mode, filename, value, read)
+        if not read:
+            data = json.loads(zlib.decompress(data).decode('utf-8'))
+        return data
+
+with Cache(disk=JSONDisk, disk_compress_level=6) as cache:
+    pass
+```
+
+
 Learn more about memoize, how are the keys computed
 
 
