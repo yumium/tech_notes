@@ -2772,6 +2772,16 @@ cache.close()
 cache.get('key')  # Automatically opens, but slower, returns 'value'
 ```
 
+More arguments for `set`.
+
+```python
+cache.set('key', BytesIO(b'value'), expire=5, read=True, tag='data')
+```
+
+- `expire`: Expire time in seconds
+- `read`: Whether to return a file-like object
+
+
 You can interact with a cache like how you would with dictionaries
 
 ```python
