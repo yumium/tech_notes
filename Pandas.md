@@ -1201,6 +1201,8 @@ You can change the name by `s.name = 'new'` or call `s.rename('new')`
 
 #### Series operations
 
+`.dtype`: Datatype of the series
+
 `.max()`: Maximum of a series
 
 `.min()`: Minimum of series
@@ -1266,8 +1268,23 @@ In addition, it adds from pandas native and third-parties library to extend supp
 
 `StringDtype` -> `object` may be better because 1) it's simpler, 2) when we convert from other formats, if we have nan it'll convert to `object`. If your codebase only have strings as `object`, then `object` may be better
 
+On instantiation, type for each column is taken as type that accommodates for all types in the column. When you modify values, column type may be upcasted (e.g., `int` -> `float`)
 
+Explicit conversion
 
+- `.astype(type)`: Convert series and df to `type`
+- `df[['col1', 'col2']] = df[['col1', 'col2']].astype(type)`
+- `.astype({'col1': type1, 'col2': type2})`
+- `pd.to_datetime(ser)` / `pd.to_numeric(ser, downcast="smaller_type")` / `pd.to_timedelta(ser)`
+
+Try converting object type to more specific type
+
+- `.infer_objects()`: Try convert object types to more specific types
+
+Select based on dtype
+
+- `df['tdeltas']` / `df['uint64']` / `df['tz_aware_dates']` ...
+- `df.select_dtypes(include=[cols], exclude=[cols])`
 
 
 
