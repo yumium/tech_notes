@@ -73,6 +73,31 @@ Writing
 titanic.to_excel('titanic.xlsx', sheet_name='passengers', index=False)
 ```
 
+List of all IO tools
+
+| Format Type | Data Description                                                      | Reader                                                                           | Writer                                                                         |
+| ----------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| text        | [CSV](https://en.wikipedia.org/wiki/Comma-separated_values)           | [read_csv](https://pandas.pydata.org/docs/user_guide/io.html#io-read-csv-table)  | [to_csv](https://pandas.pydata.org/docs/user_guide/io.html#io-store-in-csv)    |
+| text        | Fixed-Width Text File                                                 | [read_fwf](https://pandas.pydata.org/docs/user_guide/io.html#io-fwf-reader)      |                                                                                |
+| text        | [JSON](https://www.json.org/)                                         | [read_json](https://pandas.pydata.org/docs/user_guide/io.html#io-json-reader)    | [to_json](https://pandas.pydata.org/docs/user_guide/io.html#io-json-writer)    |
+| text        | [HTML](https://en.wikipedia.org/wiki/HTML)                            | [read_html](https://pandas.pydata.org/docs/user_guide/io.html#io-read-html)      | [to_html](https://pandas.pydata.org/docs/user_guide/io.html#io-html)           |
+| text        | [LaTeX](https://en.wikipedia.org/wiki/LaTeX)                          |                                                                                  | [Styler.to_latex](https://pandas.pydata.org/docs/user_guide/io.html#io-latex)  |
+| text        | [XML](https://www.w3.org/standards/xml/core)                          | [read_xml](https://pandas.pydata.org/docs/user_guide/io.html#io-read-xml)        | [to_xml](https://pandas.pydata.org/docs/user_guide/io.html#io-xml)             |
+| text        | Local clipboard                                                       | [read_clipboard](https://pandas.pydata.org/docs/user_guide/io.html#io-clipboard) | [to_clipboard](https://pandas.pydata.org/docs/user_guide/io.html#io-clipboard) |
+| binary      | [MS Excel](https://en.wikipedia.org/wiki/Microsoft_Excel)             | [read_excel](https://pandas.pydata.org/docs/user_guide/io.html#io-excel-reader)  | [to_excel](https://pandas.pydata.org/docs/user_guide/io.html#io-excel-writer)  |
+| binary      | [OpenDocument](http://opendocumentformat.org/)                        | [read_excel](https://pandas.pydata.org/docs/user_guide/io.html#io-ods)           |                                                                                |
+| binary      | [HDF5 Format](https://support.hdfgroup.org/HDF5/whatishdf5.html)      | [read_hdf](https://pandas.pydata.org/docs/user_guide/io.html#io-hdf5)            | [to_hdf](https://pandas.pydata.org/docs/user_guide/io.html#io-hdf5)            |
+| binary      | [Feather Format](https://github.com/wesm/feather)                     | [read_feather](https://pandas.pydata.org/docs/user_guide/io.html#io-feather)     | [to_feather](https://pandas.pydata.org/docs/user_guide/io.html#io-feather)     |
+| binary      | [Parquet Format](https://parquet.apache.org/)                         | [read_parquet](https://pandas.pydata.org/docs/user_guide/io.html#io-parquet)     | [to_parquet](https://pandas.pydata.org/docs/user_guide/io.html#io-parquet)     |
+| binary      | [ORC Format](https://orc.apache.org/)                                 | [read_orc](https://pandas.pydata.org/docs/user_guide/io.html#io-orc)             | [to_orc](https://pandas.pydata.org/docs/user_guide/io.html#io-orc)             |
+| binary      | [Stata](https://en.wikipedia.org/wiki/Stata)                          | [read_stata](https://pandas.pydata.org/docs/user_guide/io.html#io-stata-reader)  | [to_stata](https://pandas.pydata.org/docs/user_guide/io.html#io-stata-writer)  |
+| binary      | [SAS](https://en.wikipedia.org/wiki/SAS_(software))                   | [read_sas](https://pandas.pydata.org/docs/user_guide/io.html#io-sas-reader)      |                                                                                |
+| binary      | [SPSS](https://en.wikipedia.org/wiki/SPSS)                            | [read_spss](https://pandas.pydata.org/docs/user_guide/io.html#io-spss-reader)    |                                                                                |
+| binary      | [Python Pickle Format](https://docs.python.org/3/library/pickle.html) | [read_pickle](https://pandas.pydata.org/docs/user_guide/io.html#io-pickle)       | [to_pickle](https://pandas.pydata.org/docs/user_guide/io.html#io-pickle)       |
+| SQL         | [SQL](https://en.wikipedia.org/wiki/SQL)                              | [read_sql](https://pandas.pydata.org/docs/user_guide/io.html#io-sql)             | [to_sql](https://pandas.pydata.org/docs/user_guide/io.html#io-sql)             |
+| SQL         | [Google BigQuery](https://en.wikipedia.org/wiki/BigQuery)             | [read_gbq](https://pandas.pydata.org/docs/user_guide/io.html#io-bigquery)        | [to_gbq](https://pandas.pydata.org/docs/user_guide/io.html#io-bigquery)        |
+
+
 
 
 #### Slicing
