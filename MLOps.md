@@ -113,6 +113,26 @@ Challenges of ML on edge
 - Model optimisation => make models faster
 
 
+### Evaluating ML tools
+
+Things that are useful:
+
+- Friction in critical parts of the workflow
+- Rapid prototyping / iteration (on both model and data!!)
+- As few DSLs as possible
+- Ergonomic
+- Interopability w/other tools
+- Quality of documentation
+- Progressive complexity: easy to get started
+
+Don’t Become A Tool Zealot
+
+- It will narrow the way you think about problems.
+- Introduces bias towards working on certain tasks over others (i.e. data cleaning vs crafting model architectures).
+- Will prevent you from hiring diverse talent.
+- Can lead to blindspots (ex: data drift, fairness ,etc).
+- **Try new tools often**, especially ones that use a different approach.
+- These are the same reasons you should **learn other programming languages**
 
 
 
