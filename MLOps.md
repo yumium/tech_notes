@@ -40,7 +40,7 @@ Model deployment challenge
 MLOps myths
 
 - Deploying is easy. Deploying reliably is hard
-- # of models in production is high
+- Number of models in production is high
 - Model updates and deploying updates is fast (minute iteration)
 
 
@@ -59,6 +59,60 @@ Batch processing vs. stream processing
 | Batch features: age, gender, job, city, income, when account was created | Dynamic features: locations in the last 10 minutes, recent activities             |
 | Bounded: know when a job finishes                                        | Unbounded: never finish                                                           |
 | Processing kicked of periodically, in batch: e.g. MapReduce, Spark       | Processing can be kicked off as events arrive: e.g. Flink, Samza, Spark Streaming |
+
+One model, two pipeline (batch and streaming) is a huge cause of errors
+
+- Development environment vs. production environment
+- Batch pipeline vs. streaming pipeline
+- Development vs. monitoring
+
+Instead, you can do one model one pipeline using e.g., Flink API
+
+Stream/MCQ/HDFS => Batch/Stream processing (rabbit MQ/Spark) => Stream/MCQ/HDFS => Batch/Stream training (Spark streaming/Spark) => Model serving => Recommendation system
+
+Batch prediction
+- Generate predictions periodically before requests arrive
+- Predictions are stored (e.g. SQL tables) and retrieved when requests arrive
+- Async
+
+Online prediction
+- Generate predictions after requests arrive
+- Predictions are returned as responses
+- Sync when using requests like REST / RPC
+  - HTTP prediction
+- Async [with low latency) with real-time transports like Kafka / Kinesis
+  - Streaming prediction
+
+All apart from stream prediction is offered by most cloud providers
+
+**Example batch prediction architecture**
+
+App <---Requests/Precomputed predictions---> DB Warehouse <---Predictions/Batch features---> Prediction service
+
+**Example online prediction architecture (HTTP)**
+
+App <---Requests/Predictions---> Prediction Service <---Batch features--- DB Warehouse
+
+**Example online prediction architecture (streaming)**
+
+App <---Requests/Predictions---> Prediction Service <---Batch/streaming features--- DB Warehouse/Real-time transport
+
+**Of course batch/stream is not black and white, but a spectrum**
+
+Benefits of edge computing (vs. say Cloud computing)
+
+- Can work without internet connection
+- Don't need to worry about network latency
+- Fewer concerns on privacy
+- Cheaper
+
+Challenges of ML on edge
+
+- Hardware => plenty of startups to make hardware more powerful
+- Model compression => make models smaller (quantization, knowledge distillation, pruning, low-ranked factorisation) => active field of research
+- Model optimisation => make models faster
+
+
 
 
 
