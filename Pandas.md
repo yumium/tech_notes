@@ -100,36 +100,6 @@ List of all IO tools
 
 
 
-#### Slicing
-
-```python
-titanic[['Age', 'Sex']]			# specifc columns
-
-# Conditions
-titanic[titanic['Age'] > 35]	# filters
-	# Under the hood, titanic['Age'] > 35 is a series of bools, which can be used for filtering
-    
-# isin
-titanic[titanic['Pclass'].isin([2,3])]
-
-# Joining conditions
-titanic[(titanic['Pclass'] == 2) | (titanic['Pclass'] == 3)]
-
-# Drop NA
-titanic[titanic['Age'].notna()]
-
-# Specific rows and cols by conditions
-# loc[rows you want, cols you want]
-titanic.loc[titanic['Age'] > 35, 'Name'] # all rows with age > 35, select column 'Name' within these rows
-
-# Specific rows and cols by index
-titanic.iloc[9:25, 2:5]
-titanic.iloc[9:25, 2:5] = 'anonymous'	# insert new values at data locations
-```
-
-Condition: ~, |, &
-
-
 
 
 #### Sorting
@@ -143,6 +113,43 @@ Condition: ~, |, &
 - `df.nsmallest(n, cols)`
 - `df.nlargest(n, cols)`
 
+
+#### Indexing and Selecting
+
+```python
+titanic[['Age', 'Sex']]			# specifc columns
+
+# Conditions
+titanic[titanic['Age'] > 35]	# filters
+	# Under the hood, titanic['Age'] > 35 is a series of bools, which can be used for filtering
+    
+# isin
+titanic[titanic['Pclass'].isin([2,3])]
+
+# Joining conditions
+titanic[(titanic['Pclass'] == 2) | (titanic['Pclass'] == 3)]
+```
+
+Select by label based location
+loc[rows you want, cols you want]
+- `titanic.loc[titanic['Age'] > 35, 'Name']`:  all rows with age > 35, select column 'Name' within these rows
+
+Select by index based location
+- `titanic.iloc[9:25, 2:5] = 'anonymous'`
+
+Attribute access
+- `titanic[['Age', 'Sex']]`: specifc columns
+- `titanic.Age`: attribute like access (preferred if possible)
+
+
+Condition: ~, |, &
+
+`.reindex(index=, columns=[, method=])`: Reindex indices and columns. method can take "ffill", "bfill", and "nearest" for filling nan when new index are introduced
+	You can also add `limit` and `tolerance` when using ffill and bfill
+
+`.reindex_like(df2)`: Change current DF index to that of `df2`
+
+`.drop([...], axis=0)`: Drop labels from an axis
 
 
 #### Copy-on-Write (CoW)
@@ -177,17 +184,6 @@ air_quality_renamed = air_quality_renamed.rename(columns=str.lower)
 # For more advanced logic, use .apply()
 ```
 
-#### Reindexing and renaming
-
-`.reindex(index=, columns=[, method=])`: Reindex indices and columns. method can take "ffill", "bfill", and "nearest" for filling nan when new index are introduced
-	You can also add `limit` and `tolerance` when using ffill and bfill
-
-`.reindex_like(df2)`: Change current DF index to that of `df2`
-
-`.drop([...], axis=0)`: Drop labels from an axis
-
-`.rename(columns={'old': 'new'}, index={'old': 'new})`: Renaming labels
-`.rename(columns=str.upper)`: Can take functions too to apply to each label
 
 
 #### Iteration
@@ -668,6 +664,10 @@ Common operations
 
 `.count(axis=0)`: Count non-NA cells for each column or row.
 
+`.isna()`: Return boolean mask, True if value is NaN
+
+`.notna()`: Opposite of `isna`
+
 `.dropna()`: Drop rows with null fields
 
 `.droplevel(level, axis=0)`: Name or level index to drop for MultiIndex, `axis` at 0 is for row index and 1 for column 
@@ -675,6 +675,7 @@ Common operations
 `.drop(columns=[], ...)`: Drop columns, rows ...
 
 `.rename(column={'A': 'a', 'B': 'b'}, ...)`: Rename column and index labels
+`.rename(column=str.lower)`: Can also pass functions
 
 `.fillna(x)` Fill NA values
 
