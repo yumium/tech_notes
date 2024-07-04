@@ -133,14 +133,34 @@ titanic[(titanic['Pclass'] == 2) | (titanic['Pclass'] == 3)]
 Select by label based location
 loc[rows you want, cols you want]
 - `titanic.loc[titanic['Age'] > 35, 'Name']`:  all rows with age > 35, select column 'Name' within these rows
+- `df.loc[:'index3', df.loc['index1'] > 0]`: Select rows where its label is less than or equal to `index3` and columns where `index1` row is positive
+- `df.loc['index1', 'col1']`: Gets the cell value at row `index1` and column `col1`
+
+A word on `.loc` slicing
+- End points are inclusive (i.e. [a:b] is interval [a..b], not [a..b) in Python). The rationale is, unlike indices (which are non-negative integers), what is "next" is hard to tell. An time interval with Python-like slicing you need to modify `b` to be plus 1 of unit precision
+- 1 absent label is fine if index is sorted, otherwise raises error (which side to include?)
+- for duplicated label case, it's fine as long as neither a or b in [a:b] is duplicated, otherwise raises error (which interval to use?)
+- 
 
 Select by index based location
 - `titanic.iloc[9:25, 2:5] = 'anonymous'`
+- `df.iloc[[1,3,5], [2,4,6]]`
+
 
 Attribute access
 - `titanic[['Age', 'Sex']]`: specifc columns
 - `titanic.Age`: attribute like access (preferred if possible)
 
+Assigning to row
+- `x.iloc[1] = {'col1': 1, 'col2': 2}
+
+Assigning to column
+- `x['col1'] = ser`
+- `x.col1 = ser` WRONG, this assigns to attribute not column
+
+Slicing simple
+- `ser[::2]` => work as you'd expect in Python
+- `df[::2]` => slices rows
 
 Condition: ~, |, &
 
