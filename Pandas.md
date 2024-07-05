@@ -100,7 +100,7 @@ List of all IO tools
 
 
 
-
+# 
 
 #### Sorting
 
@@ -161,6 +161,17 @@ Assigning to column
 Slicing simple
 - `ser[::2]` => work as you'd expect in Python
 - `df[::2]` => slices rows
+
+Callable-based indexing
+- Any of the ranges can be replaced by a function that takes as input 1 argument (the underlying series or df) and returns eligible input to the indexing
+- `df1['A'].loc[lambda s: s > 0]`: Column 'A' with only non-negative rows
+- `df.loc[lambda x: x['A'] > 0, lambda x: [0,1]]`
+
+Reindexing
+- `.reindex([1,2,3])`: Change to use these indices instead. Good for spotting missing values (for indices not in original DF, populate with NA)
+- `s.loc[s.index.intersection(labels)]`: Get intersection of index and what is needed
+
+
 
 Condition: ~, |, &
 
