@@ -100,7 +100,6 @@ List of all IO tools
 
 
 
-# 
 
 #### Sorting
 
@@ -175,6 +174,14 @@ Reindexing
 - `.reindex_like(df2)`: Change current DF index to that of `df2`
 - `.drop([...], axis=0)`: Drop labels from an axis
 
+Setting index
+- `df.set_index(['a', 'b'])`
+- `df.set_index('c', drop=False)`: set index but don't delete column
+- `df.set_index(['a', 'b'], append=True)` Append to existing index
+- `df.reset_index()`: Pivot current indices to columns and use a index counting from 0
+- `df.reset_index(level=1)`
+
+
 Fast scalar getting and setting
 - `.at[row label, column label]`
 - `.iat[row index, column index]`
@@ -193,12 +200,28 @@ e.g., `s[~(s < 0)]`, takes a boolean series with same dimension
 - `df.where(boolean df[, other=other_df])`: Apply boolean mask (remaining values are NAs), optional `other` DF to fill in cells where it's NA
 - `df.mask(cond)`: Inverse of `where`
 
-You can also use `np` constructs
+`np` constructs
 - `np.where(df['col2'] == 'Z', 'green', 'red')`
 - `np.select([(df['col2'] == 'Z') & (df['col1'] == 'A'), (df['col2'] == 'Z') & (df['col1'] == 'B'), (df['col1'] == 'B')], ['yellow', 'blue', 'purple'], default='black')`
 
+Get function to return default values
+- `s.get('x', default=-1)`
+
+Index object
+- `index = pd.Index([1, 5, 12], dtype="int8")`: Index has a type (defaut inferred)
+- `columns = pd.Index(['A', 'B', 'C'], name='cols')`: You can give it a name which is printed when displaying the DF
+- `idx1.symmetric_difference(idx2)`: Do set operations between indices. Other methods `union`, `intersection`, and `difference`
+- 
 
 
+#### Duplicated data
+
+- `df[df.duplicated(keep=False/'first'/'last')]`: True for duplicated rows
+- `df.drop_duplicates(keep=False/'first'/'last')`: Drop duplicated rows
+- `df.duplicated(['col1', 'col2'], keep=...)`: Duplicated rows only looking at specific columns
+- `df3[~df3.index.duplicated(keep=False)]`: Duplicated indices
+
+- `df.fillna(val)`: Filling NaNs
 
 #### Copy-on-Write (CoW)
 
