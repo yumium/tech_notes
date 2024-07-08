@@ -170,17 +170,34 @@ Callable-based indexing
 Reindexing
 - `.reindex([1,2,3])`: Change to use these indices instead. Good for spotting missing values (for indices not in original DF, populate with NA)
 - `s.loc[s.index.intersection(labels)]`: Get intersection of index and what is needed
-
-
-
-Condition: ~, |, &
-
-`.reindex(index=, columns=[, method=])`: Reindex indices and columns. method can take "ffill", "bfill", and "nearest" for filling nan when new index are introduced
+- `.reindex(index=, columns=[, method=])`: Reindex indices and columns. method can take "ffill", "bfill", and "nearest" for filling nan when new index are introduced
 	You can also add `limit` and `tolerance` when using ffill and bfill
+- `.reindex_like(df2)`: Change current DF index to that of `df2`
+- `.drop([...], axis=0)`: Drop labels from an axis
 
-`.reindex_like(df2)`: Change current DF index to that of `df2`
+Fast scalar getting and setting
+- `.at[row label, column label]`
+- `.iat[row index, column index]`
+More restricted in functionality than `loc` and `iloc` but less performance overhead when getting just a scalar value.
 
-`.drop([...], axis=0)`: Drop labels from an axis
+Boolean indexing: ~, |, &
+e.g., `s[~(s < 0)]`, takes a boolean series with same dimension
+
+- `ser[ser.isin([1,2,3])]`: Filtering a series
+- `df[df.index.isin([1,2,3])]`: Filtering a DF
+- `df2[df2[1:4] > 0] = 3`: Indices are lined up!
+- `s_mi.iloc[s_mi.index.isin([(1, 'a'), (2, 'b'), (0, 'c')])]`: Multi index
+- `s_mi.iloc[s_mi.index.isin(['a', 'c', 'e'], level=1)]`: Multi index
+- `df.isin(values)`: Returns boolean DF with same shape, each scalar is True iff the scalar is in `values`
+- `df.isin({'col1': [1,2], 'col2': [3,4]})`: Is in with separate values for columns
+- `df.where(boolean df[, other=other_df])`: Apply boolean mask (remaining values are NAs), optional `other` DF to fill in cells where it's NA
+- `df.mask(cond)`: Inverse of `where`
+
+You can also use `np` constructs
+- `np.where(df['col2'] == 'Z', 'green', 'red')`
+- `np.select([(df['col2'] == 'Z') & (df['col1'] == 'A'), (df['col2'] == 'Z') & (df['col1'] == 'B'), (df['col1'] == 'B')], ['yellow', 'blue', 'purple'], default='black')`
+
+
 
 
 #### Copy-on-Write (CoW)
