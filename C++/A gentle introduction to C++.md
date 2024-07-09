@@ -4349,8 +4349,14 @@ int main()
 }
 ```
 
+Interface for `make_shared`
 
+```c++
+template <class T, class... Args>
+shared_ptr<T> make_shared (Args&&... args);
+```
 
+Usee `::new` to allocate storage for the object.
 
 
 
