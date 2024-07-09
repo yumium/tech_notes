@@ -211,7 +211,6 @@ Index object
 - `index = pd.Index([1, 5, 12], dtype="int8")`: Index has a type (defaut inferred)
 - `columns = pd.Index(['A', 'B', 'C'], name='cols')`: You can give it a name which is printed when displaying the DF
 - `idx1.symmetric_difference(idx2)`: Do set operations between indices. Other methods `union`, `intersection`, and `difference`
-- 
 
 
 #### Duplicated data
@@ -222,6 +221,37 @@ Index object
 - `df3[~df3.index.duplicated(keep=False)]`: Duplicated indices
 
 - `df.fillna(val)`: Filling NaNs
+
+
+#### MultiIndex
+
+Creating MultiIndex
+- `pd.MultiIndex.from_tuples([('bar', 'one'), ('bar', 'two'),  ('baz', 'one'), ('baz', 'two')], names=["first", "second"])`: most straight forward way
+- `pd.MultiIndex.from_product([["bar", "baz", "foo", "qux"], ["one", "two"]], names=["first", "second"])`: take cartesian product of iterables
+- `pd.MultiIndex.from_frame(pd.DataFrame([["bar", "one"], ["bar", "two"], ["foo", "one"], ["foo", "two"]], columns=["first", "second"])`: or read MultiIndex from data frame, where the names are the column names and index are the rows
+- `mi.names`: If names not given, they are None
+- `df = pd.DataFrame(np.random.randn(8, 4), index=index)`: Assign your MultiIndex to a data frame
+
+- `mi.get_level_values(level_idx)`: Return index at a certain level, outer-most is 0 etc.
+- `df.remove_unused_levels()`: When you slice a DF, the `df.columns.levels` and `df.index.levels` attribute stay the same (to make slicing more performant). You can call this function to remove indices that are unused (no longer appear in current slice)
+
+- `df.reindex(mi)`: You can pass MultiIndex as argument to `reindex`
+
+Slicing MultiIndex
+- `df.loc[('bar', 'foo'), 'col1']`: Slicing with MultiIndex 
+- `df.loc["bar"]`: Partial slicing (specify level 0 only)
+- `df.loc[("baz", "two"):"foo"]`: Range slicing, here the end value is a partial slice
+- `df.swaplevel(0, 1, axis=0)`: Swapping levels
+- `df.reorder_levels([1, 0], axis=0)`: Permutate levels
+- `df.set_names(names)`: Sex MultiIndex name
+
+Renaming
+- `df.rename(index={"one": "two", "y": "z"})`: Renaming index values
+- `df.rename_axis(index=["abc", "def"])`: Renaming index names
+
+Further reading
+- Advanced reindex and aligning in MultiIndex
+
 
 #### Copy-on-Write (CoW)
 
