@@ -2974,7 +2974,35 @@ Note, previously `ppoly1->area()` is not allowed.
 
 A class that declares or inherits a virtual function is called a *polymorphic class*. Here all 3 classes are polymorphic.
 
+The **override** keyword
 
+This keyword is purely for compilation time check, it specifies that this function must override a virtual function. This can help make your code more readable and avoid function signature typos etc.
+
+```c++
+struct A
+{
+    virtual void foo();
+    void bar();
+    virtual ~A();
+};
+ 
+struct B : A
+{
+//  void foo() const override; // Error: B::foo does not override A::foo
+                               // (signature mismatch)
+
+    void foo() override; // OK: B::foo overrides A::foo
+
+//  void bar() override; // Error: A::bar is not virtual
+
+    ~B() override; // OK: `override` can also be applied to virtual
+                   // special member functions, e.g. destructors
+
+    void override(); // OK, member function name, not a reserved keyword
+};
+```
+
+Note, `override` is not a reserved word in C++, it only has special meaning when appended to member functions
 
 
 
