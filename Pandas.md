@@ -9,7 +9,8 @@ import pandas as pd
 
 
 Parking:
-
+- Index types: https://pandas.pydata.org/docs/user_guide/advanced.html#index-types
+  - ^^ May be easier to understand if you learn the underlying types first
 
 
 ### DataFrame
@@ -258,6 +259,18 @@ Further reading
 `.copy()`: Deep copy of data frame.
 
 Note, this is used very rarely becaues pandas almost always creates a new object upon modification (so code looks functional)
+
+We completely avoid side effects with CoW enabled, which basically specifies that *DataFrame or Series derived from another in any way always behaves as a copy*. In other words, *it is not possible to update more than one object with one statement*. This way, all methods have no side effects.
+
+One common case that is forbidden under CoW is this pattern:
+
+```python
+# Forbidden, tries to modify both Series df['col1'] and DataFrame df
+df['col1'][df['col2'] > 5] = 0
+
+# Instead, do this under CoW. Now only the DataFrame is modified
+df.loc[df['col2'] > 5, 'col1'] = 0
+```
 
 
 #### Creating new columns
