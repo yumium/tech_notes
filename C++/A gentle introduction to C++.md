@@ -1893,7 +1893,7 @@ Syntax choice is largely personal preference on style.
 
 Member initialization in constructors
 
-We can abbreviate the member initialization part of the constructor
+We can abbreviate the member initialization part of the constructor. This effectively calls the constructor with the arguments given (usually we invoke the Copy constructor here).
 
 ```c++
 class Rectangle {
