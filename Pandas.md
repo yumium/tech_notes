@@ -654,51 +654,22 @@ df.melt(id_vars=['A'], value_vars=['B'],
 
 
 
-#### Combining data
+#### Combining data (merge, join, concatenate, compare)
 
-```python
-# We can concatenate tables along axis 0 (row) or axis 1 (column), provided the other dimension match
-air_quality_no2
->>>	  location parameter  value
-    0     FR04       no2   20.0
-    1     FR04       no2   21.8
-    2     FR04       no2   26.5
+- `pd.concat(sers/dfs, axis=0/1, join='outer'/'inner', ignore_index=False ...)`: Concatenates series or DFs along `axis`, perform set logic on the other axis depending on `join`, if `ignore_index` resets index on concat axis
 
-air_quality_pm25
->>>	  location parameter  value
-    0  BETR801      pm25   18.0
-    1  BETR801      pm25    6.5
-    2  BETR801      pm25   18.5
+- `left.merge(right, how='inner'/'left'/'right'/'outer'/'cross', on=cols, suffixes=('_x', '_y'), indicator=None, validate=None)`: Does a join on both data frames using `how` join type. Suffixes are used when column names are duplicated in non-join columns. Use `left_on`, `right_on` if join column names don't match. Use `left_index` and `right_index` if the join columns are indices. `indicator` adds extra column to indicate where the rows are from (`left_only`, `right_only`, `both`). `validate` checkes relationship in join keys (`one_to_one` mean unique keys etc.)
 
-pd.concat([air_quality_no2, air_quality_pm25], axis=0)
->>>	  location parameter  value
-    0     FR04       no2   20.0
-    1     FR04       no2   21.8
-    2     FR04       no2   26.5
-    0  BETR801      pm25   18.0
-    1  BETR801      pm25    6.5
-    2  BETR801      pm25   18.5
-    
-# We can add a hierarchical index so we can always tell which rows belonged to which original table
-pd.concat([air_quality_no2, air_quality_pm25], axis=0, keys=['no2', 'pm25'])
->>>	       location parameter  value
-    no2  0     FR04       no2   20.0
-         1     FR04       no2   21.8
-         2     FR04       no2   26.5
-    pm25 0  BETR801      pm25   18.0
-         1  BETR801      pm25    6.5
-         2  BETR801      pm25   18.5
-            
-            
-            
-# Joins
-# how{‘left’, ‘right’, ‘outer’, ‘inner’, ‘cross’}, default ‘inner’
-air_quality = pd.merge(air_quality, stations_coord, how="left", on="location")
+- `left.join(right)`: Basically syntac sugar on `merge`. By default does left join and joins on indices
 
-air_quality = pd.merge(air_quality, air_quality_parameters,
-                       how='left', left_on='parameter', right_on='id', suffices=('_aq', '_aq_param'))
-# Does what you expect it to do, like in SQL join
-```
+- `left.combine_first(right)`: Fills left DF with values of right DF on cells where left DF is NA and not NA in right DF
+
+- `left.merge_orderd(right ...)`: Pretty much same signature as `merge`, used when merge keys are ordered (lexicographically if more than 1 join column), with additioanl `fill_method`. Default `outer` join
+
+- `left.merge_asof(right, ..., tolerance=None, allow_exact_matches=True, direction='backward')`: ASOF join
+
+- `left.compare(right)`
+
 
 
 
