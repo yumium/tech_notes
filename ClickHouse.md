@@ -680,6 +680,38 @@ SELECT array(1,2) AS x, toTypeName(x)
 
 **Tuple(T1, T2 ...)**
 
+Creating tuples on the fly using the `tuple` keyword
+
+```SQL
+SELECT tuple(1, 'a') as tup
+```
+
+Can also use just `()` literal like you do in Python
+
+```SQL
+SELECT ('a',) as tup
+SELECT ('a', 1) as tup
+SELECT ('a', 1, 'b') as tup
+SELECT ('a') as not_a_tup
+```
+
+When creating tuples on the fly, type for each column is given as the smallest type to hold the elements.
+
+Tuple comparison is done lexicographically
+
+You can extract elements by index (1-based) or by name
+
+```SQL
+CREATE TABLE named_tuples (`a` Tuple(s String, i Int64)) ENGINE = Memory;
+INSERT INTO named_tuples VALUES (('y', 10)), (('x',-10));
+
+SELECT a.s FROM named_tuples; -- by name
+SELECT a.2 FROM named_tuples; -- by index
+```
+
+
+
+
 **Map(K, V)**
 
 **Variant(T1, T2 ...)**
