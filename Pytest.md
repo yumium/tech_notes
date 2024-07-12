@@ -515,6 +515,42 @@ def test_lookup_by_name(phonebook):
 
 This can be used when the `Phonebook` constructor needs a directory to store the phonebook.
 
+If you don't need a fixture object like `phonebook` above (e.g., you just need to set up some environment), use `usefixture`
+
+```python
+# content of conftest.py
+
+import os
+import tempfile
+
+import pytest
+
+
+@pytest.fixture
+def cleandir():
+    with tempfile.TemporaryDirectory() as newpath:
+        old_cwd = os.getcwd()
+        os.chdir(newpath)
+        yield
+        os.chdir(old_cwd)
+```
+
+```python
+# content of test_setenv.py
+import os
+import pytest
+
+
+@pytest.mark.usefixtures("cleandir")
+class TestDirectoryInit:
+    def test_cwd_starts_empty(self):
+        assert os.listdir(os.getcwd()) == []
+        with open("myfile", "w") as f:
+            f.write("hello")
+
+    def test_cwd_again_starts_empty(self):
+        assert os.listdir(os.getcwd()) == []
+```
 
 
 Use `pytest --fixtures` to get a list of fixtures.
