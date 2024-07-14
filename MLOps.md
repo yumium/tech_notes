@@ -3,7 +3,9 @@
 Resources:
 
 https://stanford-cs329s.github.io/syllabus.html
+
 https://github.com/the-full-stack/fsdl-text-recognizer-2022-labs
+
 https://madewithml.com/courses/mlops/data-engineering/
 
 
