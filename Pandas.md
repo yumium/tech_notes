@@ -421,8 +421,10 @@ titanic[["Sex", "Age"]].groupby("Sex").mean()
 
 #### Reshaping
 
+- `.pivot(columns, index=, values=)`: Stretch out values to column and index level. If no index is given, use original index. If no values are given, use all remaining columns. Will get value error when the combination of columns and indices contain duplicates
+
+Example
 ```python
-# Pivoting is entirely reshaping of data (no aggregation is done)
 df = pd.DataFrame({'foo': ['one', 'one', 'one', 'two', 'two',
                            'two'],
                    'bar': ['A', 'B', 'C', 'A', 'B', 'C'],
@@ -439,8 +441,6 @@ df
     5   two   C    6    t
 
 
-
-# If no index is given, use original index. If no values are given, use all remaining columns
 df.pivot(index='foo', columns='bar', values=['baz', 'zoo'])
 >>>	      baz       zoo
     bar   A  B  C   A  B  C
@@ -456,21 +456,14 @@ df.pivot(index='foo', columns=['bar', 'baz'], values='zoo')
     one    x    y    z  NaN  NaN  NaN
     two  NaN  NaN  NaN    q    w    t
     
-df.pivot(index=['foo', 'bar'], columns='baz', values='zoo')
->>>	baz        1    2    3    4    5    6
-    foo bar
-    one A      x  NaN  NaN  NaN  NaN  NaN
-        B    NaN    y  NaN  NaN  NaN  NaN
-        C    NaN  NaN    z  NaN  NaN  NaN
-    two A    NaN  NaN  NaN    q  NaN  NaN
-        B    NaN  NaN  NaN  NaN    w  NaN
-        C    NaN  NaN  NaN  NaN  NaN    t
-        
-# Note, we get value error when the combination of columns and indices contain duplicates, in which case we will need to use aggregation using pivot_table
+```
+
+- `.pivot_table(values=None, index=None, columns=None, aggfunc='mean', fill_value=None, margins=False, dropna=True, margins_name='All')`: Additional `aggfunc` to solve duplication issue in `pivot`, can pass just a function or a dict of col_name->func. `fill_value` is fill value for NaNs. `dropna` will drop columns with all NaNs, and exclude rows with any NaN in margin calculation. `margins` adds aggregation for all rows and cols.
+
+  
 
 
-# Pivot Table
-# Provide addtional aggregation function to resolve aggregates
+```python
 df = pd.DataFrame({"A": ["foo", "foo", "foo", "foo", "foo",
                          "bar", "bar", "bar", "bar"],
                    "B": ["one", "one", "one", "two", "two",
@@ -490,17 +483,7 @@ df = pd.DataFrame({"A": ["foo", "foo", "foo", "foo", "foo",
     6  bar  one  small  5  8
     7  bar  two  small  6  9
     8  bar  two  large  7  9
-    
-table = pd.pivot_table(df, values='D', index=['A', 'B'],
-                       columns=['C'], aggfunc="sum")
->>>	C        large  small
-    A   B
-    bar one    4.0    5.0
-        two    7.0    6.0
-    foo one    4.0    1.0
-        two    NaN    6.0
         
-# Use `fill_value` to fill for NaN
 table = pd.pivot_table(df, values='D', index=['A', 'B'],
                        columns=['C'], aggfunc="sum", fill_value=0)
 >>>	C        large  small
@@ -509,147 +492,112 @@ table = pd.pivot_table(df, values='D', index=['A', 'B'],
         two      7      6
     foo one      4      1
         two      0      6
-        
-# If no `columns` is given, we use `values` as "columns"
-table = pd.pivot_table(df, values=['D', 'E'], index=['A', 'C'],
-                       aggfunc={'D': "mean",
-                                'E': ["min", "max", "mean"]})
->>>	                  D   E
-                   mean max      mean  min
-    A   C
-    bar large  5.500000   9  7.500000    6
-        small  5.500000   9  8.500000    8
-    foo large  2.000000   5  4.500000    4
-        small  2.333333   6  4.333333    2
-        
-        
-# Resetting index => changing the index of a DataFrame
-df = pd.DataFrame([('bird', 389.0),
-                   ('bird', 24.0),
-                   ('mammal', 80.5),
-                   ('mammal', np.nan)],
-                  index=['falcon', 'parrot', 'lion', 'monkey'],
-                  columns=('class', 'max_speed'))
->>>	         class  max_speed
-    falcon    bird      389.0
-    parrot    bird       24.0
-    lion    mammal       80.5
-    monkey  mammal        NaN
-    
-# When we reset the index, old index is added as column. New sequential index used
-df.reset_index()
->>>	    index   class  max_speed
-    0  falcon    bird      389.0
-    1  parrot    bird       24.0
-    2    lion  mammal       80.5
-    3  monkey  mammal        NaN
+```
 
+```
+In [17]: table = df.pivot_table(
+   ....:     index=["A", "B"],
+   ....:     columns="C",
+   ....:     values=["D", "E"],
+   ....:     margins=True,
+   ....:     aggfunc="std"
+   ....: )
+   ....: 
 
-# We can choose to drop the original index
-df.reset_index(drop=True)
->>>	    class  max_speed
-    0    bird      389.0
-    1    bird       24.0
-    2  mammal       80.5
-    3  mammal        NaN
-    
-# Resetting index with MultiIndex
-index = pd.MultiIndex.from_tuples([('bird', 'falcon'),
-                                   ('bird', 'parrot'),
-                                   ('mammal', 'lion'),
-                                   ('mammal', 'monkey')],
-                                  names=['class', 'name'])
+In [18]: table
+Out[18]: 
+                D                             E                    
+C             bar       foo       All       bar       foo       All
+A     B                                                            
+one   A  1.568517  0.178504  1.293926  0.179247  0.033718  0.371275
+      B  1.157593  0.299748  0.860059  0.653280  0.885047  0.779837
+      C  0.523425  0.133049  0.638297  1.111310  0.770555  0.938819
+three A  0.995247       NaN  0.995247  0.049748       NaN  0.049748
+      B       NaN  0.030522  0.030522       NaN  0.931203  0.931203
+      C  0.386657       NaN  0.386657  0.386312       NaN  0.386312
+two   A       NaN  0.111032  0.111032       NaN  1.146201  1.146201
+      B  0.695438       NaN  0.695438  1.166526       NaN  1.166526
+      C       NaN  0.331975  0.331975       NaN  0.043771  0.043771
+All      1.014073  0.713941  0.871016  0.881376  0.984017  0.923568
+```
 
-columns = pd.MultiIndex.from_tuples([('speed', 'max'),
-                                     ('species', 'type')])
+- `.stack(level=-1, dropna=True, sort=True)`: Moves a column level to the inner-most index. Default level is inner most column level, can also pass (list of) column level or name. If passing a list, end result is if each level is processed one after another from left to right. Note, index sorting is on by default
+- `.unstack(level=-1, dropna=True, sort=True)`: Inverse operation of `stack`
 
-df = pd.DataFrame([(389.0, 'fly'),
-                   (24.0, 'fly'),
-                   (80.5, 'run'),
-                   (np.nan, 'jump')],
-                  index=index,
-                  columns=columns)
+```python
+In [20]: tuples = [
+   ....:    ["bar", "bar", "baz", "baz", "foo", "foo", "qux", "qux"],
+   ....:    ["one", "two", "one", "two", "one", "two", "one", "two"],
+   ....: ]
+   ....: 
 
->>>	               speed species
-                     max    type
-    class  name
-    bird   falcon  389.0     fly
-           parrot   24.0     fly
-    mammal lion     80.5     run
-           monkey    NaN    jump
-        
-# We can choose which levels we want to reset
-df.reset_index(level='class')
->>>	         class  speed species
-                      max    type
-    name
-    falcon    bird  389.0     fly
-    parrot    bird   24.0     fly
-    lion    mammal   80.5     run
-    monkey  mammal    NaN    jump
-    
-df.reset_index(level=['name', 'class'])
->>>	     class    name  speed species
-                         max    type
-    0    bird  falcon  389.0     fly
-    1    bird  parrot   24.0     fly
-    2  mammal    lion   80.5     run
-    3  mammal  monkey    NaN    jump
-    
-# By default, for MultiIndex on columns, index is added to top level. We can change this with the `col_level` argument
-df.reset_index(level='class', col_level=1)
->>>	                 speed species
-             class    max    type
-    name
-    falcon    bird  389.0     fly
-    parrot    bird   24.0     fly
-    lion    mammal   80.5     run
-    monkey  mammal    NaN    jump
+In [21]: index = pd.MultiIndex.from_arrays(tuples, names=["first", "second"])
 
-# Use `col_fill` to fill the rest of the column level for new columns
-df.reset_index(level=['class', 'name'], col_level=1, col_fill='animal')
->>>	   animal          speed species
-        class    name    max    type
-    0    bird  falcon  389.0     fly
-    1    bird  parrot   24.0     fly
-    2  mammal    lion   80.5     run
-    3  mammal  monkey    NaN    jump
+In [22]: df = pd.DataFrame(np.random.randn(8, 2), index=index, columns=["A", "B"])
 
-    
-    
-# Use melt to lengthen a DataFrame
-df = pd.DataFrame({'A': {0: 'a', 1: 'b', 2: 'c'},
-                   'B': {0: 1, 1: 3, 2: 5},
-                   'C': {0: 2, 1: 4, 2: 6}})
->>>	   A  B  C
-    0  a  1  2
-    1  b  3  4
-    2  c  5  6
+In [23]: df2 = df[:4]
 
-df.melt(id_vars=['A'], value_vars=['B'])
-   A variable  value
-0  a        B      1
-1  b        B      3
-2  c        B      5
+In [24]: df2
+Out[24]: 
+                     A         B
+first second                    
+bar   one     0.895717  0.805244
+      two    -1.206412  2.565646
+baz   one     1.431256  1.340309
+      two    -1.170299 -0.226169
 
-df.melt(id_vars=['A'], value_vars=['B', 'C'])
-   A variable  value
-0  a        B      1
-1  b        B      3
-2  c        B      5
-3  a        C      2
-4  b        C      4
-5  c        C      6
+In [25]: stacked = df2.stack(future_stack=True)
 
-df.melt(id_vars=['A', 'B'], value_vars=['C'])
->>>	   A  B variable  value
-    0  a  1        C      2
-    1  b  3        C      4
-    2  c  5        C      6
+In [26]: stacked
+Out[26]: 
+first  second   
+bar    one     A    0.895717
+               B    0.805244
+       two     A   -1.206412
+               B    2.565646
+baz    one     A    1.431256
+               B    1.340309
+       two     A   -1.170299
+               B   -0.226169
+dtype: float64
+```
 
-# Change name of `variable` and `name` to something different
-df.melt(id_vars=['A'], value_vars=['B'],
-        var_name='myVarname', value_name='myValname')
+- `.melt(id_vars=None, value_vars=None, var_name=None, value_name='value', ignore_index=True, ...)`: For each row of `id_vars`, make `value_vars` into just 2 columns, `variable` and `value`, which are the variable othe values they take. By default resets index, otherwise may duplicate index.
+
+Example
+
+```python
+In [47]: cheese = pd.DataFrame(
+   ....:     {
+   ....:         "first": ["John", "Mary"],
+   ....:         "last": ["Doe", "Bo"],
+   ....:         "height": [5.5, 6.0],
+   ....:         "weight": [130, 150],
+   ....:     }
+   ....: )
+   ....: 
+
+In [48]: cheese
+Out[48]: 
+  first last  height  weight
+0  John  Doe     5.5     130
+1  Mary   Bo     6.0     150
+
+In [49]: cheese.melt(id_vars=["first", "last"])
+Out[49]: 
+  first last variable  value
+0  John  Doe   height    5.5
+1  Mary   Bo   height    6.0
+2  John  Doe   weight  130.0
+3  Mary   Bo   weight  150.0
+
+In [50]: cheese.melt(id_vars=["first", "last"], var_name="quantity")
+Out[50]: 
+  first last quantity  value
+0  John  Doe   height    5.5
+1  Mary   Bo   height    6.0
+2  John  Doe   weight  130.0
+3  Mary   Bo   weight  150.0
 ```
 
 
