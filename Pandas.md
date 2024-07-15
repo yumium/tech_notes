@@ -600,6 +600,68 @@ Out[50]:
 3  Mary   Bo   weight  150.0
 ```
 
+- `.explode(column, ignore_index=False)`: Given the column(s), unpack the array values into separate rows. If `ignore_index` is turned on, reset index instead of duplicating for each row
+
+```python
+>>> df = pd.DataFrame({'A': [[0, 1, 2], 'foo', [], [3, 4]],
+...                    'B': 1,
+...                    'C': [['a', 'b', 'c'], np.nan, [], ['d', 'e']]})
+>>> df
+           A  B          C
+0  [0, 1, 2]  1  [a, b, c]
+1        foo  1        NaN
+2         []  1         []
+3     [3, 4]  1     [d, e]
+
+>>> df.explode('A')
+     A  B          C
+0    0  1  [a, b, c]
+0    1  1  [a, b, c]
+0    2  1  [a, b, c]
+1  foo  1        NaN
+2  NaN  1         []
+3    3  1     [d, e]
+3    4  1     [d, e]
+
+>>> df.explode(list('AC'))
+     A  B    C
+0    0  1    a
+0    1  1    b
+0    2  1    c
+1  foo  1  NaN
+2  NaN  1  NaN
+3    3  1    d
+3    4  1    e
+```
+
+- `pd.cut(x, bins, labels=None, ...)`: Map input array-like `x` into intervals based on `bins` equally-sized bins. `labels` for labels to use instead of Interval type
+
+```python
+>>> pd.cut(np.array([1, 7, 5, 4, 6, 3]), 3)
+... 
+[(0.994, 3.0], (5.0, 7.0], (3.0, 5.0], (3.0, 5.0], (5.0, 7.0], ...
+Categories (3, interval[float64, right]): [(0.994, 3.0] < (3.0, 5.0] ...
+
+>>> pd.cut(np.array([1, 7, 5, 4, 6, 3]),
+...        3, labels=["bad", "medium", "good"])
+['bad', 'good', 'medium', 'medium', 'good', 'bad']
+Categories (3, object): ['bad' < 'medium' < 'good']
+```
+
+- `pd.qcut(x, q, labels=None)`: Quantile-based binning, instead of value based like `.cut`.
+
+```python
+>>> pd.qcut(range(5), 4)
+... 
+[(-0.001, 1.0], (-0.001, 1.0], (1.0, 2.0], (2.0, 3.0], (3.0, 4.0]]
+Categories (4, interval[float64, right]): [(-0.001, 1.0] < (1.0, 2.0] ...
+
+>>> pd.qcut(range(5), 3, labels=["good", "medium", "bad"])
+... 
+[good, good, medium, bad, bad]
+Categories (3, object): [good < medium < bad]
+```
+
 
 
 #### Combining data (merge, join, concatenate, compare)
