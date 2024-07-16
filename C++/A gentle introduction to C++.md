@@ -4790,6 +4790,23 @@ struct context {
 
 Here we model the `context` function taking the whole tree and location of node in tree. This way we avoid defining tree recursively using nodes, where we run into cyclic dependency in types.
 
+### explicit specifier
+
+A specifier that forbids implicit conversion. Example
+
+```c++
+struct A
+{
+    explicit A(int feed_id = ) { }
+    ...
+}
+
+# A a = 6;  # not allowed as it is an implicit conversion. This code is not readable as struct A is not an integer wrapper
+A a (6); 
+```
+
+A good way to approach this is to use explicit by default, then think about which constructors may have usecases where explicit can be removed (copy constructor usually a good idea here)
+
 
 
 
