@@ -4797,11 +4797,11 @@ A specifier that forbids implicit conversion. Example
 ```c++
 struct A
 {
-    explicit A(int feed_id = ) { }
+    explicit A(int feed_id = 5) { }
     ...
 }
 
-# A a = 6;  # not allowed as it is an implicit conversion. This code is not readable as struct A is not an integer wrapper
+// A a = 6;  // not allowed as it is an implicit conversion. This code is not readable as struct A is not an integer wrapper
 A a (6); 
 ```
 
