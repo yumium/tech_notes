@@ -1431,47 +1431,77 @@ df = df.rename(columns=str.strip().str.lower().str.replace(" ", "_"))
 
 
 - `.str.extract(r"(?P<letter>[ab])(?P<digit>\d)")`: If you want custom column names do this
-^^ With this you can also 
+^^ With this you can also add `expand` optional argument.
+Behaviour if `expand=False`
+
+|         | 1 group   | \>1 group |
+| ------- | --------- |  -------- |
+| Index   | Index     | ValueError |
+| Series  | Series    | DataFrame |
+
+Behaviour if `expand=True`
+
+|         | 1 group   | \>1 group |
+| ------- | --------- |  -------- |
+| Index   | Index     | DataFrame |
+| Series  | Series    | DataFrame |
 
 
+| Method                                                                                                                                                                                 | Description                                                                                                                     |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| [`split()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.split.html#pandas.Series.str.split "pandas.Series.str.split")                                 | Split strings on delimiter                                                                                                      |
+| [`rsplit()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.rsplit.html#pandas.Series.str.rsplit "pandas.Series.str.rsplit")                             | Split strings on delimiter working from the end of the string                                                                   |
+| [`join()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.join.html#pandas.Series.str.join "pandas.Series.str.join")                                     | Join strings in each element of the Series with passed separator                                                                |
+| [`get_dummies()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.get_dummies.html#pandas.Series.str.get_dummies "pandas.Series.str.get_dummies")         | Split strings on the delimiter returning DataFrame of dummy variables                                                           |
+| [`contains()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.contains.html#pandas.Series.str.contains "pandas.Series.str.contains")                     | Return boolean, matching regex anywhere in string. This and 2 below have option to treat NA as either True or False                                                                    |
+| [`match()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.match.html#pandas.Series.str.match "pandas.Series.str.match")                                 | Return boolean, matching from start of string                                                               |
+| [`fullmatch()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.fullmatch.html#pandas.Series.str.fullmatch "pandas.Series.str.fullmatch")		| Return boolean, matching entire string                                                               |
+| [`replace()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.replace.html#pandas.Series.str.replace "pandas.Series.str.replace")                         | Replace occurrences of pattern/regex/string with some other string or the return value of a callable given the occurrence       |
+| [`removeprefix()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.removeprefix.html#pandas.Series.str.removeprefix "pandas.Series.str.removeprefix")     | Remove prefix from string, i.e. only remove if string starts with prefix.                                                       |
+| [`removesuffix()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.removesuffix.html#pandas.Series.str.removesuffix "pandas.Series.str.removesuffix")     | Remove suffix from string, i.e. only remove if string ends with suffix.                                                         |
+| [`repeat()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.repeat.html#pandas.Series.str.repeat "pandas.Series.str.repeat")                             | Duplicate values (`s.str.repeat(3)` equivalent to `x * 3`)                                                                      |
+| [`pad()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.pad.html#pandas.Series.str.pad "pandas.Series.str.pad")                                         | Add whitespace to left, right, or both sides of strings                                                                         |
+| [`center()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.center.html#pandas.Series.str.center "pandas.Series.str.center")                             | Equivalent to `str.center`                                                                                                      |
+| [`ljust()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.ljust.html#pandas.Series.str.ljust "pandas.Series.str.ljust")                                 | Equivalent to `str.ljust`                                                                                                       |
+| [`rjust()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.rjust.html#pandas.Series.str.rjust "pandas.Series.str.rjust")                                 | Equivalent to `str.rjust`                                                                                                       |
+| [`zfill()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.zfill.html#pandas.Series.str.zfill "pandas.Series.str.zfill")                                 | Equivalent to `str.zfill`                                                                                                       |
+| [`wrap()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.wrap.html#pandas.Series.str.wrap "pandas.Series.str.wrap")                                     | Split long strings into lines with length less than a given width                                                               |
+| [`slice()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.slice.html#pandas.Series.str.slice "pandas.Series.str.slice")                                 | Slice each string in the Series                                                                                                 |
+| [`slice_replace()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.slice_replace.html#pandas.Series.str.slice_replace "pandas.Series.str.slice_replace") | Replace slice in each string with passed value                                                                                  |
+| [`count()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.count.html#pandas.Series.str.count "pandas.Series.str.count")                                 | Count occurrences of pattern                                                                                                    |
+| [`startswith()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.startswith.html#pandas.Series.str.startswith "pandas.Series.str.startswith")             | Equivalent to `str.startswith(pat)` for each element                                                                            |
+| [`endswith()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.endswith.html#pandas.Series.str.endswith "pandas.Series.str.endswith")                     | Equivalent to `str.endswith(pat)` for each element                                                                              |
+| [`findall()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.findall.html#pandas.Series.str.findall "pandas.Series.str.findall")                         | Compute list of all occurrences of pattern/regex for each string                                                                |
+| [`extract()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.extract.html#pandas.Series.str.extract "pandas.Series.str.extract")                         | Call `re.search` on each element, returning DataFrame with one row for each element and one column for each regex capture group |
+| [`extractall()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.extractall.html#pandas.Series.str.extractall "pandas.Series.str.extractall")             | Call `re.findall` on each element, returning DataFrame with one row for each match and one column for each regex capture group. If more than 1 match for a cell, add new level of index (default name `match`) that gives 1 row for each match  |
+| [`len()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.len.html#pandas.Series.str.len "pandas.Series.str.len")                                         | Compute string lengths                                                                                                          |
+| [`strip()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.strip.html#pandas.Series.str.strip "pandas.Series.str.strip")                                 | Equivalent to `str.strip`                                                                                                       |
+| [`rstrip()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.rstrip.html#pandas.Series.str.rstrip "pandas.Series.str.rstrip")                             | Equivalent to `str.rstrip`                                                                                                      |
+| [`lstrip()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.lstrip.html#pandas.Series.str.lstrip "pandas.Series.str.lstrip")                             | Equivalent to `str.lstrip`                                                                                                      |
+| [`partition()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.partition.html#pandas.Series.str.partition "pandas.Series.str.partition")                 | Equivalent to `str.partition`                                                                                                   |
+| [`rpartition()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.rpartition.html#pandas.Series.str.rpartition "pandas.Series.str.rpartition")             | Equivalent to `str.rpartition`                                                                                                  |
+| [`lower()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.lower.html#pandas.Series.str.lower "pandas.Series.str.lower")                                 | Equivalent to `str.lower`                                                                                                       |
+| [`casefold()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.casefold.html#pandas.Series.str.casefold "pandas.Series.str.casefold")                     | Equivalent to `str.casefold`                                                                                                    |
+| [`upper()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.upper.html#pandas.Series.str.upper "pandas.Series.str.upper")                                 | Equivalent to `str.upper`                                                                                                       |
+| [`find()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.find.html#pandas.Series.str.find "pandas.Series.str.find")                                     | Equivalent to `str.find`                                                                                                        |
+| [`rfind()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.rfind.html#pandas.Series.str.rfind "pandas.Series.str.rfind")                                 | Equivalent to `str.rfind`                                                                                                       |
+| [`index()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.index.html#pandas.Series.str.index "pandas.Series.str.index")                                 | Equivalent to `str.index`                                                                                                       |
+| [`rindex()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.rindex.html#pandas.Series.str.rindex "pandas.Series.str.rindex")                             | Equivalent to `str.rindex`                                                                                                      |
+| [`capitalize()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.capitalize.html#pandas.Series.str.capitalize "pandas.Series.str.capitalize")             | Equivalent to `str.capitalize`                                                                                                  |
+| [`swapcase()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.swapcase.html#pandas.Series.str.swapcase "pandas.Series.str.swapcase")                     | Equivalent to `str.swapcase`                                                                                                    |
+| [`normalize()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.normalize.html#pandas.Series.str.normalize "pandas.Series.str.normalize")                 | Return Unicode normal form. Equivalent to `unicodedata.normalize`                                                               |
+| [`translate()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.translate.html#pandas.Series.str.translate "pandas.Series.str.translate")                 | Equivalent to `str.translate`                                                                                                   |
+| [`isalnum()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.isalnum.html#pandas.Series.str.isalnum "pandas.Series.str.isalnum")                         | Equivalent to `str.isalnum`                                                                                                     |
+| [`isalpha()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.isalpha.html#pandas.Series.str.isalpha "pandas.Series.str.isalpha")                         | Equivalent to `str.isalpha`                                                                                                     |
+| [`isdigit()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.isdigit.html#pandas.Series.str.isdigit "pandas.Series.str.isdigit")                         | Equivalent to `str.isdigit`                                                                                                     |
+| [`isspace()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.isspace.html#pandas.Series.str.isspace "pandas.Series.str.isspace")                         | Equivalent to `str.isspace`                                                                                                     |
+| [`islower()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.islower.html#pandas.Series.str.islower "pandas.Series.str.islower")                         | Equivalent to `str.islower`                                                                                                     |
+| [`isupper()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.isupper.html#pandas.Series.str.isupper "pandas.Series.str.isupper")                         | Equivalent to `str.isupper`                                                                                                     |
+| [`istitle()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.istitle.html#pandas.Series.str.istitle "pandas.Series.str.istitle")                         | Equivalent to `str.istitle`                                                                                                     |
+| [`isnumeric()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.isnumeric.html#pandas.Series.str.isnumeric "pandas.Series.str.isnumeric")                 | Equivalent to `str.isnumeric`                                                                                                   |
+| [`isdecimal()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.isdecimal.html#pandas.Series.str.isdecimal "pandas.Series.str.isdecimal")                 | Equivalent to `str.isdecimal`                                                                                                   |
 
-`.str.lower()`
 
-`.str.upper()`
-
-`.str.len()`
-
-`.str.strip()`
-
-`.str.lstrip()`
-
-`.str.rstrip()`
-
-`.str.split(sep, expand=False)`: Split column values with `sep`, turns string into list. If `expand` is set to True, then `.split` will return a DataFrame of columns, not a single column with list values
-
-`.str.get(idx)`: Gets the `idx` of a list value in the column
-
-`.str.contains(substring)`
-
-`.str.replace(orig, new)`: Similar to Python .replace(). Note `str.replace` (here) is different from `.replace` for Series
-
-`.str.capitalize()`: Make first character uppercase and all the rest lowercase
-
-`[1:3]`: Any indexing like you would with Python strings would work here
-
-`.str.match(pat)`: Return mask that matches the RE pattern `pat`
-
-
-
-Cleaning up column names
-
-```python
-df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
-```
-
-
-
-These functions take a series of dtype `string` and return a new series
 
 
 
