@@ -1411,7 +1411,29 @@ Select based on dtype
 
 #### String methods
 
-Also a **Series** accessor (like `.dt`)
+Method equipped on Series and Index
+
+By default skips function application on NaNs.
+
+Example of cleaning up column names
+
+```python
+df = df.rename(columns=str.strip().str.lower().str.replace(" ", "_"))
+```
+
+- `.str.split(sep, expand=False)`: Split string into list of substrings at separators. If expand is true, expand into columns.
+- `.str.get(i)` / `.str[i]`: Get the string at index i of list of string, or the i-th character of string if the cell is a string
+- `.str.replace("^.a|dog", "XX-XX ", case=False, regex=True)`: Text replacement
+- `.str.cat([sep=",", na_rep='-'])`: Concatenate a Series or Index into a single string. If `na_rep` is given, mask with this on NA
+- `ser.str.cat(that)`: Concatenate with another list-like object (can be 2D) row by row, must have same length
+- `ser.str.cat(ser2[, join='left'])`: Concatenate with another Index object (like series) where indices can be joined
+- `.str.extract(r"([ab])(\d)")`: Extract string into matched groups, each on separate column
+
+
+- `.str.extract(r"(?P<letter>[ab])(?P<digit>\d)")`: If you want custom column names do this
+^^ With this you can also 
+
+
 
 `.str.lower()`
 
