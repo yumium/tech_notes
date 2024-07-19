@@ -1433,6 +1433,50 @@ Select based on dtype
 
 #### Categorical Data
 
+- Takes a fixed set of values
+- All values in Categorical type are either in the categories or `np.nan` (`np.nan` not allowed as part of the categories)
+- Can be ordered
+- Stored internally as enums so can save memory
+
+Useful when:
+- Low cardinality strings
+- Lexicographic order not same as logical order (e.g., "January", "February" ...)
+
+Creation
+
+```python
+# Use `category` as dtype
+# On DF, each column is inferred separately their own categories
+# Default unordered
+s = pd.Series(["a", "b", "c", "a"], dtype="category")
+
+# Change type to category
+s = s.astype('category')
+
+# Using the constructor
+s = pd.Categorical(["a", "b", "c", "a"], categories=["b", "c", "d"], ordered=False)
+
+# Specify order by enriching the category type
+s = s.astype(CategoricalDtype(categories=["b", "c", "d"], ordered=True))
+```
+
+You can regain original type by converting the type back (using `.astype`)
+
+Two instances of categorical type is equal if they have the same categories and order
+
+The `.cat` accessor
+- `s.cat.categories`
+- `s.cat.ordered`
+
+Changing attributes
+- `s.rename_categories([names])` / `s.rename_categories({1: 'cat1', 2: 'cat2' ...})`
+- `s.cat.add_categories([names])`
+- `s.cat.remove_categories([names])`
+- `s.cat.remove_unused_categories()`
+- `s.cat.set_categories([names])`: Add and remove categories in one step
+- `s.cat.as_ordered()`: Turn on order
+- `s.cat.as_unordered()`: Turn off order
+- `s.cat.reorder_categories([names], ordered=True)`: Reorder by giving a new order (as permutation of categories)
 
 
 
