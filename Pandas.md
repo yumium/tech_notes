@@ -224,6 +224,27 @@ Index object
 - `df.fillna(val)`: Filling NaNs
 
 
+#### Duplicated labels
+
+- `Index.is_unique`: True or False
+- `Index.duplicated()`: return ndarray for each index on whether it's duplicated. If an index appears multiple times, the first instance maps to false. So on way to deduplicate a series is `df.loc[~df.index.duplicated(), :]`
+
+
+#### Missing data
+
+Default representation is `np.nan`, downside is it makes types into float and object on its presence.
+
+Pandas' own `NA` type, though I've not used it much.
+
+```python
+np.nan == np.nan  # False
+```
+
+- `.isna()`
+- `.notna()`
+- `.fillna()`
+- `.interpolate()`: Interesting function, never used
+
 #### MultiIndex
 
 Creating MultiIndex
