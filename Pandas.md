@@ -236,6 +236,8 @@ Default representation is `np.nan`, downside is it makes types into float and ob
 
 Pandas' own `NA` type, though I've not used it much.
 
+Another example is `pd.NaT` which is a member `datetime64` type.
+
 ```python
 np.nan == np.nan  # False
 ```
@@ -1427,6 +1429,11 @@ Select based on dtype
 
 - `df['tdeltas']` / `df['uint64']` / `df['tz_aware_dates']` ...
 - `df.select_dtypes(include=[cols], exclude=[cols])`
+
+
+#### Categorical Data
+
+
 
 
 
