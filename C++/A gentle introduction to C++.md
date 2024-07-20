@@ -104,7 +104,7 @@ C++ standards:
   - https://www.iso.org/obp/ui/#iso:std:iso-iec:9899:ed-4:v1:en
 - Current status of standards: https://isocpp.org/std/status
 
-
+Different machines that can run C++ then write implementation that satisfies the standard, so C++ can be ported to different devices.
 
 
 
@@ -253,6 +253,13 @@ Note, for different types within the same group, only the size is different, the
 
 If you don't care much about precision or memory usage, then `char`, `int` and `double` is all you need.
 
+Note, in parctice we use more defined types such as `uint32_t` in `<stdint.h>`. These types are standardized by C++ 11 standard.
+
+These types are more readable (know exact size allocated, not just minimum size and have it implementation dependent) and more portable. Modern code we use this.
+
+
+
+
 
 
 
@@ -270,6 +277,18 @@ If variables have the same type, they can be declared on the same line
 
 ```c++
 int a, b, c;
+```
+
+Note the below common mistake
+
+```c++
+int* a, b;  // `a` is of type int*, `b` is of type int
+b = 0;
+a = &b;
+*a += 1;
+std::cout << *a << std::endl;  // 1
+
+int *a, *b; // Both are of type int*
 ```
 
 We can initialize variables in several (equivalent) ways
@@ -1229,7 +1248,12 @@ Because of this, `string_view` can be a constexpr, as the compiler just needs to
 constexpr std::string_view my_string = "Hello World";
 ```
 
+For C-strings, the below are equivalent
 
+```c++
+char *myString = "Hello";
+char myString[6] = {'H', 'e', 'l', 'l', 'o', 0}
+```
 
 
 
@@ -1292,6 +1316,8 @@ We are given the width of the array, then knowing also the pointer address and s
 This generalises to all dimensions
 */
 ```
+
+In C++, you cannot pass array by value, so all array variables are pointer to the first value of the array.
 
 
 
