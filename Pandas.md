@@ -295,6 +295,10 @@ df['col1'][df['col2'] > 5] = 0
 df.loc[df['col2'] > 5, 'col1'] = 0
 ```
 
+Without CoW, you need to make new copies when setting values (like above), but applying methods that return DF have no side effects.
+
+
+
 
 #### Creating new columns
 
