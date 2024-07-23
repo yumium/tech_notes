@@ -1482,6 +1482,13 @@ Comparisons
 - Comparing to categorical of same type (categories and ordered) works as expected
 - Comparing to scalar or list-like of same length works as expected
 
+Other bits
+- `.value_counts()` will show all categories (even when not observed in data)
+- `.groupby(categorical_cols, observed=False)` will show all categories
+- Slicing returns same category type unless you're returning one row or a scalar
+- `.dt` and `.str` work if the underlying types are compatible
+- You can set to categorical fields if values are in the category
+- Merging between same category type result in category, otherwise result in base type depending on combination (obj & obj => obj; int & float => float)
 
 
 
