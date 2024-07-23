@@ -1315,7 +1315,12 @@ domain(url), queryString(url) ...
 
 All rows where the arguments in the function is `NULL` will be skipped.
 
+Note, this gives flexibility on whether you want to discount `NULLs`. `count()` (called without arguments) will just count the # of rows, while `count(*)` or `count(expr)` will ignore NULLs.
+
 Common functions: count, min, max, sum, avg, any, first_value, last_value, stddevPop(col1, col2), varPop(col1, col2), topK, deltaSum, boundingRatio (slope of min and max in group)
+
+
+
 
 
 
