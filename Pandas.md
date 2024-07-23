@@ -1478,6 +1478,10 @@ Changing attributes
 - `s.cat.as_unordered()`: Turn off order
 - `s.cat.reorder_categories([names], ordered=True)`: Reorder by giving a new order (as permutation of categories)
 
+Comparisons
+- Comparing to categorical of same type (categories and ordered) works as expected
+- Comparing to scalar or list-like of same length works as expected
+
 
 
 
