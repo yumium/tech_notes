@@ -1498,6 +1498,24 @@ Other bits
 - The memory usage of a Categorical is proportional to the number of categories plus the length of the data.
 
 
+#### Chart visualization
+
+`ser.plot()` for line chart
+`df.plot()` for indexed line chart
+`df.plot(x='x_col', y='y_col')`
+
+Different kinds of plots
+
+Bar plot: `.bar(stacked=False)`, plots for each row bars of each column, if stacked are stacked up together per row. `.barh` makes it horizontal
+Histograms: `.hist(alpha=1, stacked=False, bins=10, cumulative=False)`, plot for each column, x is mean of bin, y is frequency
+
+
+Missing data
+
+
+Other utils
+
+
 #### String methods
 
 Method equipped on Series and Index
