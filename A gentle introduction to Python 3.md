@@ -1145,9 +1145,15 @@ enums = {days[i]:i for i in range(len(days))}
 enums["Monday"]			# 0
 ```
 
+Update a dict
 
-
-
+```python
+>>> d = {'a': 1, 'b': 2}
+>>> e = {'a': 3, 'd': 4}
+>>> d | e
+{'a': 3, 'b': 2, 'd': 4}
+```
+`|=` does this in-place (for the left operand)
 
 
 
