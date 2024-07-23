@@ -1477,6 +1477,7 @@ Changing attributes
 - `s.cat.as_ordered()`: Turn on order
 - `s.cat.as_unordered()`: Turn off order
 - `s.cat.reorder_categories([names], ordered=True)`: Reorder by giving a new order (as permutation of categories)
+- `s.cat.codes`: Return enum value of categories, np.nan is always represented as -1
 
 Comparisons
 - Comparing to categorical of same type (categories and ordered) works as expected
@@ -1489,7 +1490,8 @@ Other bits
 - `.dt` and `.str` work if the underlying types are compatible
 - You can set to categorical fields if values are in the category
 - Merging between same category type result in category, otherwise result in base type depending on combination (obj & obj => obj; int & float => float)
-
+- `union_categoricals(list_of_categorical_types)`
+- The memory usage of a Categorical is proportional to the number of categories plus the length of the data.
 
 
 #### String methods
