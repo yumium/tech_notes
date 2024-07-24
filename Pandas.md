@@ -1507,7 +1507,26 @@ Other bits
 Different kinds of plots
 
 Bar plot: `.bar(stacked=False)`, plots for each row bars of each column, if stacked are stacked up together per row. `.barh` makes it horizontal
+
 Histograms: `.hist(alpha=1, stacked=False, bins=10, cumulative=False)`, plot for each column, x is mean of bin, y is frequency
+
+Box and whiskers: `.box(color=color, sym="r+", vert=False, positions=[1, 4, 5, 6, 8]`, box and whiskers plot per column
+
+```python
+color = {
+    "boxes": "DarkGreen",
+    "whiskers": "DarkOrange",
+    "medians": "DarkBlue",
+    "caps": "Gray",
+}
+```
+
+
+
+
+
+
+
 
 
 Missing data
