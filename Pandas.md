@@ -1561,6 +1561,17 @@ Other utils
 - `radviz(data, "Name");`
 
 
+Formatting
+
+- `legend=True`: Show or hide legend
+- `xlabel='x lab'`: x label name
+- `ylabel='y lab'`: y label name
+- `logy=False`: plot y axis to log plot
+- `subplots=False, , layout=(2, 3), figsize=(6, 6), sharex=False`: Plot each column on separate graph, not indexed
+- `yerr=errors`: Add standard error
+
+
+
 
 #### String methods
 
