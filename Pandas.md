@@ -1521,18 +1521,45 @@ color = {
 }
 ```
 
+Area plot: `.area(stack=True)`, streamgraph for each column, data row at a time
 
+Scatter plot: `.scatter(x="c", y="d", color="DarkGreen", label="Group 2", ax=ax)`, scatter plot of column for x and y
 
-
-
-
+Hexagonal bin plot: `.hexbin(x="a", y="b", C="z", reduce_C_function=np.mean, gridsize=25)`, like scatter plot but aggregates adjacent points together
 
 
 
 Missing data
 
+| Plot Type      | NaN Handling            |
+| -------------- | ----------------------- |
+| Line           | Leave gaps at NaNs      |
+| Line (stacked) | Fill 0’s                |
+| Bar            | Fill 0’s                |
+| Scatter        | Drop NaNs               |
+| Histogram      | Drop NaNs (column-wise) |
+| Box            | Drop NaNs (column-wise) |
+| Area           | Fill 0’s                |
+| KDE            | Drop NaNs (column-wise) |
+| Hexbin         | Drop NaNs               |
+| Pie            | Fill 0’s                |
+
+Other null-handling can be done in data cleaning code using `fillna()`
+
+
+
 
 Other utils
+
+- `scatter_matrix(df, alpha=0.2, figsize=(6, 6), diagonal="kde");`
+- `ser.plot.kde();`
+- `andrews_curves(data, "Name");`
+- `parallel_coordinates(data, "Name");`
+- `lag_plot(data);`
+- `autocorrelation_plot(data);`
+- `bootstrap_plot(data, size=50, samples=500, color="grey");`
+- `radviz(data, "Name");`
+
 
 
 #### String methods
