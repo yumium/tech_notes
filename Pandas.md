@@ -1279,11 +1279,24 @@ https://pandas.pydata.org/docs/user_guide/window.html#binary-window-functions
 
 **Weighted Window**
 
+`s.rolling(window=5, win_type="gaussian").mean(std=0.1)`
+
+Available weighting functions: https://docs.scipy.org/doc/scipy/reference/signal.windows.html#module-scipy.signal.windows
+
 
 **Expanding Window**
 
+Allow using only part of the window range. As this is a special case of rolling window, the following calls are equivalent
+
+`df.rolling(window=len(df), min_periods=1).mean()`
+
+`df.expanding(min_periods=1).mean()`
+
+
 
 **Exponentially Weighted Window**
+
+Useful for stuff like moving average, essentially put weighting on points in the window
 
 
 
