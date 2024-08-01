@@ -1251,11 +1251,39 @@ foo  min     -1.143704
 
 #### Windowing operations
 
+4 types of rolling window configurations
+
+Rolling window supports time-based windows
+
+Rolling and expanding window supports following a group by to do the window in each group (`df.groupby('A').expanding().sum()`)
+
+Exponentially Weighted Window supports online inference that computes new windows with newly appended data (`online_ewm.mean(update=df.tail(1))`)
+
+You follow the rolling function with any aggregation function as you would after group by
+
+Other random stuff:
 
 
-https://pandas.pydata.org/pandas-docs/stable/user_guide/window.html#window-expanding
+**Rolling Window**
+
+- `s.rolling(window=2).sum()`, `s.rolling(window='2D').sum()`
+- If window is time-range based, the series must be monotonic
+- `s.rolling(window=5, center=True).mean()` => you can center the window instead of default of ending at the current position
+- `df["right"] = df.rolling("2s", closed="right").x.sum()` => you can choose to exclude left, right or both endpoints of the window. `closed` here mean the interval is closed (aka. include).
+- `df.rolling(VariableOffsetWindowIndexer(index=df.index, offset=pd.offsets.BDay(1))).sum()` => You can define your own custom indexer, e.g. here it's one business day
+- If either the window goes out of bounds or is empty (e.g., in the case of `closed` options), the returned value is NaN
+
+https://pandas.pydata.org/docs/user_guide/window.html#binary-window-functions
+^^ You can pass another series/dataframe into the rolling function to compute covariants or correlations
 
 
+**Weighted Window**
+
+
+**Expanding Window**
+
+
+**Exponentially Weighted Window**
 
 
 
