@@ -236,7 +236,59 @@ Like Python and most languages, scope defines the textual area in the program th
 
 
 
+## The DOM
 
+For Web 1.0 (browsing static websites), the standard HTML and CSS is enough.
+
+For Web 2.0, to allow more interactions we need to reduce the # of HTTPS requests. There should be some logic that changes the display on client side, instead of always fetching the entire page from the server.
+
+The DOM (Document Object Model) is the data representation of the objects for the structure of a web page. The DOM is an language independent API (e.g., you can manipulate the DOM using Python in Flask). 
+
+DOM allows you to programmatically get information about the page and manipulate it.
+
+The DOM tree (parent-child) relationship of nodes follow the structure of the HTML document
+
+```html
+<html lang="en">
+  <head>
+    <title>My Document</title>
+  </head>
+  <body>
+    <h1>Header</h1>
+    <p>Paragraph</p>
+  </body>
+</html>
+```
+
+```
+Document
+  -> HTML
+    -> HEAD -> TITLE -> "My document"
+    -> BODY
+      -> H1 -> "Header"
+      -> P -> "Paragraph"
+```
+
+DOM objects: Document -> Node (Element, Text, Attribute nodes etc.)
+
+`HTMLFormElement` <: `HTMLElement` <: `Element`
+
+When you have an `HTMLFormElement`, you are usually calling methods that are in either of the 3 interfaces.
+
+```javascript
+const table = document.getElementById("table");
+const tableAttrs = table.attributes; // Node/Element interface
+for (let i = 0; i < tableAttrs.length; i++) {
+  // HTMLTableElement interface: border attribute
+  if (tableAttrs[i].nodeName.toLowerCase() === "border") {
+    table.border = "1";
+  }
+}
+// HTMLTableElement interface: summary attribute
+table.summary = "note: increased border";
+```
+
+Nodes in the DOM can capture events. Your page can react to events by programmatically append event listeners to them. Events propagate up the DOM and will trigger all the event listeners registered, unless you explicitly call `stopPropagation()`
 
 
 
