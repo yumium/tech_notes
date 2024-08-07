@@ -1466,6 +1466,9 @@ Encode commands to run to build a target or run a test suite or any standard pip
 
 ### 8. Potpourri
 
+
+
+
 **Keyboard remapping**
 
 - CAPSLOCK to be esc in vim
@@ -1599,6 +1602,29 @@ You can also rent VM from the cloud (AWS, Google Cloud): eg. web service, slack 
 Jupyter: Interactive notebook that can evaluate snippets of code, good for ML
 
 
+
+#### Redirecting output
+
+3 streams:
+`stdin` with stream ID 0, `stdout` 1, `stderr` 2.
+
+`>` is redirect output (clears the file first), `>>` is append.
+
+`>` is shorthand for `1>`, aka. redirect `stdout`
+
+```sh
+# Redirects stdout
+$> python ./do-stuff.py > output.txt
+
+# Redirects both stdout and stderr
+$> python ./do-stuff.py > output.txt 2> error.txt
+
+# Redirects both to same file
+$> python ./do-stuff.py >> output.txt 2>> output.txt
+
+# Or do this in one operator (like "output stderr to same destination as stdout")
+$> python ./do-stuff.py 2>&1 output.txt
+```
 
 
 
