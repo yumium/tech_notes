@@ -358,24 +358,6 @@ Pandas(Index=2, a=3, b='c')
 
 
 
-#### Datetime operations
-
-- np.datetime64 type vs. pd.Timestamp vs. python datetime types
-  - In Pandas 1.4, pd.Timestamp has no concept of precision. It always stores till ns precision. Flooring just clears the lower bits. `unit` is only used at point of initialisation so the timestamp taken is converted to the correct time
-
-**Series** have `.dt` accessor that return a Series of datetime like values
-
-`.dt.hour`: Integer representing the hour (similar `.dt.second`, `.dt.day` ...)
-
-`.dt.tz_localize(timezone_string | None)`: Set timezone of datetime
-
-`.dt.tz_convert(timezone_string)`: Convert time to target timezone
-
-`.dt.strftime("%Y/%m/%d")`: Formats datetime to a string
-
-`.dt.components`: Breaks down datetime to component (days, hours, minutes ...)
-
-This accessor brings convenience when filtering, say `df[lambda x: x.date_col.dt.weekday == 0]`
 
 
 
@@ -1723,6 +1705,53 @@ Behaviour if `expand=True`
 
 
 #### Timeseries data
+
+**Datetime types**
+
+| Concept      | Scalar Class | Array Class      | pandas Data Type                         | Primary Creation Method             |
+| ------------ | ------------ | ---------------- | ---------------------------------------- | ----------------------------------- |
+| Date times   | `Timestamp`  | `DatetimeIndex`  | `datetime64[ns]` or `datetime64[ns, tz]` | `to_datetime` or `date_range`       |
+| Time deltas  | `Timedelta`  | `TimedeltaIndex` | `timedelta64[ns]`                        | `to_timedelta` or `timedelta_range` |
+| Time spans   | `Period`     | `PeriodIndex`    | `period[freq]`                           | `Period` or `period_range`          |
+| Date offsets | `DateOffset` | `None`           | `None`                                   | `DateOffset`                        |
+
+
+
+**Creating timestamps**
+
+`pd.Timestamp(datetime.datetime(2012, 5, 1))`
+
+`pd.Timestamp("2012-05-01")`
+
+
+
+
+
+**Datetime operations**
+
+- np.datetime64 type vs. pd.Timestamp vs. python datetime types
+  - In Pandas 1.4, pd.Timestamp has no concept of precision. It always stores till ns precision. Flooring just clears the lower bits. `unit` is only used at point of initialisation so the timestamp taken is converted to the correct time
+
+**Series** have `.dt` accessor that return a Series of datetime like values
+
+`.dt.hour`: Integer representing the hour (similar `.dt.second`, `.dt.day` ...)
+
+`.dt.tz_localize(timezone_string | None)`: Set timezone of datetime
+
+`.dt.tz_convert(timezone_string)`: Convert time to target timezone
+
+`.dt.strftime("%Y/%m/%d")`: Formats datetime to a string
+
+`.dt.components`: Breaks down datetime to component (days, hours, minutes ...)
+
+This accessor brings convenience when filtering, say `df[lambda x: x.date_col.dt.weekday == 0]`
+
+
+
+
+
+
+
 
 ```python
 # Convert datetime strings to datetime objects for parsing
