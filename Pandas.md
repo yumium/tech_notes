@@ -1723,6 +1723,16 @@ Behaviour if `expand=True`
 
 `pd.Timestamp("2012-05-01")`
 
+`pd.to_datetime(pd.Series(["Jul 31, 2009", "Jan 10, 2010", None]))` (last one is converted to `pd.NaT`)
+
+`pd.to_datetime("12-11-2010 00:00", format="%d-%m-%Y %H:%M")` Provide specific date format for more strict matching
+
+`pd.to_datetime(pd.DataFrame({"year": [2015, 2016], "month": [2, 3], "day": [4, 5], "hour": [2, 3]}))` When date is spread across columns (`year`, `month`, `day` required. `hour`, `minute`, `second`, `millisecond`, `microsecond`, `nanosecond` optional)
+
+`pd.to_datetime(['2009/07/31', 'asd'], errors='raise')` Raise error if cannot convert. Use `errors='coerse'` if you want to convert them to `pd.NaT` instead
+
+`(stamps - pd.Timestamp("1970-01-01")) // pd.Timedelta("1s")` Timestamp to Epoch
+
 
 
 
@@ -1745,9 +1755,6 @@ Behaviour if `expand=True`
 `.dt.components`: Breaks down datetime to component (days, hours, minutes ...)
 
 This accessor brings convenience when filtering, say `df[lambda x: x.date_col.dt.weekday == 0]`
-
-
-
 
 
 
