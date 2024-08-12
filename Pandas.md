@@ -1708,6 +1708,9 @@ Behaviour if `expand=True`
 
 **Datetime types**
 
+- np.datetime64 type vs. pd.Timestamp vs. python datetime types
+  - In Pandas 1.4, pd.Timestamp has no concept of precision. It always stores till ns precision. Flooring just clears the lower bits. `unit` is only used at point of initialisation so the timestamp taken is converted to the correct time
+
 | Concept      | Scalar Class | Array Class      | pandas Data Type                         | Primary Creation Method             |
 | ------------ | ------------ | ---------------- | ---------------------------------------- | ----------------------------------- |
 | Date times   | `Timestamp`  | `DatetimeIndex`  | `datetime64[ns]` or `datetime64[ns, tz]` | `to_datetime` or `date_range`       |
@@ -1735,14 +1738,22 @@ Behaviour if `expand=True`
 
 
 
+**Indexing**
+
+Examples:
+
+- `ts["1/31/2011"]`
+- `ts["10/31/2011":"12/31/2011"]` => includes all times in the first and last day
+- `ts["2011"]`, `ts["2011-6"]` => whole year and month
+- `dft["2013-1":"2013-2-28 00:00:00"]` => exact stop time
+- `df["2019-01-01 12:00:00+04:00":"2019-01-01 13:00:00+04:00"]` => start/stop time with timezone
+
+
 
 
 **Datetime operations**
 
-- np.datetime64 type vs. pd.Timestamp vs. python datetime types
-  - In Pandas 1.4, pd.Timestamp has no concept of precision. It always stores till ns precision. Flooring just clears the lower bits. `unit` is only used at point of initialisation so the timestamp taken is converted to the correct time
-
-**Series** have `.dt` accessor that return a Series of datetime like values
+**Series** with type `pd.Timestamp` have `.dt` accessor that return a Series of datetime like values
 
 `.dt.hour`: Integer representing the hour (similar `.dt.second`, `.dt.day` ...)
 
@@ -1755,6 +1766,85 @@ Behaviour if `expand=True`
 `.dt.components`: Breaks down datetime to component (days, hours, minutes ...)
 
 This accessor brings convenience when filtering, say `df[lambda x: x.date_col.dt.weekday == 0]`
+
+Rest of `pd.Timestamp` attributes
+
+| Property         | Description                                                       |
+| ---------------- | ----------------------------------------------------------------- |
+| year             | The year of the datetime                                          |
+| month            | The month of the datetime                                         |
+| day              | The days of the datetime                                          |
+| hour             | The hour of the datetime                                          |
+| minute           | The minutes of the datetime                                       |
+| second           | The seconds of the datetime                                       |
+| microsecond      | The microseconds of the datetime                                  |
+| nanosecond       | The nanoseconds of the datetime                                   |
+| date             | Returns datetime.date (does not contain timezone information)     |
+| time             | Returns datetime.time (does not contain timezone information)     |
+| timetz           | Returns datetime.time as local time with timezone information     |
+| dayofyear        | The ordinal day of year                                           |
+| day_of_year      | The ordinal day of year                                           |
+| weekofyear       | The week ordinal of the year                                      |
+| week             | The week ordinal of the year                                      |
+| dayofweek        | The number of the day of the week with Monday=0, Sunday=6         |
+| day_of_week      | The number of the day of the week with Monday=0, Sunday=6         |
+| weekday          | The number of the day of the week with Monday=0, Sunday=6         |
+| quarter          | Quarter of the date: Jan-Mar = 1, Apr-Jun = 2, etc.               |
+| days_in_month    | The number of days in the month of the datetime                   |
+| is_month_start   | Logical indicating if first day of month (defined by frequency)   |
+| is_month_end     | Logical indicating if last day of month (defined by frequency)    |
+| is_quarter_start | Logical indicating if first day of quarter (defined by frequency) |
+| is_quarter_end   | Logical indicating if last day of quarter (defined by frequency)  |
+| is_year_start    | Logical indicating if first day of year (defined by frequency)    |
+| is_year_end      | Logical indicating if last day of year (defined by frequency)     |
+| is_leap_year     | Logical indicating if the date belongs to a leap year             |
+
+
+
+**DateOffset objects**
+
+- `ts + pd.Timedelta(days=1)` => adds 24hrs
+- `ts + pd.DateOffset(days=1)` => adds till same time next day, if it's timezone change (e.g., summer time) will adjust by +/- 1hr as needed to have the same time of day
+
+Other `pandas.tseries.offsets` objects
+
+| Date Offset                                                                                                                                                                                                                                                                                                                                                                                                            | Frequency String  | Description                                           |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- | ----------------------------------------------------- |
+| [`DateOffset`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.DateOffset.html#pandas.tseries.offsets.DateOffset "pandas.tseries.offsets.DateOffset")                                                                                                                                                                                                                                              | None              | Generic offset class, defaults to absolute 24 hours   |
+| [`BDay`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.BDay.html#pandas.tseries.offsets.BDay "pandas.tseries.offsets.BDay") or [`BusinessDay`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.BusinessDay.html#pandas.tseries.offsets.BusinessDay "pandas.tseries.offsets.BusinessDay")                                                                                     | `'B'`             | business day (weekday)                                |
+| [`CDay`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.CDay.html#pandas.tseries.offsets.CDay "pandas.tseries.offsets.CDay") or [`CustomBusinessDay`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.CustomBusinessDay.html#pandas.tseries.offsets.CustomBusinessDay "pandas.tseries.offsets.CustomBusinessDay")                                                             | `'C'`             | custom business day                                   |
+| [`Week`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.Week.html#pandas.tseries.offsets.Week "pandas.tseries.offsets.Week")                                                                                                                                                                                                                                                                      | `'W'`             | one week, optionally anchored on a day of the week    |
+| [`WeekOfMonth`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.WeekOfMonth.html#pandas.tseries.offsets.WeekOfMonth "pandas.tseries.offsets.WeekOfMonth")                                                                                                                                                                                                                                          | `'WOM'`           | the x-th day of the y-th week of each month           |
+| [`LastWeekOfMonth`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.LastWeekOfMonth.html#pandas.tseries.offsets.LastWeekOfMonth "pandas.tseries.offsets.LastWeekOfMonth")                                                                                                                                                                                                                          | `'LWOM'`          | the x-th day of the last week of each month           |
+| [`MonthEnd`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.MonthEnd.html#pandas.tseries.offsets.MonthEnd "pandas.tseries.offsets.MonthEnd")                                                                                                                                                                                                                                                      | `'ME'`            | calendar month end                                    |
+| [`MonthBegin`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.MonthBegin.html#pandas.tseries.offsets.MonthBegin "pandas.tseries.offsets.MonthBegin")                                                                                                                                                                                                                                              | `'MS'`            | calendar month begin                                  |
+| [`BMonthEnd`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.BMonthEnd.html#pandas.tseries.offsets.BMonthEnd "pandas.tseries.offsets.BMonthEnd") or [`BusinessMonthEnd`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.BusinessMonthEnd.html#pandas.tseries.offsets.BusinessMonthEnd "pandas.tseries.offsets.BusinessMonthEnd")                                             | `'BME'`           | business month end                                    |
+| [`BMonthBegin`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.BMonthBegin.html#pandas.tseries.offsets.BMonthBegin "pandas.tseries.offsets.BMonthBegin") or [`BusinessMonthBegin`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.BusinessMonthBegin.html#pandas.tseries.offsets.BusinessMonthBegin "pandas.tseries.offsets.BusinessMonthBegin")                             | `'BMS'`           | business month begin                                  |
+| [`CBMonthEnd`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.CBMonthEnd.html#pandas.tseries.offsets.CBMonthEnd "pandas.tseries.offsets.CBMonthEnd") or [`CustomBusinessMonthEnd`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.CustomBusinessMonthEnd.html#pandas.tseries.offsets.CustomBusinessMonthEnd "pandas.tseries.offsets.CustomBusinessMonthEnd")                 | `'CBME'`          | custom business month end                             |
+| [`CBMonthBegin`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.CBMonthBegin.html#pandas.tseries.offsets.CBMonthBegin "pandas.tseries.offsets.CBMonthBegin") or [`CustomBusinessMonthBegin`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.CustomBusinessMonthBegin.html#pandas.tseries.offsets.CustomBusinessMonthBegin "pandas.tseries.offsets.CustomBusinessMonthBegin") | `'CBMS'`          | custom business month begin                           |
+| [`SemiMonthEnd`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.SemiMonthEnd.html#pandas.tseries.offsets.SemiMonthEnd "pandas.tseries.offsets.SemiMonthEnd")                                                                                                                                                                                                                                      | `'SME'`           | 15th (or other day_of_month) and calendar month end   |
+| [`SemiMonthBegin`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.SemiMonthBegin.html#pandas.tseries.offsets.SemiMonthBegin "pandas.tseries.offsets.SemiMonthBegin")                                                                                                                                                                                                                              | `'SMS'`           | 15th (or other day_of_month) and calendar month begin |
+| [`QuarterEnd`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.QuarterEnd.html#pandas.tseries.offsets.QuarterEnd "pandas.tseries.offsets.QuarterEnd")                                                                                                                                                                                                                                              | `'QE'`            | calendar quarter end                                  |
+| [`QuarterBegin`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.QuarterBegin.html#pandas.tseries.offsets.QuarterBegin "pandas.tseries.offsets.QuarterBegin")                                                                                                                                                                                                                                      | `'QS'`            | calendar quarter begin                                |
+| [`BQuarterEnd`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.BQuarterEnd.html#pandas.tseries.offsets.BQuarterEnd "pandas.tseries.offsets.BQuarterEnd")                                                                                                                                                                                                                                          | `'BQE`            | business quarter end                                  |
+| [`BQuarterBegin`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.BQuarterBegin.html#pandas.tseries.offsets.BQuarterBegin "pandas.tseries.offsets.BQuarterBegin")                                                                                                                                                                                                                                  | `'BQS'`           | business quarter begin                                |
+| [`FY5253Quarter`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.FY5253Quarter.html#pandas.tseries.offsets.FY5253Quarter "pandas.tseries.offsets.FY5253Quarter")                                                                                                                                                                                                                                  | `'REQ'`           | retail (aka 52-53 week) quarter                       |
+| [`YearEnd`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.YearEnd.html#pandas.tseries.offsets.YearEnd "pandas.tseries.offsets.YearEnd")                                                                                                                                                                                                                                                          | `'YE'`            | calendar year end                                     |
+| [`YearBegin`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.YearBegin.html#pandas.tseries.offsets.YearBegin "pandas.tseries.offsets.YearBegin")                                                                                                                                                                                                                                                  | `'YS'` or `'BYS'` | calendar year begin                                   |
+| [`BYearEnd`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.BYearEnd.html#pandas.tseries.offsets.BYearEnd "pandas.tseries.offsets.BYearEnd")                                                                                                                                                                                                                                                      | `'BYE'`           | business year end                                     |
+| [`BYearBegin`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.BYearBegin.html#pandas.tseries.offsets.BYearBegin "pandas.tseries.offsets.BYearBegin")                                                                                                                                                                                                                                              | `'BYS'`           | business year begin                                   |
+| [`FY5253`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.FY5253.html#pandas.tseries.offsets.FY5253 "pandas.tseries.offsets.FY5253")                                                                                                                                                                                                                                                              | `'RE'`            | retail (aka 52-53 week) year                          |
+| [`Easter`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.Easter.html#pandas.tseries.offsets.Easter "pandas.tseries.offsets.Easter")                                                                                                                                                                                                                                                              | None              | Easter holiday                                        |
+| [`BusinessHour`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.BusinessHour.html#pandas.tseries.offsets.BusinessHour "pandas.tseries.offsets.BusinessHour")                                                                                                                                                                                                                                      | `'bh'`            | business hour                                         |
+| [`CustomBusinessHour`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.CustomBusinessHour.html#pandas.tseries.offsets.CustomBusinessHour "pandas.tseries.offsets.CustomBusinessHour")                                                                                                                                                                                                              | `'cbh'`           | custom business hour                                  |
+| [`Day`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.Day.html#pandas.tseries.offsets.Day "pandas.tseries.offsets.Day")                                                                                                                                                                                                                                                                          | `'D'`             | one absolute day                                      |
+| [`Hour`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.Hour.html#pandas.tseries.offsets.Hour "pandas.tseries.offsets.Hour")                                                                                                                                                                                                                                                                      | `'h'`             | one hour                                              |
+| [`Minute`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.Minute.html#pandas.tseries.offsets.Minute "pandas.tseries.offsets.Minute")                                                                                                                                                                                                                                                              | `'min'`           | one minute                                            |
+| [`Second`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.Second.html#pandas.tseries.offsets.Second "pandas.tseries.offsets.Second")                                                                                                                                                                                                                                                              | `'s'`             | one second                                            |
+| [`Milli`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.Milli.html#pandas.tseries.offsets.Milli "pandas.tseries.offsets.Milli")                                                                                                                                                                                                                                                                  | `'ms'`            | one millisecond                                       |
+| [`Micro`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.Micro.html#pandas.tseries.offsets.Micro "pandas.tseries.offsets.Micro")                                                                                                                                                                                                                                                                  | `'us'`            | one microsecond                                       |
+| [`Nano`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.Nano.html#pandas.tseries.offsets.Nano "pandas.tseries.offsets.Nano")                                                                                                                                                                                                                                                                      | `'ns'`            | one nanosecond                                        |
+
 
 
 
