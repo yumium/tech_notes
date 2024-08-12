@@ -1920,5 +1920,41 @@ df = pd.read_csv(TESTDATA, sep=";")
 getting_started/intro_tutorials/04_plotting.html
 
 
-
 Use matplotlib
+
+
+### FAQs
+
+Performance:
+
+- Use CPython to compile Python code to C
+- Use Numba for JIT
+
+Loading large datasets
+
+- Load less data (e.g., only the columns you want)
+- Use chunking (data parallel)
+- Use efficient datatypes
+
+Memory usage
+
+```python
+df.info(memory_usage="deep")
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 5000 entries, 0 to 4999
+Data columns (total 8 columns):
+ #   Column           Non-Null Count  Dtype          
+---  ------           --------------  -----          
+ 0   int64            5000 non-null   int64          
+ 1   float64          5000 non-null   float64        
+ 2   datetime64[ns]   5000 non-null   datetime64[ns] 
+ 3   timedelta64[ns]  5000 non-null   timedelta64[ns]
+ 4   complex128       5000 non-null   complex128     
+ 5   object           5000 non-null   object         
+ 6   bool             5000 non-null   bool           
+ 7   categorical      5000 non-null   category       
+dtypes: bool(1), category(1), complex128(1), datetime64[ns](1), float64(1), int64(1), object(1), timedelta64[ns](1)
+memory usage: 424.7 KB
+```
+
+
