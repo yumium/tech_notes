@@ -1845,6 +1845,17 @@ Other `pandas.tseries.offsets` objects
 | [`Micro`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.Micro.html#pandas.tseries.offsets.Micro "pandas.tseries.offsets.Micro")                                                                                                                                                                                                                                                                  | `'us'`            | one microsecond                                       |
 | [`Nano`](https://pandas.pydata.org/docs/reference/api/pandas.tseries.offsets.Nano.html#pandas.tseries.offsets.Nano "pandas.tseries.offsets.Nano")                                                                                                                                                                                                                                                                      | `'ns'`            | one nanosecond                                        |
 
+**Shifting/lagging**
+
+- `ts.shift(1)`, `ts.shift(5, freq=pd.offsets.BDay())` => shift a timestamp series forwards or backwards
+
+
+
+**Timedelta**
+
+- `pd.Timedelta("1 days 2 hours")`
+
+
 
 
 
