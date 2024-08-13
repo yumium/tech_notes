@@ -314,6 +314,15 @@ Read the chapter on `Refspec`, p.458
 - `.gitignore`: [specify](https://git-scm.com/docs/gitignore) intentionally untracked files to ignore
 - `git cherry-pick <commitSHA>`: Apply changes in that commit to current branch and commits it, this allows change applied from any arbitrary commit in any order.
 
+
+## Merging vs. Rebasing
+
+- Merging (3-way merge) merges the 2 diffs (current branch and other branch) against their common ancestor. This operation is non-destructive (original commits are kept as is) but a new merge node is created.
+- Rebasing solves the same problem of 3-way merge, but it doesn't create a new merge node. However, the entire history is changed (invasive operation) and this is a problem if the rebasing branch is public (your branch will fall out of track of others
+- Rule of thumb is to use merge on public branches and when base branch isn't super active (so no introduction of many merge nodes). Use rebasing otherwise, also good to clean up commit history.
+
+
+
 # Selected topics
 
 ## Submodules
