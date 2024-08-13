@@ -4669,6 +4669,49 @@ for (int i = 0; i < size; i++)
 
 ## Misc
 
+### pragma once
+
+A non-standard that is implemented in most compiler. If added to a file, it is only included in the first include, all subsequent include on the same file is ignored.
+
+This simplifies file dependencies (e.g., allow circular dependencies, though it's a bad pattern) and can speed up compilation.
+
+Example
+File "grandparent.h"
+
+```c++
+#pragma once
+
+struct foo 
+{
+    int member;
+};
+```
+
+File "parent.h"
+
+```c++
+#include "grandparent.h"
+```
+
+File "child.c"
+```c++
+#include "grandparent.h"   // This inclusion is ignored
+#include "parent.h"
+```
+
+Main challenge is it's not trivial to know if the file is the same file (e.g., in the presence of symlinks, same file copied many times). One alternative is this
+
+```c++
+#ifndef GRANDPARENT_H
+#define GRANDPARENT_H
+... contents of grandparent.h
+#endif /* !GRANDPARENT_H */
+```
+
+
+
+
+
 ### Headers vs. Source files
 
 - In general, we will put everything in source (.cpp) file, unless it's impossible (e.g., templates)
