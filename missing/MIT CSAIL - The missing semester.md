@@ -221,7 +221,16 @@ shout | output1  # 5
 shout | output2  # 5, 7, 9
 ```
 
+#### Setting environment variables
 
+```bash
+# set environment variable only for this process
+VAR=VALUE command
+
+# set environment variable for all subsequent processes
+export VAR=VALUE
+command
+```
 
 
 
