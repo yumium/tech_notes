@@ -4192,7 +4192,7 @@ Methods
 - `reserve(new_cap)`: Reserve additional memory to such that capacity allows for up to `new_cap` elements. if `new_cap` < `.capacity()`, the function does nothing. If `new_cap` > `.max_size()`, throws `std::length_error`
 - `capacity()`: # of elements that can be held in currently allocated storage
 - `shrink_to_fit()`: Frees unused memory
-- `begin()`: Returns iterator to the first element of the vector. Returns `end()` if there are no elements.
+- `begin()`: Returns iterator to the first element of the vector. Returns `end()` if there are no elements. Return type is `std::vector<T>::iterator` or `std::vector<T>::const_iterator`
 - `end()`: Returns iterator to `end()`
 - `clear()`: Erases all elements. `size()` returns to zero. `capacity()` is unchanged.
 - `insert()`: 
@@ -4213,6 +4213,23 @@ Methods
 
 Logical operators (>= etc) compares 2 vectors lexicographically
 
+Looping through. Using iterators givees you more flexibility, but nothing wrong with using indices.
+
+```c++
+for (size_t i = 0; i < vec.size(); i++)
+{
+    vec[i].doStuff();
+}
+
+for (auto it = vec.begin(); it != vec.end(); it++)
+{
+    it->doStuff();
+}
+
+for (auto& element : vec) {
+    element.doStuff();
+}
+```
 
 
 
