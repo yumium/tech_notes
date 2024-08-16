@@ -10,6 +10,16 @@ C++ is...
 - Many paradigms (OOP, procedural ...)
 - Upwards compatible with C
 
+Problems C++ tries to solve over C (so you should focus on these first)
+
+- OOP features (class, new, template, private, public ...)
+- Stricter type checking
+- Memory management (constructors and destructors, and smart pointers)
+- Flexible variable declaration and scoping
+- Struct with constructors, destructors ...
+- More standard libraries (e.g., STL) for complex data structures
+
+
 
 
 Stack vs. Heap memory:
@@ -3632,7 +3642,7 @@ These directives starts with `#` and is for the preprocessor.
 
 The preprocessor examines the code and deals with all headers before compilation.
 
-
+The scope is the file in which it is defined, from the line of definition to end of file (or `#undef`)
 
 **macro definitions (#define, #undef)**
 
