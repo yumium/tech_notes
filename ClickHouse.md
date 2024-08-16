@@ -1521,5 +1521,24 @@ More details here: https://clickhouse.com/docs/en/operations/optimizing-performa
 Open MR to add `EXPLAIN ANALYZE` command to parse this table: https://github.com/ClickHouse/ClickHouse/issues/40051
 
 
+#### Group by implementations
+
+Sorting implementation => sort the rows by group by columns, then calculate the aggregation
+Good if data already sorted on group by columns, but slow to sort otherwise
+
+Hash implementation => scan through the rows to get all distinct column tuples, hash them and store in memory (these are your output rows). Then load data into memory in blocks, increment on the aggregates by matching on the group by column using the hash.
+Efficient for a large table grouping on unsorted columns, but memory intensive
+
+Index implementation => scan through needed parts of group by columns by index, and group rows are already consecutive as they're sorted by index
+Low memory footprint
+
+
+
+
+
+
+
+
+
 
 
