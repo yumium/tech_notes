@@ -4780,6 +4780,35 @@ Main challenge is it's not trivial to know if the file is the same file (e.g., i
 
 
 
+### lvalue vs rvalue
+
+lvalue: (locator value), which must have address in memory, can appear on LHS
+rvalue: (right value), does not have address in memory, cannot appear on LHS
+
+```c++
+int y = 10;    // y is an lvalue
+int z = y + 5; // y + 5 is an rvalue
+
+int &ref = y;  // ref is an lvalue reference to x
+ref = 20;      // x is now 20
+
+int &&rref = 10;  // rref is an rvalue reference to the temporary 10
+rref = 20;        // temporary 10 is now modified to 20
+```
+
+The introduction of rvalue is to avoid compiler from always allocating memory. So values can, say, be stored in a register.
+The introdutcion of rvalue references which allows resources to be moved rather than copied
+
+```c++
+std::string s1 = "Hello";
+std::string s2 = std::move(s1);  // s1 is an lvalue, but std::move converts it to an rvalue
+
+std::string createString() {
+    return "Hello, World!";
+}
+std::string s = createString(); // s can "steal" the temporary string
+```
+
 
 
 ### Headers vs. Source files
