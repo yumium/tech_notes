@@ -4191,11 +4191,13 @@ Capacity:
 
 Modifiers (complexity is log to the size of the set)
 - `.clear()`: clears the elements, `size()` returns 0 after
-- `.insert()`: 
+- `std::pair<iterator, bool> insert( value_type&& value );`: insert element, return reference to the iterator at that element and boolean indicating whether insertion took place
+- `iterator insert( iterator pos, const value_type& value )`: insert element to position just prior to `pos`
+- `.emplace( Args&& ...args )`: insert element by constructing it in-place using `args`
+- `iterator emplace_hint( const_iterator hint, Args&&... args )`: insert (if correct) element to position right after `hint`
 - `iterator erase ( iterator pos )`: removes `pos`, returns next iterator from removed element
 - `iterator erase ( iterator first, iterator last )`: remove [first, last), returns next iterator from removed element
 - `size_type erase( const Key& key )`: remove the element equal to `key`, return # of elements removed (0 or 1)
-
 
 Lookup (complexity is log to the size of the set)
 - `size_type count( const Key& key ) const`: returns # of elements equal to `key` (0 or 1)
