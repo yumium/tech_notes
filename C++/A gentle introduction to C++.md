@@ -4159,6 +4159,11 @@ int main () {
 
 ## Standard Library
 
+### std::set
+
+The set requires the template type to contain `<` comparison (as the underlying impl can use a binary search tree). The guarantee uniqueness, the `==` operation is just taking the function `(!(a < b) && (!(b < a))`.
+
+
 
 
 
