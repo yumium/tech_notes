@@ -4164,7 +4164,20 @@ int main () {
 The set requires the template type to contain `<` comparison (as the underlying impl can use a binary search tree). The guarantee uniqueness, the `==` operation is just taking the function `(!(a < b) && (!(b < a))`.
 
 
+```c++
+struct Point
+{
+    int x;
+    int y;
 
+    bool operator< (const Point& other) const
+    {
+	return x < other.x || (x == other.x && y < other.y);
+    }
+}
+
+std::set<Point> s {{0,1}, {1,0}};
+```
 
 
 
