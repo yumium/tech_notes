@@ -4163,7 +4163,6 @@ int main () {
 
 The set requires the template type to contain `<` comparison (as the underlying impl can use a binary search tree). The guarantee uniqueness, the `==` operation is just taking the function `(!(a < b) && (!(b < a))`.
 
-
 ```c++
 struct Point
 {
@@ -4178,6 +4177,30 @@ struct Point
 
 std::set<Point> s {{0,1}, {1,0}};
 ```
+
+Iterators:
+- `.begin()` / `.cbegin()`: iterator to beginning `.cbegin()` returns a constant iterator
+- `.end()` / `.cend()`: iterator to end (after the last element)
+- `.rbegin()` / `.rcbegin()`: iterator from the last element to the first element
+- `.rend()` / `.rcend()`: iterator to the reversed end (before the first element)
+
+Capacity:
+- `.empty()`: 
+- `.size()`: # of elements
+- `.max_size()`: max # of elements the container can hold, due to system or library implementation (i.e., `std::distance(begin(), end())`)
+
+Modifiers (complexity is log to the size of the set)
+- `.clear()`: clears the elements, `size()` returns 0 after
+- `.insert()`: 
+- `iterator erase ( iterator pos )`: removes `pos`, returns next iterator from removed element
+- `iterator erase ( iterator first, iterator last )`: remove [first, last), returns next iterator from removed element
+- `size_type erase( const Key& key )`: remove the element equal to `key`, return # of elements removed (0 or 1)
+
+
+Lookup (complexity is log to the size of the set)
+- `size_type count( const Key& key ) const`: returns # of elements equal to `key` (0 or 1)
+- `iterator find( const Key& key )`: finds `key` in the set, returns the iterator, or `set.end()` otherwise. So you check for non-existance using `s.find(elem) == s.end()`
+- `.contains()`: new in C++20
 
 
 
