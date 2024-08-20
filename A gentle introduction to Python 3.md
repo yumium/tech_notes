@@ -1378,6 +1378,16 @@ print(fList(2))		# [1,2]
 print(fList(3))		# [1,2,3]
 ```
 
+One common pattern is this:
+
+```python
+def foo(bar=None):
+    if bar is None:
+	bar = []
+
+    # do stuff
+```
+
 
 
 #### Keyword values
