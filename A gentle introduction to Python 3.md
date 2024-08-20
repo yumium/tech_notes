@@ -1366,7 +1366,7 @@ def greet(message="Hello human"):
     print(message)
 ```
 
-The default values are only evaluated once, which could introduce problems if the values are mutable.
+The default values are only evaluated once when the function is evaluated, and used in every subsequent function call. This is usually the undesired behaviour.
 
 ```python
 def fList(val, l=[]):
