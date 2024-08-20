@@ -4525,6 +4525,53 @@ https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2003/n1456.html
 
 
 
+## Key language concepts
+
+#### RAII
+
+Resource Acquisition Is Initialisation, another name is Scope Bound Resource Management (SBRM) => because exit scope is most common use case
+
+RAII is a design principle when designing classes that own resources. Make sure resources are released at the end of object lifetime, and also if acquisition fails, releases at reverse order of init.
+
+By binding resource acquisition with object lifetime, clean up is done automatically when objects are destroyed (scope exit, stack unwinding ...)
+
+RAII can be summarized as follows:
+
+- encapsulate each resource into a class, where
+  - the constructor acquires the resource and establishes all class invariants or throws an exception if that cannot be done,
+  - the destructor releases the resource and never throws exceptions;
+- always use the resource via an instance of a RAII-class that either
+  - has automatic storage duration or temporary lifetime itself, or
+  - has lifetime that is bounded by the lifetime of an automatic or temporary object.
+
+The standard library classes follow RAII (e.g., std::string, std::vector ...)
+
+```c++
+std::mutex m;
+ 
+void bad() 
+{
+    m.lock();             // acquire the mutex
+    f();                  // if f() throws an exception, the mutex is never released
+    if (!everything_ok())
+        return;           // early return, the mutex is never released
+    m.unlock();           // if bad() reaches this statement, the mutex is released
+}
+ 
+void good()
+{
+    std::lock_guard<std::mutex> lk(m); // RAII class: mutex acquisition is initialization
+    f();                               // if f() throws an exception, the mutex is released
+    if (!everything_ok())
+        return;                        // early return, the mutex is released
+}
+```
+
+
+
+
+
+
 
 
 ## CPP Core Guidelines
