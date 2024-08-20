@@ -4567,7 +4567,7 @@ void good()
 }
 ```
 
-
+RAII wasn't possible in C because C isn't OOP (there are no destructors)
 
 
 
