@@ -1585,7 +1585,26 @@ struct friends_t {
 cout << charlie.favorite_movie.year;
 ```
 
-More on initialization: https://en.cppreference.com/w/c/language/struct_initialization
+We can also initialize structs using curly brackets, nesting if members are also structs/arrays etc. Members not specified are empty initialised (ptr => nullptr, int => 0, float => +0)
+
+```c++
+struct example {
+    struct addr_t {
+       uint32_t port;
+    } addr;
+    union {
+       uint8_t a8[4];
+       uint16_t a16[2];
+    } in_u;
+};
+struct example ex = { // start of initializer list for struct example
+                     { // start of initializer list for ex.addr
+                        80 // initialized struct's only member
+                     }, // end of initializer list for ex.addr
+                     { // start of initializer-list for ex.in_u
+                        {127,0,0,1} // initializes first element of the union
+                     } };
+```
 
 For "keyword" initialisation, the order of arguments must follow that of struct declaration. A good rule of thumb is to declare struct fields to be in alphabetical order, this way the caller will know the order of declaration (without needing to check at the definition each time).
 
