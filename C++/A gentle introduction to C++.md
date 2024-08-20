@@ -4425,6 +4425,10 @@ Capacity: `empty`, `size`, `max_size`
 
 Modifiers: `clear`, `insert`, `insert_range`, `insert_or_assign`, `erase`, `swap`, `extract`, `merge`
 
+```c++
+m.insert({'a', 1});
+```
+
 Lookup: `count(key)`, `find(key)`, `contains(key)`, 
 
 - `lower_bound(key)`: Return an iterator to the first element >= key
