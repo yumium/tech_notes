@@ -4818,14 +4818,35 @@ for (int i = 0; i < size; i++)
 
 ### Stack vs. Heap memory
 
-- Stack memory is used to store local variables in a function. Deallocation is automatic and fast as often just need to change sp.
+- Stack memory is used to store local variables in a function. Deallocation is automatic and fast as often just need to change sp (so 1 instruction instead of what malloc needs)
 - Heap memory is used for large allocations. It needs manual deallocation and generally slower, so more likely to cause memory leaks.
+  - Note, `malloc` does not always trigger a sys call. OS typically only give memory to a process in pages, so C++ process will get a page, then slice it up to each time malloc is called.
 
 Stack memory is allocated for local variables, function parameters, RAII etc. Heap allocation only if using `new` or `malloc`. 
+    RAII as in putting a resource manager object like `std::vector` on the stack, that manages memory it uses on the heap
 Exceptions are
 - Global and static variables are stored in data segment or BSS (all zeros, used for zero data or uninitialised data)
 - rvalues could be stored in registers
 - Large return values could be optimised to use return value optimisation to be constructed where it is needed
+
+
+### new vs. malloc
+
+- `new` returns a typed pointer, `malloc` does not
+- `new` throws error by default if no allocation, `malloc` returns nullptr
+- `new` have size calculated by compiler based on type, `malloc` you must specify size
+- `new` calls constructor and destructor at `delete`, `malloc` doesn't.  So for `malloc` the uninitialised state can be error-prone
+
+```c++
+int* a = new int;
+int* b = (int*)malloc(sizeof(int));  // As int is a simple type, leaving it uninitialised is OK
+```
+
+
+
+Technically `new` is allocated to `free-store` and `malloc` to `heap`, but that's conceptual difference. Almost all implementation they're the same region.
+
+Bottomline: Unless you have to use C, use `new` not `malloc`. And since RAII, don't use `new` unless you have to allocate to stack.
 
 
 
