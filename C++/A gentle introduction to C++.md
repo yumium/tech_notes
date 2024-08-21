@@ -22,11 +22,6 @@ Problems C++ tries to solve over C (so you should focus on these first)
 
 
 
-Stack vs. Heap memory:
-
-- Stack memory is used to store local variables in a function. Stack size is determined at compiled time. Deallocation is automatic
-- Heap memory is used to store variables at runtime. Deallocation is done manually (can lead to memory leak if not done properly). Not thread safe like stack memory                                                
-
 
 
 Compiling C++ code using GCC (`g++`) 
@@ -4820,6 +4815,20 @@ for (int i = 0; i < size; i++)
 
 
 ## Misc
+
+### Stack vs. Heap memory
+
+- Stack memory is used to store local variables in a function. Deallocation is automatic and fast as often just need to change sp.
+- Heap memory is used for large allocations. It needs manual deallocation and generally slower, so more likely to cause memory leaks.
+
+Stack memory is allocated for local variables, function parameters, RAII etc. Heap allocation only if using `new` or `malloc`. 
+Exceptions are
+- Global and static variables are stored in data segment or BSS (all zeros, used for zero data or uninitialised data)
+- rvalues could be stored in registered
+- Large return values could be optimised to use return value optimisation to be constructed where it is needed
+
+
+
 
 ### pragma once
 
