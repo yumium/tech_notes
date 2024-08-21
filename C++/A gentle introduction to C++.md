@@ -4824,7 +4824,7 @@ for (int i = 0; i < size; i++)
 Stack memory is allocated for local variables, function parameters, RAII etc. Heap allocation only if using `new` or `malloc`. 
 Exceptions are
 - Global and static variables are stored in data segment or BSS (all zeros, used for zero data or uninitialised data)
-- rvalues could be stored in registered
+- rvalues could be stored in registers
 - Large return values could be optimised to use return value optimisation to be constructed where it is needed
 
 
