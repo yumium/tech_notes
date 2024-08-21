@@ -1619,6 +1619,7 @@ Point right{.a=10; .b=20};
 Point wrong{.b=20; .a=10};  // Compiler error
 ```
 
+Structs vs. Class: The two constructs are identical in C++ except that in structs the default accessibility is public, whereas in classes the default is private. If you cast a struct object to identically defined class, the default methods will still be public.
 
 
 
