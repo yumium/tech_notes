@@ -1472,6 +1472,29 @@ ORDER BY
 
 ## Miscellaneous
 
+#### Materialised Views
+
+Materialised view is essentially a query with a trigger. When the source table is inserted, it triggers the view to update/append new rows to the target table.
+
+```sql
+CREATE MATERIALIZED VIEW up_down_votes_per_day_mv TO up_down_votes_per_day AS
+SELECT toStartOfDay(CreationDate)::Date AS Day,
+       countIf(VoteTypeId = 2) AS UpVotes,
+       countIf(VoteTypeId = 3) AS DownVotes
+FROM votes
+GROUP BY Day
+```
+
+In this example, new rows added to the same day will update the aggregation value. So MVs in clickhouse is more performant than other DBs as it doesn't do a full refresh.
+
+On the other hand, it doesn't really support MVs from joins, as it's unclear when the query will be triggered.
+
+MVs can be chained where each subsequent table provide a higher level of aggregation
+https://clickhouse.com/blog/chaining-materialized-views
+
+
+
+
 #### system.parts, system.columns
 - View storage size with `system.parts` and `system.columns`, usually paired with function `formatReadableSize`
   - A `part` is simply a file in the system. A `partition` is a logical grouping of data, where rows with the same partition are grouped together.
