@@ -556,7 +556,7 @@ BCNF (= 3.5NF): No FD
 
 
 
-#### <u>Views</u>
+#### Views
 
 https://learn.microsoft.com/en-us/sql/relational-databases/views/views?view=sql-server-ver16
 
