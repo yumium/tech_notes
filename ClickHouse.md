@@ -1487,10 +1487,57 @@ GROUP BY Day
 
 In this example, new rows added to the same day will update the aggregation value. So MVs in clickhouse is more performant than other DBs as it doesn't do a full refresh.
 
-On the other hand, it doesn't really support MVs from joins, as it's unclear when the query will be triggered.
-
 MVs can be chained where each subsequent table provide a higher level of aggregation
 https://clickhouse.com/blog/chaining-materialized-views
+
+Note, MVs don't support MVs from joins, as it's unclear when the query will be triggered. However, you can have multiple MVs inserting to the same target table
+
+```sql
+CREATE MATERIALIZED VIEW analytics.daily_impressions_mv
+TO analytics.daily_overview
+AS                                                
+SELECT
+    toDate(event_time) AS on_date,
+    domain_name,
+    count() AS impressions,
+    0 clicks         ---<<<--- if you omit this, it will be the same 0
+FROM                                              
+    analytics.impressions
+GROUP BY
+    toDate(event_time) AS on_date,
+    domain_name
+;
+
+CREATE MATERIALIZED VIEW analytics.daily_clicks_mv
+TO analytics.daily_overview
+AS
+SELECT
+    toDate(event_time) AS on_date,
+    domain_name,
+    count() AS clicks,
+    0 impressions    ---<<<--- if you omit this, it will be the same 0
+FROM
+    analytics.clicks
+GROUP BY
+    toDate(event_time) AS on_date,
+    domain_name
+;
+
+SELECT
+    on_date,
+    domain_name,
+    sum(impressions) AS impressions,
+    sum(clicks) AS clicks
+FROM
+    analytics.daily_overview
+GROUP BY
+    on_date,
+    domain_name
+;
+```
+
+
+
 
 
 
