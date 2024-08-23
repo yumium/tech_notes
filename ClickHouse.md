@@ -1493,6 +1493,14 @@ https://clickhouse.com/blog/chaining-materialized-views
 Note, MVs don't support MVs from joins, as it's unclear when the query will be triggered. However, you can have multiple MVs inserting to the same target table
 
 ```sql
+CREATE TABLE analytics.daily_overview
+(
+    `on_date` Date,
+    `domain_name` String,
+    `impressions` SimpleAggregateFunction(sum, UInt64),
+    `clicks` SimpleAggregateFunction(sum, UInt64)
+) ENGINE = AggregatingMergeTree ORDER BY (on_date, domain_name)
+
 CREATE MATERIALIZED VIEW analytics.daily_impressions_mv
 TO analytics.daily_overview
 AS                                                
@@ -1522,19 +1530,10 @@ GROUP BY
     toDate(event_time) AS on_date,
     domain_name
 ;
-
-SELECT
-    on_date,
-    domain_name,
-    sum(impressions) AS impressions,
-    sum(clicks) AS clicks
-FROM
-    analytics.daily_overview
-GROUP BY
-    on_date,
-    domain_name
-;
 ```
+
+There's also refreshable materialised view, which has an interavl-based trigger (say evey hour). This is useful for complex queries that can't be done in an incremental way (e.g., joins). Downside is it doesn't scale as well as incremental, as query needs to be rerun on whole dataset each trigger, rather than incrementally on new data.
+
 
 
 
