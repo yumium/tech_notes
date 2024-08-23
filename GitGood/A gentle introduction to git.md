@@ -318,7 +318,7 @@ Read the chapter on `Refspec`, p.458
 ## Merging vs. Rebasing
 
 - Merging (3-way merge) merges the 2 diffs (current branch and other branch) against their common ancestor. This operation is non-destructive (original commits are kept as is) but a new merge node is created.
-- Rebasing solves the same problem of 3-way merge, but it doesn't create a new merge node. However, the entire history is changed (invasive operation) and this is a problem if the rebasing branch is public (your branch will fall out of track of others
+- Rebasing solves the same problem of 3-way merge, but it doesn't create a new merge node. However, the entire history is changed (invasive operation) and this is a problem if the rebasing branch is public (your branch will fall out of track of others). Another issue is, with merge if you solve a conflict future merges won't have same issue. With rebase you need to fix the conflict every time.
 - Rule of thumb is to use merge on public branches and when base branch isn't super active (so no introduction of many merge nodes). Use rebasing otherwise, also good to clean up commit history.
 
 
