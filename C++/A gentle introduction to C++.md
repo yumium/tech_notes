@@ -4822,9 +4822,12 @@ for (int i = 0; i < size; i++)
 - Heap memory is used for large allocations. It needs manual deallocation and generally slower, so more likely to cause memory leaks.
   - Note, `malloc` does not always trigger a sys call. OS typically only give memory to a process in pages, so C++ process will get a page, then slice it up to each time malloc is called.
 
-Stack memory is allocated for local variables, function parameters, RAII etc. Heap allocation only if using `new` or `malloc`. 
-    RAII as in putting a resource manager object like `std::vector` on the stack, that manages memory it uses on the heap
+Stack memory is allocated for local variables, function parameters, RAII etc. Heap allocation only if using `new` or `malloc`. RAII as in putting a resource manager object like `std::vector` on the stack, that manages memory it uses on the heap. 
+
+Arrays (so fixed size) are placed inside the stack (though too large and it can cause stack overflow during runtime).
+
 Exceptions are
+
 - Global and static variables are stored in data segment or BSS (all zeros, used for zero data or uninitialised data)
 - rvalues could be stored in registers
 - Large return values could be optimised to use return value optimisation to be constructed where it is needed
