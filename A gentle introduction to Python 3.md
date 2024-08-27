@@ -2013,10 +2013,6 @@ No idea how to make packages.
 
 
 
-**I noticed a thing**
-
-Say `module.func` calls `module.helper`, you don't need to import both `func` and `helper` to use `func`. Pretty neat.
-
 
 
 
