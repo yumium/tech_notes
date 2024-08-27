@@ -10,6 +10,14 @@ Python3 glossary: https://docs.python.org/3/glossary.html#glossary
 
 Python3 design FAQ: https://docs.python.org/3/faq/design.html#how-are-lists-implemented-in-cpython
 
+Other useful resource:
+
+- About Python API design, transferrable to other languages: https://benhoyt.com/writings/python-api-design/
+- PEP8 style guide, it's short: https://peps.python.org/pep-0008/
+
+
+
+
 Python is:
 
 - Elegant syntax: shorter code
