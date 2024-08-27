@@ -2007,9 +2007,67 @@ dir(builtins) for fun
 
 **Packages**
 
-They are a further abstraction the manage different modules. We can have different packages that contain different modules named `sound`, which is no longer ambiguous if we choose which package to import `sound`.
+Packages allow you to subdivide python modules into hierarchies using the dotted syntax.
 
-No idea how to make packages.
+Example package file structure
+
+```
+sound/                          Top-level package
+      __init__.py               Initialize the sound package
+      formats/                  Subpackage for file format conversions
+              __init__.py
+              wavread.py
+              wavwrite.py
+              aiffread.py
+              aiffwrite.py
+              auread.py
+              auwrite.py
+              ...
+      effects/                  Subpackage for sound effects
+              __init__.py
+              echo.py
+              surround.py
+              reverse.py
+              ...
+      filters/                  Subpackage for filters
+              __init__.py
+              equalizer.py
+              vocoder.py
+              karaoke.py
+              ...
+```
+
+The `__init__.py` file is mandatory for stating the current directory is a package. The file is executed when the packages is imported. The file can be empty, which it usually is. Another use is defining the `__all__` variable that defines the packages imported when using the * import, like `from package import *`
+
+```python
+__all__ = [
+    "echo",      # refers to the 'echo.py' file
+    "surround",  # refers to the 'surround.py' file
+    "reverse",   # !!! refers to the 'reverse' function now !!!
+]
+
+def reverse(msg: str):  # <-- this name shadows the 'reverse.py' submodule
+    return msg[::-1]    #     in the case of a 'from sound.effects import *'
+```
+
+Another use of `__init__.py` is to forward import common modules to bring them to upper levels, example:
+
+```python
+# mypackage/__init__.py
+from .module1 import func1
+from .module2 import func2
+
+# client code
+from mypackage import func1, func2
+```
+
+Summary of what modules are good for
+
+- Modularity
+- Namespace management. You may have many files named `util.py` but with packages and the dotted notation, we can separate them
+- Ease of maintenance (maintain each file separately)
+- Clear dependencies
+- etc.
 
 
 
