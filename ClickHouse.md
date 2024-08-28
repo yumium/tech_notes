@@ -391,8 +391,6 @@ Supports the usual JOIN operations and niche ones (e.g., ASOF join)
 
 
 
-
-
 ## Advanced Guides
 
 
@@ -416,6 +414,25 @@ In clickhouse:
 
 
 ### Deduplication strategies
+
+
+
+## Managing clickhouse
+
+
+### Deploying
+
+
+#### Scaling out
+
+Distributed Table Engine: data split on servers into shards
+
+Basic architecture;
+
+client; node1 (keeper, shard1_replica1); node2 (keeper, shard2_replica2)
+
+
+
 
 
 
