@@ -4346,7 +4346,17 @@ Random access:
 
 
 
+### std::queue
 
+This is a "container adaptor", it uses `std::deque` under the hood but exposes a subset of operations.
+
+- `.front()`: Returns reference to first element
+- `.back()`: Returns reference to last element
+- `.empty()`: Returns whether the queue is empty
+- `.size()`: Returns the # of elements in the queue
+- `.push(val)`: Inserts element at the end
+- `.emplace( Args&& args )`: Inserts element by constructing in-place
+- `.pop()`: Removes element from front of queue, returns nothing
 
 
 
