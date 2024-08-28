@@ -310,10 +310,12 @@ int *a, *b; // Both are of type int*
 We can initialize variables in several (equivalent) ways
 
 ```c++
-int a = 3;  // c-like initialisation
+int a = 3;  // c-like, assignment initialisation
 int a (3);  // constructor initialisation
 int a {3};  // uniform initialisation
 ```
+
+After C++11, we always prefer uniform initialisation, as it'll work for almost all types. We can also omit `{}` where the default constructor will be called.
 
 You can let the compiler deduce the type for you using `auto` and `decltype` keywords (use the same type as something else), though this probably reduces readability and hence should not be used extensively.
 
