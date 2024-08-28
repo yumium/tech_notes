@@ -1481,7 +1481,11 @@ Queries that can specify which partition(s) is needed generally reduces partitio
 
 Queries that have results in many partitions will increase partition reads, and hence degrade performance.
 
-More partitions mean slower ingestion time (as need to map where data goes) but potentially faster deletion time if whole partition can be dropped
+More partitions mean slower ingestion time (as need to map where data goes) but potentially faster deletion time if whole partition can be dropped.
+
+Rule of thumb is use partitions if a majority of queries use a small # of partitions, and keep cardinality of partition key low.
+
+
 
 
 
