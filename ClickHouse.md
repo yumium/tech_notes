@@ -1473,6 +1473,17 @@ ORDER BY
 ## Miscellaneous
 
 
+### Partitions
+
+When specifying table schema, you can optionally specify partition key. Rows with the same partition key are physicall stored together.
+
+Queries that can specify which partition(s) is needed generally reduces partition reads, and hence improves performance.
+
+Queries that have results in many partitions will increase partition reads, and hence degrade performance.
+
+More partitions mean slower ingestion time (as need to map where data goes) but potentially faster deletion time if whole partition can be dropped
+
+
 
 
 ### Materialised Views
