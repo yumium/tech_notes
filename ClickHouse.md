@@ -1467,6 +1467,22 @@ ORDER BY
 ```
 
 
+## Guides
+
+### Observability
+
+https://clickhouse.com/docs/en/observability
+
+Pretty detailed guide on how to build your observability infra with clickhouse. 
+
+
+### Advanced guides
+
+
+
+
+
+
 
 
 
