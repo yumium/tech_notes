@@ -396,6 +396,24 @@ Supports the usual JOIN operations and niche ones (e.g., ASOF join)
 ## Advanced Guides
 
 
+### Transactional (ACID) support
+
+Atomic: Each statement is a transaction, it either all executed or none at all
+
+Consistency: Transactions make changes in predefined ways. Errors in data does not create unintended consequences
+
+Isolation: Concurrent transactions don't intefere each other
+
+Durability: Changes in data made by successfully executed transactions are saved
+
+ACID means changes are transactional. So if power cuts in middle of transaction, it either succeeds or fails. Either case the DB is in a consistent state.
+
+In clickhouse:
+
+- Insertion into 1 partition, 1 table, of MergeTree family is transactional
+- Insertion into multiple partitions, 1 table, of MergeTree family is transactional, and every partition transactional on its own
+- Insertion into distributed table is not transactional as a whole, but each shard is transactional
+
 
 
 
