@@ -4238,6 +4238,8 @@ Lookup (complexity is log to the size of the set)
 
 Like a resizable array. Elements stored contiguously. Expands automatically as needed. Because of this extra space is allocated for future expansion (without needing to allocate memory and copy every time).
 
+Expansion implementation depends on the compiler used. For GNU, we do geometric expansion (each time we reallocate, we double in size, so amortized O(1)). Alas, reallocation is expensive, so use `reserve()` if you know the size beforehand.
+
 Total amount of allocated memory queried using `capacity()` function. Extra memory can be freed using `shrink_to_fit()` function.
 
 Time complexity
