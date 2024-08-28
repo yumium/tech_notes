@@ -415,6 +415,10 @@ In clickhouse:
 - Insertion into distributed table is not transactional as a whole, but each shard is transactional
 
 
+### Deduplication strategies
+
+
+
 
 
 
