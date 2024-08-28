@@ -1472,7 +1472,10 @@ ORDER BY
 
 ## Miscellaneous
 
-#### Materialised Views
+
+
+
+### Materialised Views
 
 Materialised view is essentially a query with a trigger. When the source table is inserted, it triggers the view to update/append new rows to the target table.
 
@@ -1541,13 +1544,13 @@ There's also refreshable materialised view, which has an interavl-based trigger 
 
 
 
-#### system.parts, system.columns
+### system.parts, system.columns
 - View storage size with `system.parts` and `system.columns`, usually paired with function `formatReadableSize`
   - A `part` is simply a file in the system. A `partition` is a logical grouping of data, where rows with the same partition are grouped together.
   - Partition works well when operations tend to operate on 1 partition at a time (e.g., queries on one partition only (less reads if partitions are used), remove by partition (e.g., partition by date then retain only last 7 days of data))
   - Recommend no more than 100 partitions. 1000 can be okay but may see performance degrade (reading across many partitions will be slower)
 
-#### clickhouse-benchmark
+### clickhouse-benchmark
 
 Benchmarking critical queries
 
@@ -1555,7 +1558,7 @@ Benchmarking critical queries
 $ clickhouse-benchmark --query ["single query"] [keys]
 ```
 
-#### Query caching
+### Query caching
 
 If a query is expensive, you can enable query caching on the query level. Further execution of the same query will reuse the computed result.
 
@@ -1581,7 +1584,7 @@ You can check your query cache at `system.query_cache` table.
 
 Drop your query cache with `SYSTEM DROP QUERY CACHE`
 
-#### Query profiling
+### Query profiling
 
 You can read more details on performance in `system.processors_profile_log` table
 
@@ -1590,7 +1593,7 @@ More details here: https://clickhouse.com/docs/en/operations/optimizing-performa
 Open MR to add `EXPLAIN ANALYZE` command to parse this table: https://github.com/ClickHouse/ClickHouse/issues/40051
 
 
-#### Group by implementations
+### Group by implementations
 
 Sorting implementation => sort the rows by group by columns, then calculate the aggregation
 Good if data already sorted on group by columns, but slow to sort otherwise
