@@ -1548,7 +1548,7 @@ Projections acts as a convenient way to add materialised views. The view is adde
 ## Miscellaneous
 
 
-## Compression tips
+### Compression tips
 
 1. Try using smaller datatypes
 2. Use your current compression ratio as benchmark. What column is a lot of storage going to? What is the compression ratio for those?
