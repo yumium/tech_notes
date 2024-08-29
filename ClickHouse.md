@@ -1548,6 +1548,21 @@ Projections acts as a convenient way to add materialised views. The view is adde
 ## Miscellaneous
 
 
+## Compression tips
+
+1. Try using smaller datatypes
+2. Use your current compression ratio as benchmark. What column is a lot of storage going to? What is the compression ratio for those?
+3. Try specific encodings for each column before compression
+
+General recommendations:
+
+- ZSTD almost always performs best as compression algo
+- Delta works well for increasing integers
+- Maybe Gorilla and T64 for unknown patterns
+- Delta works very well with ZSTD
+- LZ4 over ZSTD if compression ratio similar, as LZ4 is faster
+
+
 ### Partitions
 
 When specifying table schema, you can optionally specify partition key. Rows with the same partition key are physicall stored together.
