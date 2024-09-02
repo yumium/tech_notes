@@ -4187,6 +4187,27 @@ int main () {
 
 ## Standard Library
 
+
+### std::pair
+
+making pairs. This is done in legacy code (before uniform init), benefit is type deduction from arguments, but may be more verbose than uniform init in some cases.
+
+```c++
+template<class T1, class T2>
+std::pair<T1, T2> make_pair( T1 t, T2 u);
+
+auto p1 = std::make_pair(1, 3.14);
+```
+
+
+
+
+
+
+
+
+
+
 ### std::set
 
 The set requires the template type to contain `<` comparison (as the underlying impl can use a binary search tree). The guarantee uniqueness, the `==` operation is just taking the function `(!(a < b) && (!(b < a))`.
