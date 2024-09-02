@@ -4830,6 +4830,21 @@ for (int i = 0; i < size; i++)
 
 ## Misc
 
+
+### Namespaces for test
+
+When write unit tests (e.g., using BOOST) for symbols in namespace `foo::bar`, you can do 
+
+```c++
+namespace foo::bar::test {
+    // test cases
+}
+```
+
+This way you don't need to qualify variables with `foo::bar` and also it won't pollute the global namespace.
+
+
+
 ### Stack vs. Heap memory
 
 - Stack memory is used to store local variables in a function. Deallocation is automatic and fast as often just need to change sp (so 1 instruction instead of what malloc needs)
