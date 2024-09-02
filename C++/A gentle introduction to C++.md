@@ -4841,8 +4841,7 @@ namespace foo::bar::test {
 }
 ```
 
-This way you don't need to qualify variables with `foo::bar` and also it won't pollute the global namespace.
-
+This way you don't need to qualify variables with `foo::bar` and also it won't pollute the global namespace. If I used `using namespace foo::bar;` then all test cases are put into the global namespace
 
 
 ### Stack vs. Heap memory
