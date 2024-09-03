@@ -270,7 +270,24 @@ Note, for type names the italic parts can be omitted. (`signed long int` can be 
 
 Note, for different types within the same group, only the size is different, the other properties are the same. And for size, only the minimum size is given. The compiler is freely able to choose the actual size based on the target machine.
 
+`size_t`: Type to store the maximum size of a theoretically possible object of any type in C++. Think of this as `uint64_t` but can store numbers larger than max unsigned 64-bit int. Often used in for loops
 
+
+```c++
+for (size_t i = 0; i < N; i++) {
+    // blah
+}
+
+// Downloop
+for (size_t i = vec.size(); i--; ) {
+    // blah
+}
+
+// Infinite loop as size_t is non-negative
+//for (size_t i = vec.size(); i >= 0; i--) {
+    // blah
+//}
+```
 
 If you don't care much about precision or memory usage, then `char`, `int` and `double` is all you need.
 
