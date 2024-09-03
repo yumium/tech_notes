@@ -1,5 +1,10 @@
 # A gentle introduction to C++
 
+To learn
+
+- pragma once to break header dependency. Why moving header files can improve build time. Why some forward declare doesn't need size some does.
+
+
 https://www.cplusplus.com/info/description/
 
 C++ is...
