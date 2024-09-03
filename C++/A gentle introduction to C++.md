@@ -4285,11 +4285,24 @@ Expansion implementation depends on the compiler used. For GNU, we do geometric 
 
 Total amount of allocated memory queried using `capacity()` function. Extra memory can be freed using `shrink_to_fit()` function.
 
+The vector object always placed on stack. The elements are always allocated in free store (heap)
+
 Time complexity
 
 - Random access O(1)
 - Insertion and removal from end, amortized O(1)
 - Insertion and removal from anywhere, linear in distance to end of vector O(n)
+
+Arrays vs Vector:
+
+- Arrays can be statically allocated on the stack (size known at compile time) or dynamically allocated on the heap. Vectors are always allocated on the heap
+- Vectors can be returned from functions, arrays can only be returned by downgrading to pointers (`T*`)
+- Vectors have automatic memory management, dynamically allocated arrays need manual freeing (`delete[] a;`)
+- Vectors have richer features than arrays
+- Vectors can be resized whereas arrays can't
+
+For these reasons, vectors are almost always preferred. Times when arrays are preferred include knowing the size of the array at compile time, coding on constrained devices, and C compatibility.
+
 
 Attributes
 
