@@ -1534,7 +1534,40 @@ ADD PROJECTION prj_aggregates
 Projections acts as a convenient way to add materialised views. The view is added internally, and now all queries can be sent to source table, if the query can be faster on materialised view the view is used instead.
 
 
+### Data Schema design
 
+Designing a performant database involves multiple considerations, and while anticipating common queries and optimizing them is crucial, it's only one part of the overall strategy. Here’s a broader view of the key factors involved in designing a performant database:
+
+1. Schema Design and Data Modeling
+Normalization vs. Denormalization: Normalization reduces data redundancy, but highly normalized schemas can lead to complex queries involving multiple joins, which may impact performance. Denormalization can improve read performance by reducing joins but at the cost of increased storage and potential data inconsistency.
+Choosing the Right Data Types: Use appropriate data types to minimize storage space and improve I/O performance. For example, using INT instead of VARCHAR for numerical fields can save space and speed up queries.
+Indexing Strategy: Proper indexing is essential to reduce I/O and improve query performance. Indexes should be created based on anticipated query patterns, but over-indexing can lead to slower writes and increased storage requirements.
+Partitioning and Sharding: Large datasets can be partitioned horizontally (e.g., by range, list, or hash) to distribute the data across multiple storage units, reducing query load per partition and improving performance. Sharding can be used to distribute data across multiple servers.
+2. Anticipating and Optimizing Common Queries
+Query Optimization: Analyze and optimize SQL queries to reduce execution time. This can include rewriting queries to be more efficient, avoiding expensive operations (like full table scans), and using tools like query planners and optimizers.
+Precomputations and Materialized Views: For complex queries that are frequently run, consider precomputing results and storing them in materialized views or summary tables. This shifts the computation load from query time to insertion or update time.
+Caching: Implement caching strategies at various levels (e.g., query results, application-level caching) to avoid repeated computation and I/O for frequently accessed data.
+3. Balancing Read and Write Performance
+Trade-offs Between Reads and Writes: Some optimizations that improve read performance, such as indexing or denormalization, can negatively impact write performance. The design should consider the workload profile (read-heavy vs. write-heavy) and optimize accordingly.
+Batching and Bulk Operations: For write-heavy applications, batching write operations can reduce the overhead of individual transactions, reduce lock contention, and improve throughput.
+Concurrency Control: Implement appropriate concurrency control mechanisms (e.g., locking strategies, optimistic concurrency) to handle multiple concurrent operations efficiently without compromising data integrity.
+4. Reducing I/O and Network Latency
+Efficient Use of I/O: Minimize disk I/O by designing queries and indexes that access the least amount of data necessary. Use techniques like covering indexes (indexes that include all columns needed by a query) to reduce the need to access the base table.
+Network Optimization: Minimize network latency by reducing the number of round trips between the application and the database. This can involve using stored procedures, reducing the volume of data transferred by selecting only necessary columns, and leveraging connection pooling.
+5. Scalability and Distributed Systems
+Horizontal Scaling: Design the database to scale horizontally by adding more servers or instances. This may involve using distributed databases or implementing sharding strategies.
+Replication: Use replication to improve read performance and ensure high availability. However, consider the trade-offs, such as potential replication lag, which can impact consistency.
+Load Balancing: Implement load balancing to distribute queries and transactions across multiple database instances or servers, avoiding bottlenecks and ensuring consistent performance.
+6. Monitoring, Tuning, and Maintenance
+Performance Monitoring: Continuously monitor database performance metrics (e.g., query execution times, I/O operations, cache hit rates) to identify and address bottlenecks.
+Regular Maintenance: Perform regular database maintenance tasks such as index rebuilding, statistics updates, and vacuuming (in databases like PostgreSQL) to ensure optimal performance.
+Capacity Planning: Anticipate future growth and plan for scaling the database in terms of storage, compute resources, and network capacity.
+7. Security and Compliance
+Security Best Practices: Ensure that performance optimizations do not compromise security. For instance, using encryption might have a performance impact, but it's necessary for securing sensitive data.
+Compliance Requirements: Consider regulatory and compliance requirements, such as GDPR, which might influence data storage and access strategies.
+8. Hardware Considerations
+Optimizing Hardware Usage: Choose hardware (e.g., SSDs vs. HDDs) that aligns with the database workload. Faster disks can significantly reduce I/O latency.
+Memory Management: Ensure the database has sufficient memory to cache frequently accessed data, reducing the need for disk I/O. Configuring buffer pools, caches, and memory allocation appropriately is crucial.
 
 
 
