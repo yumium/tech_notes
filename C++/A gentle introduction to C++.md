@@ -4535,22 +4535,31 @@ Note: `operator[]` insertion will overwrite if key exists. `insert` will do no-o
 
 ### std::shared_ptr
 
-A smart pointer introduced since C++11 that helps solve memory management problems.
+A smart pointer introduced since C++11 that gives a pointer many owners. A reference count is kept track of by `shared_ptr`, incremented when new `shared_ptr` points to the object, decremented the other way around (a `shared_ptr` goes out of scope or is reset).
+
+When reference count reaches 0, memory for that object is freed (or when last owning object resets the pointer)
 
 `shared_ptr` instances can point to the same object.
 
-A reference count is kept track of by `shared_ptr`, incremented when new `shared_ptr` points to the object, decremented the other way around (a `shared_ptr` goes out of scope or is reset).
-
-When reference count reaches 0, memory for that object is freed.
-
-
-
 `shared_ptr` helps prevent memory leaks, safely copy without worrying about double deletion.
 
+Though watch out for more overhead and potential for cycles (in this case, the reference count will never reach 0 even though the object is out of scope)
 
+```c++
+struct Knot {
+    int val = 0;
+    std::shared_ptr<Knot> next;
+}
 
-Though watch out for more overhead and potential for cycles (in this case, the reference count will neve reach 0 even though the object is out of scope)
+int main() {
+    auto k1 = std::make_shared<Knot>();
+    auto k2 = std::make_shared<Knot>();
 
+    k1->next = k2;
+    k2->next = k1;
+} // Here the shared_ptr both still have count 1 and so do not destroy the objects, the destructor is never called.
+// At end of function, both share_ptr goes out of scope, but since they reference each other the reference count are both 1.
+```
 
 
 ```c++
@@ -4581,6 +4590,8 @@ shared_ptr<T> make_shared (Args&&... args);
 ```
 
 Usee `::new` to allocate storage for the object.
+
+
 
 
 
