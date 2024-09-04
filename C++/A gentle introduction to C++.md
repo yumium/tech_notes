@@ -4589,8 +4589,9 @@ template <class T, class... Args>
 shared_ptr<T> make_shared (Args&&... args);
 ```
 
-Usee `::new` to allocate storage for the object.
-
+- `.reset()`: Replaces the pointed object to point to no object
+- `.reset( Y* ptr )`: Replaces the pointed object to `ptr`, throws `std::bad_alloc` if memory allocation fails
+- `.get()`: Get the underlying object pointer, usually just use `->` or `*` to access methods of the underlying object
 
 
 
