@@ -4561,6 +4561,7 @@ int main() {
 // At end of function, both share_ptr goes out of scope, but since they reference each other the reference count are both 1.
 ```
 
+Whether or not a function should return `shared_ptr` or the underlying pointer depends on ownership semantics. If the function share ownership to caller, then `shared_ptr` is returned. If caller doesn't need ownership, return the underlying object, and callee must keep object alive. Returning underlying object also reduces overhead of pointer unpacking and not needing to change the reference count.
 
 ```c++
 int main()
