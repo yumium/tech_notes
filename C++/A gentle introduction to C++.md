@@ -4898,6 +4898,16 @@ for (int i = 0; i < size; i++)
 
 ## Misc
 
+### Delete expression
+
+- `delete expr`
+- `delete[] arr`
+
+Calls destructor of object and frees memory.
+
+Compare this with objects on the stack. If object goes out of scope, destructor is called and then object is deallocated from the stack. But if the object is allocated on the heap (using `new`), when object goes out of scope destructor is not called and object memory not freed. Must use `delete` in that case.
+
+
 
 ### Namespaces for test
 
