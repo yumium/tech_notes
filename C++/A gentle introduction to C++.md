@@ -4603,6 +4603,33 @@ shared_ptr<T> make_shared (Args&&... args);
 https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2003/n1456.html
 
 
+### std::optional
+
+You cannot do `std::optional<T&>`, you must copy the object.
+
+**Ways of returning optional values**
+
+```c++
+// Returning an nullptr
+T* foo();
+
+// Returning an optional
+std::optional<T> foo();
+
+// Returning a pair, the value and whether it's valid
+std::pair<T, bool> foo();
+
+// Returning a boolean, mutating the argument
+bool foo(T& t);
+
+// Returning agreed invalid value if fails, e.g., NaN here
+double foo();
+```
+
+
+
+
+
 
 ## Key language concepts
 
