@@ -1644,6 +1644,17 @@ If we want to make queries on non-keyed columns quicker, we need to store second
 
 
 
+### Data Skipping Indices
+
+Again, most OLTP databases use B-trees to speed up non-key queries (just add an index on the non-key column).
+
+In ClickHouse, 
+
+Skipping index function support: https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree#functions-support
+
+
+
+
 
 
 ## Miscellaneous
