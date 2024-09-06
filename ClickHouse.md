@@ -1637,7 +1637,10 @@ Using compound primary indices:
 
 For primary index (col1, col2), best practice is have col1 with lower cardinality (# of unique values) then col2. This is because:
 
-1. If countDistinct(col1) is low, then a query with range filter on col2 will likely need to read few granules. Example of low cardinality col1 (indices: [(1,1), (1,2), (1,2), (1,3), (1,4) ...]), and high cardinality col1 (indices: [(1,1), (2,1), (3,2), (4,1) ...]). If I want rows with col2 = 3, then
+1. If countDistinct(col1) is low, then a query with range filter on col2 will likely need to read few granules. Example of low cardinality col1 (indices: [(1,1), (1,2), (1,2), (1,3), (1,4) ...]), and high cardinality col1 (indices: [(1,1), (2,1), (3,2), (4,1), (5,2) ...]). If I want rows with col2 = 3, then in first case, I know I only need to pull granule 4 in the first 5. In second case, I will need to pull all granules as the rows I want might be in all 5 (formally this is the "generic exclusion search algorithm"). Intuitively, low cardinality col1 means more consecutive granules with the same col1 value, so same values of col2 are clumped together, making range queries on it easier
+2. In addition, col2 likely to have better compression ratio, as values are more uniform
+
+If we want to make queries on non-keyed columns quicker, we need to store secondary tables that are rows ordered by a different set of columns. This can be done with secondary table, materialised view, and projection, which all do the same under the hood but each with increasing abstraction 
 
 
 
