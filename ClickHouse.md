@@ -400,7 +400,7 @@ Atomic: Each statement is a transaction, it either all executed or none at all
 
 Consistency: Transactions make changes in predefined ways. Errors in data does not create unintended consequences
 
-Isolation: Concurrent transactions don't intefere each other
+Isolation: Concurrent transactions don't intefere eac other
 
 Durability: Changes in data made by successfully executed transactions are saved
 
@@ -1174,6 +1174,21 @@ EXPLAIN PIPELINE for QueryPipeline (how plan is executed in parallel by multiple
 Check server logs to see how it's actually executed
 
 
+#### OPTIMIZE
+
+Merges the table now (useful when you want to benchmark performance, say)
+
+```sql
+OPTIMIZE TABLE default.table FINAL;
+```
+
+You can also issue a deduplication
+
+```sql
+OPTIMIZE TABLE
+```
+
+
 
 
 ### Database Engines
@@ -1572,6 +1587,10 @@ Memory Management: Ensure the database has sufficient memory to cache frequently
 
 
 
+
+## Best Practices
+
+### Sparse Primary Indexes
 
 
 
