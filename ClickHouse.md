@@ -1648,12 +1648,24 @@ If we want to make queries on non-keyed columns quicker, we need to store second
 
 Again, most OLTP databases use B-trees to speed up non-key queries (just add an index on the non-key column).
 
-In ClickHouse, 
+In ClickHouse, data skipping indices allow possibility of skipping granules. A statistic is calculated on target columns (default index granularity is 4, so over 4 granules) that helps possible granule skipping.
+
+```sql
+# Add index named `vix` on column `my_value` as type `set(100)` with granularity 2
+ALTER TABLE skip_table ADD INDEX vix my_value TYPE set(100) GRANULARITY 2;`
+```
+
+Index types:
+
+- minmax: Stores (min, max) of value in each bucket, easiest to calculate, useful for range queries
+- set(N): Stores set of at most N values in each bucket, expensive to compare if N is large (N = 0 means store all distinct values)
+- bloom filters: https://en.wikipedia.org/wiki/Bloom_filter  effectively a hash map with no collision control
 
 Skipping index function support: https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree#functions-support
 
+Note, if your needed key exists in every granule, clickhouse will have to pull all granules, regardless of whether you add a data skipping index.
 
-
+Rule of thumb is to benchmark your queries for result
 
 
 
