@@ -1635,7 +1635,9 @@ Trace log shows how the granule selection happens
 
 Using compound primary indices:
 
-For primary index 
+For primary index (col1, col2), best practice is have col1 with lower cardinality (# of unique values) then col2. This is because:
+
+1. If countDistinct(col1) is low, then a query with range filter on col2 will likely need to read few granules. Example of low cardinality col1 (indices: [(1,1), (1,2), (1,2), (1,3), (1,4) ...]), and high cardinality col1 (indices: [(1,1), (2,1), (3,2), (4,1) ...]). If I want rows with col2 = 3, then
 
 
 
