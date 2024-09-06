@@ -1185,7 +1185,9 @@ OPTIMIZE TABLE default.table FINAL;
 You can also issue a deduplication
 
 ```sql
-OPTIMIZE TABLE
+OPTIMIZE TABLE default.table FINAL DEDUPLICATE;  # DEDUPLICATE all columns
+
+OPTIMIZE TABLE default.table FINAL DEDUPLICATE BY * EXCEPT col;  # DEDUPLICATE all columns apart from col
 ```
 
 
