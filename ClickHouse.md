@@ -442,6 +442,49 @@ client; node1 (keeper, shard1_replica1); node2 (keeper, shard2_replica2)
 
 ## Best Practices
 
+### Sparse Primary Index
+
+Indices in most OLTP data stores use B-trees, which are shallow trees (access is O(log_b(N))). As ClickHouse is designed for high volume inserts (millions of rows per second, ~100PT of storage per table), B-tree comes at a high cost (overhead in insertion as need update in tree, high memory footprint, and sometimes rebalancing cost).
+
+ClickHouse approaches indices by sorting on primary key, and adding sparse indices (one per many rows), so indices always fits in memory.
+
+
+```sql
+CREATE TABLE hits_UserID_URL
+(
+    `UserID` UInt32,
+    `URL` String,
+    `EventTime` DateTime
+)
+ENGINE = MergeTree
+PRIMARY KEY (UserID, URL)
+ORDER BY (UserID, URL, EventTime)
+SETTINGS index_granularity = 8192, index_granularity_bytes = 0, compress_primary_key = 0;
+```
+
+Granule = smallest unit of data streamable to ClickHouse (here 8192 rows). If row is needed, the granule it belongs to are pulled together. Granules are pulled in parallel to the ClickHouse engine.
+
+
+
+
+Mark files:
+
+col.mrk => each mark has (block_offset, granule_offset). When selecting a granule, the column block (via block_offset) is decompressed (each block contains many granules), then the corresponding granule (via granule_offset) is streamed into ClickHouse engine.
+
+
+Trace log
+
+```
+...Executor): Key condition: (column 0 in [749927693, 749927693])
+...Executor): Running binary search on index range for part all_1_9_2 (1083 marks)
+...Executor): Found (LEFT) boundary mark: 176
+...Executor): Found (RIGHT) boundary mark: 177
+...Executor): Found continuous range in 19 steps
+...Executor): Selected 1/1 parts by partition key, 1 parts by primary key,
+              1/1083 marks by primary key, 1 marks to read from 1 ranges
+...Reading ...approx. 8192 rows starting from 1441792
+```
+
 
 
 
