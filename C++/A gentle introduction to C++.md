@@ -4303,6 +4303,12 @@ Arrays vs Vector:
 
 For these reasons, vectors are almost always preferred. Times when arrays are preferred include knowing the size of the array at compile time, coding on constrained devices, and C compatibility.
 
+Initialisation
+
+- If using brackets, initialisation list is preferred `std::vector<int> vec {N, 1};  // initialises vector of 2 elements, N and 1`
+- If want to initialise with size and default value, use brackets `std::vector<int> vec (N, 1);  // initialises vector of size N and default value i`
+
+
 
 Attributes
 
