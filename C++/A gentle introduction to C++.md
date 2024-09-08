@@ -4308,7 +4308,13 @@ Initialisation
 - If using brackets, initialisation list is preferred `std::vector<int> vec {N, 1};  // initialises vector of 2 elements, N and 1`
 - If want to initialise with size and default value, use brackets `std::vector<int> vec (N, 1);  // initialises vector of size N and default value i`
 
+Call by reference vs call by value
 
+```c++
+void foo(vector<int>& vec) { ... }  // By reference, modifies the same values in heap
+
+void bar(vector<int> vec) { ... }  // By value, copies the object and copies values in heap, so modification not reflected in caller's vector object
+```
 
 Attributes
 
