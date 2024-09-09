@@ -1563,6 +1563,13 @@ Using materialised views or projections
 
 #### Denormalising data
 
+Denormalising increases duplication by effectively moving complex joins to insertion time. Complexity on insertion increases (many source tables)
+
+If data is updated infrequently, denormalising can make sense
+
+Many-to-many relationships is not as great, many row updates => considering using array types or store statistics instead
+
+Avoid denormalised table on frequently updated data => doing these incremental joins in real-time is very hard, batch insertion is much simpler (Airflow, or in Clickhouse refreshable materialised view)
 
 
 
