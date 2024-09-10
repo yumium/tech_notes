@@ -1169,15 +1169,13 @@ EXPLAIN AST for ASTPtr
 
 EXPLAIN SYNTAX for TreeRewriterResult (optimised & normalised query clause)
 
-EXPLAIN PIPELINE for QueryPipeline (how plan is executed in parallel by multiple CPU cores)
+EXPLAIN PIPELINE for QueryPipeline (how plan is executed in parallel by multiple CPU cores, data processed in streaming fashion data volume can be arbitrarily large)
 
 - Can also use `graph = 1`
 - `compact = 0` to make graph spread out
 - (x4 means 4 parallel threads are used in this step)
 - Each stage uses distinct thrads, taken from the global thread pool (`max_thread_pool_size` setting for size of global threads)
-
-
-Check server logs to see how it's actually executed
+- If using a distributed server, threads run individually on each node
 
 
 #### OPTIMIZE
