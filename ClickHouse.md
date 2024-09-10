@@ -1157,16 +1157,25 @@ Execution steps for executing a query
 
 TCPHandler => executeQuery ==parse==> ASTPtr ==normalise&optimise==> TreeRewriterResult ==create_plan==> QueryPlan ==concrete==> QueryPipeline => BlockIO => PipelineExecutor
 
+EXPLAIN [PLAN] for QueryPlan (generic execution steps, not how they're run in parallel in CPUs)
+
+- indexes = 1, how index is used and # of granules selected
+- actions = 1, more details on individual actions
+
 EXPLAIN AST for ASTPtr
 
-EXPLAIN SYNTAX for TreeRewriterResult
+- `graph = 1`: visualise with graph, with graphviz
+- `graph = 1, compact = 0`: don't make graphs compact
 
-EXPLAIN PLAN for QueryPlan
+EXPLAIN SYNTAX for TreeRewriterResult (optimised & normalised query clause)
 
 EXPLAIN PIPELINE for QueryPipeline (how plan is executed in parallel by multiple CPU cores)
 
-`graph = 1`: visualise with graph
-`graph = 1, compact = 0`: don't make graphs compact
+- Can also use `graph = 1`
+- `compact = 0` to make graph spread out
+- (x4 means 4 parallel threads are used in this step)
+- Each stage uses distinct thrads, taken from the global thread pool (`max_thread_pool_size` setting for size of global threads)
+
 
 Check server logs to see how it's actually executed
 
