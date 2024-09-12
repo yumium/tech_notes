@@ -1809,6 +1809,7 @@ You can check your query cache at `system.query_cache` table.
 
 Drop your query cache with `SYSTEM DROP QUERY CACHE`
 
+
 ### Query profiling
 
 You can read more details on performance in `system.processors_profile_log` table
@@ -1816,6 +1817,15 @@ You can read more details on performance in `system.processors_profile_log` tabl
 More details here: https://clickhouse.com/docs/en/operations/optimizing-performance/sampling-query-profiler
 
 Open MR to add `EXPLAIN ANALYZE` command to parse this table: https://github.com/ClickHouse/ClickHouse/issues/40051
+
+
+### Logging
+
+`SET send_logs_level = 'trace'` => set log level to trace and print after execution, can put on query level
+
+`system.query_log` table => query level stats like query duration and memory usage
+
+`system.trace_log` table => Memory, CPU traces
 
 
 ### Group by implementations
