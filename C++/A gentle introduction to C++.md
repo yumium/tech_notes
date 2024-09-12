@@ -4608,6 +4608,27 @@ shared_ptr<T> make_shared (Args&&... args);
 
 
 
+### std::unique_ptr
+
+Like `shared_ptr` but only one object can claim ownership to it. When the `unique_ptr` object goes out of scope, the underlying object is destroyed and memory freed using `delete`. Object also deleted if `reset` is called or managing object is assigned another pointer with `=`
+
+```c++
+// Creating a unique ptr
+std::unique_ptr<T> ptr = std::make_unique<T>(obj);
+```
+
+Modifiers:
+
+- `.release()`: releases ownership of object and returns a pointer to object
+- `.reset(pointer)`: sets the unique_ptr to manager the new object pointed by `pointer` and deletes old object
+
+Observers:
+
+- `.get()`: returns pointer to object or `nullptr` if no object is owned
+- `.get_deleter()`: returns custom deleter if it's used for destruction of object
+- `*`, `->`: Dereferences pointer to the managed object
+
+
 
 
 ### std::unordered_map
