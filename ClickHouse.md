@@ -1605,7 +1605,7 @@ ORDER BY (UserID, URL, EventTime)
 SETTINGS index_granularity = 8192, index_granularity_bytes = 0, compress_primary_key = 0;
 ```
 
-Granule = smallest unit of data streamable to ClickHouse (here 8192 rows). If row is needed, the granule it belongs to are pulled together. Granules are pulled in parallel to the ClickHouse engine.
+Granule = smallest unit of data streamable to ClickHouse (here 8192 rows). Granules are stored per column. If row is needed, the granule it belongs to are pulled together (for only the columns selected). Granules are pulled in parallel to the ClickHouse engine.
 
 Primary key defines what the indices are. Primary key of first row of each granule (called a "mark") are stored in memory, used to check which granules are needed for a query.
 
