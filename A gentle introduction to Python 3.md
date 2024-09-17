@@ -3249,6 +3249,30 @@ Use `deactivate` to deactivate the venv
 
 
 
+## Data Model
+
+All data in Python represented by objects.
+
+Object has:
+
+- Identity => equality by `is` operator, `id(obj)` returns the identity, in CPython this is memory address of object. Unchangeable per object
+- Type => what operations it supporst, `type(obj)` returns the type. Unchangeable per object
+- Value => what the object holds. Immutable objects where underlying objects are mutable can take different values, but are still immutable, as the objects it contains cannot change identity. So immutability in Python means immutable identity, not necessarily value
+
+CPython garbage collector has not guarantee on when objects are freed. It usually free them as soon as they're out of reach. Cyclic reference detection is not guaranteed.
+
+If object uses file handler etc. use `.close()` clause to close immediately, rather than relying on automatic freeing when object is recycled
+
+Variables pointing to immutable types of same value may share same identity, but never for mutable values. `a = []; b = []` always allocate individually, (note `a = b = []` syntax or `a = []; b = a` have both variables point to same reference)
+
+
+Python type hierarchy
+
+
+
+
+
+
 ## Miscellaneous
 
 **id**
