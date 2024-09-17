@@ -3268,8 +3268,28 @@ Variables pointing to immutable types of same value may share same identity, but
 
 Python type hierarchy
 
-
-
+- None
+- Numbers
+  - float
+  - int
+  - bool
+  - complex
+- Sequences
+  - str
+  - tuple
+  - bytes
+  - list
+  - bytearray
+- Set
+  - set
+  - frozenset
+- Mappings
+  - dict
+- Callable
+  - functions
+  - methods
+  - classes
+ 
 
 
 
