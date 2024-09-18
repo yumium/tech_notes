@@ -1063,6 +1063,12 @@ print(a)				# {'s', 'p', 'u', 'v', 't'}
 ```
 
 
+**frozenset()**
+
+Same operations as `set()` removing all that mutates the set. So it's the immutable version of `set()`
+
+
+
 
 
 
