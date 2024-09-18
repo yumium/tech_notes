@@ -3008,11 +3008,12 @@ class Reverse:
 		self.index = len(data)
     def __iter__(self):
         return self
-	def __next__(self):
+
+    def __next__(self):
         if self.index == 0:
             raise StopIteration
         self.index = self.index - 1
-		return self.data[self.index]
+            return self.data[self.index]
 ```
 
 The Reverse class create objects that are iterators immediately (you can call next(...) without calling iter(..) to get the iterator first). I don't know how to not create the iterator right away though. I might need Generators, which are things in Python that allow easy creation of iterators.
@@ -3289,7 +3290,42 @@ Python type hierarchy
   - functions
   - methods
   - classes
- 
+
+
+### Special method names
+
+Operators in Python envoke special methods on the object. Example
+
+```python
+print(x[i])
+# is equivalent to
+print(type(x).__getitem__(x, i))
+# is equivalent to
+print(x.__getitem__(i))
+```
+
+This means overloading these methods will give custom behaviour on operators for your class. If your object doesn't have the method or the function is defined as `None`, will raise error if trying to use these operators.
+
+Examples:
+
+- `obj.__new__`: Allow instantiating a class
+- `obj.__init__`: Called after instance creation
+- `obj.__del__`: Called right before object destroyed
+- `obj.__repr__`: Called with `repr()`
+- `obj.__str__`: Called with `print()`
+- `obj.__lt__(self, other)`: Called with `<`
+- `obj.__hash__`: Called with `hash()`
+- `obj.__bool__`: Called with `bool()`
+- `obj.__instancecheck__(self, instance)`: Called with `isinstance()`
+- `obj.__subclasscheck__(self, subclass)`: Called with `issubclass()`
+- `obj.__call__(self[, args...])`: Emulating callable types
+- `obj.__len__`: Emulating container types
+- `obj.__getitem__`:
+- `obj.__setitem__`:
+- `obj.__contains__`:
+- `obj.__add__(self, other)`: Emulating numeric types
+- `obj.__enter__`: Emulating context managers (called with `with`)
+- `obj.__exit__`: 
 
 
 
