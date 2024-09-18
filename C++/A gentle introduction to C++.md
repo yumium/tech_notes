@@ -4959,6 +4959,56 @@ for (int i = 0; i < size; i++)
 
 ## Misc
 
+### Lambda Expression
+
+```c++
+#include <algorithm>
+#include <cmath>
+
+void abssort(float* x, unsigned n) {
+    std::sort(x, x + n,
+        // Lambda expression begins
+        [](float a, float b) {
+            return (std::abs(a) < std::abs(b));
+        } // end of lambda expression
+    );
+}
+```
+
+Capture group
+
+Captures variables in scope
+
+- `[&total, factor]`: & means pass by reference, otherwise by value
+- `[&]`: Capture all by reference
+- `[=]`: Capture all by value
+- `[&, total]`: Capture all by reference, apart from variable `total`. You can do the same with `=`
+- `[&, &total]`: NOT ALLOWED
+
+Caveats:
+
+- Reference can mutate variables outside, by value can't
+- Reference introduces lifetime dependency, if lambda running async, it may be gone when lambda executes
+- Reference reflects change of variable outside
+
+Parameter list:
+
+- `auto y = [] (int first, int second){ return first + second; };`:
+- `auto y = [] (auto first, auto second){ return first + second; };`: Using auto makes the function templated, one for each `auto` input
+
+Mutable specifier
+
+- By default, all variables passed in are const-by-value.
+- `[&, n] (int a) mutable { m = ++n + a; }(4);`: This allows the value to be mutated inside the function
+- `[&] (int a) mutable { m = ++n + a; }(4);`: As `n` is passed by reference here instead of by value as above, this will mutate the value outside the function
+
+Exception specifier
+
+
+
+
+
+
 ### Delete expression
 
 - `delete expr`
