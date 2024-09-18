@@ -2404,7 +2404,9 @@ def primeFactors(num):
 
 ## Standard Library
 
-### re
+### Text processing
+
+#### re
 
 The Python Regular Expressions Library
 
@@ -2468,6 +2470,21 @@ Common RE expression syntax
 
 
 
+#### difflib
+
+`difflib.SequenceMatcher`: Uses a more advanced version of "gestalt pattern matching", effectively looks for largest consecutive matching substring (after removing junk characters), and recursively apply left and right portion. Worstcase quadratic runtime
+
+`difflib.Differ`
+
+`difflib.HtmlDiff`: For HTML
+
+#### textwrap
+
+- `textwrap.wrap`: Wrap string to upto to certain width characters long, returning a list of strings
+- `textwrap.fill`: Like above but do join with `\n`
+- `textwrap.shorten`: Truncating
+- `textwrap.dedent`: emove any common leading whitespace from every line in input text
+- `textwrap.indent(text, prefix, predicate=None)`: Add prefix to the beginning of selected lines in text, using optional predicate
 
 
 ### time
