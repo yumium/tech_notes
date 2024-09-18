@@ -5004,8 +5004,19 @@ Mutable specifier
 
 Exception specifier
 
+- `[]() noexcept { throw 5; }();`: `noexcept` disallows lambda body to throw, here compiler will throw an error
 
+Return type
 
+- `auto x1 = [](int i){ return i; };`: Return type is automatically deduced, here it's an int. You cannot use brace-init-list as return type, like `... return{i, j};`
+
+Lambda body, can refer to:
+
+- Captured variables
+- Parameters to function
+- Locally defined variables
+- Class data members, if `this` is captured
+- Variable with static storage location, e.g., global vars
 
 
 
