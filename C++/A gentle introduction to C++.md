@@ -1417,7 +1417,7 @@ myword[4] = 'd';
 
 
 
-### Pointers
+### Pointers & References
 
 ```c++
 // Address-of operator
@@ -1493,6 +1493,29 @@ int operation (int x, int y, int (*functocall)(int,int))
 // This is one of the ways to pass functions as arguments. Other ways include using the <function> template or using lambda functions
 
 ```
+
+A reference is roughly a const pointer. It holds the address of another variable, but it must be declared (so cannot be nullptr) on creation and cannot be changed. Referencing and dereferencing is automatic (no need to specify explicitly). Arithmetic on pointers cannot be performed on references.
+
+```c++
+int& ref;  // Not allowed, must initialise on declaration
+
+int x = 3;
+int y = 2;
+
+int& ref = x;
+cout << ref << endl; // 3, no need to use dereference operator
+ref = 4;  // no need to use dereference operator
+cout << x << endl; // 4
+
+int* ptr = &x;
+cout << *ptr << endl;
+*ptr = 3;
+cout << *ptr << endl;
+ptr = &y;
+cout << *ptr << endl;
+ptr = nullptr;
+```
+
 
 
 
