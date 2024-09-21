@@ -1117,7 +1117,7 @@ The types of call to `fixed_multiply` is determined at compile time.
 
 
 
-### Name visibility
+### Namespace
 
 - Global scope: Variables accessible everywhere in code. Global scope has empty prefix namespaces (`f` in global scope has namespace `::f`)
 - Block scope: Variables inside blocks (called local variables), accessible inside the block (included blocks nested inside it)
