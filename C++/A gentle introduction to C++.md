@@ -220,12 +220,6 @@ int main()
 - `cout` is the unqualified name
 - `std::cout` is the qualified name (`cout` is a function inside the standard library `std`)
 
-- If you use the namespace `std` with the `using` keyword, you can call names inside `std` in an unqualified manner
-- Note, using qualified name is the easiest way to avoid introducing name collisions
-
-- When C++ searches in namespaces, it does backward search. Say if the current namespace is `foo::bar`, and C++ cannot find the variable `baz` inside `foo::bar`, it'll try to find `baz` in namespace `foo`
-
-
 
 
 
@@ -1125,12 +1119,10 @@ The types of call to `fixed_multiply` is determined at compile time.
 
 ### Name visibility
 
-- Global scope: Variables accessible everywhere in code
+- Global scope: Variables accessible everywhere in code. Global scope has empty prefix namespaces (`f` in global scope has namespace `::f`)
 - Block scope: Variables inside blocks (called local variables), accessible inside the block (included blocks nested inside it)
 
-Names within the same scope cannot conflict
-
-
+Same name can exist across namespaces. Names within a namespace cannot conflict.
 
 You can define namespaces
 
@@ -1152,10 +1144,10 @@ You access variables inside namespaces by qualifying the variable with the names
 ```c++
 int main()
 {
-    cout << foo::value() << "\n";
-    cout << bar::value() << "\n";
-	cout << bar::pi << "\n";
-  	return 0;
+    cout << foo::value() << "\n";  // 5
+    cout << bar::value() << "\n";  // 6.2832
+    cout << bar::pi << "\n";       // 3.1416
+    return 0;
 }
 ```
 
@@ -1167,14 +1159,56 @@ namespace bar { int b; }
 namespace foo { int c; }
 ```
 
-
-
-
-
-With `using` keyword, you import all variable names inside the namespace into the current scope (global or block, depending on where it is declared). You no longer need to use the namespace qualifier.
+You can have nested namespaces. The child namespace can refer to parent without qualifiers. Parent namespace can refer to child with qualifiers. When C++ searches in nested namespaces, it does backward search. Say if the current namespace is `foo::bar`, and C++ cannot find the variable `baz` inside `foo::bar`, it'll try to find `baz` in namespace `foo`
 
 ```c++
-// using namespace example
+namespace A
+{
+    int i = 1;
+
+    namespace B
+    {
+	int j = 2;
+        int k = i + j;
+    }
+
+    int foo() { return i + B::j; }  // returns 3
+}
+```
+
+You cannot forward declare for namespaces
+
+```c++
+namespace Q
+{
+    namespace V
+    {
+	void f();
+    }
+
+    void V::f() {};  // OK
+    void V::g() {};  // Error: V::g not defined yet
+
+    namespace V
+    {
+	void g();
+    }
+}
+```
+
+Unnamed namespaces
+
+Visible in unqualified form within the same file, but not outside file (internal linkage). Useful if you want to declare variables for the file but not to any namespace.
+
+```c++
+namespace {
+    int i = 1;
+}
+```
+
+With `using` keyword, all names inside the namespace can be used in current scope without qualifiers. If there is name ambiguity on used names, a compilation error will fire.
+
+```c++
 #include <iostream>
 using namespace std;
 
@@ -1191,16 +1225,44 @@ namespace second
 int main () {
   {
     using namespace first;
-    cout << x << '\n';
+    cout << x << '\n';  // 5
   }
   {
     using namespace second;
-    cout << x << '\n';
+    cout << x << '\n';  // 3.1416
   }
   return 0;
 }
 ```
 
+Ambiguous name example:
+
+```c++
+namespace B
+{
+    void f(int);
+    void f(double);
+}
+ 
+namespace C
+{
+    void f(int);
+    void f(double);
+    void f(char);
+}
+ 
+void h()
+{
+    using B::f;  // introduces B::f(int), B::f(double)
+    using C::f;  // introduces C::f(int), C::f(double), and C::f(char)
+    f('h');      // calls C::f(char)
+    f(1);        // error: B::f(int) or C::f(int)?
+    void f(int); // error: f(int) conflicts with C::f(int) and B::f(int)
+}
+```
+
+$$ Namespace hiding => this is unclear to me
+$$ Inline namespaces
 
 
 
