@@ -1261,42 +1261,26 @@ void h()
 }
 ```
 
+Namespace aliasing
+
+As namespaces must be unique globally, they tend to be long. Use namespace aliases to abbreviate the long name for use in the current file.
+
+```c++
+namespace a_very_long_namespace_name { class Foo {}; }
+namespace AVLNN = a_very_long_namespace_name;
+void Bar(AVLNN::Foo foo){ }
+```
+
+
 $$ Namespace hiding => this is unclear to me
 $$ Inline namespaces
 
 
 
 
-Namespace aliasing
-
-```c++
-namespace new_name = current_name;
-```
 
 
 
-
-
-Storage and namespaces
-
-- Global and namespace variables are allocated static storage. They are initialized to zeroes
-- Variables inside blocks (local variables) are allocated automated storage. They are not initialized.
-
-```c++
-// static vs automatic storage
-#include <iostream>
-using namespace std;
-
-int x;
-
-int main ()
-{
-  int y;
-  cout << x << '\n';
-  cout << y << '\n';
-  return 0;
-}
-```
 
 
 
