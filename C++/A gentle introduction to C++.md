@@ -112,6 +112,14 @@ GCC part of GNU project, end-to-end compiler. Clang works with LLVM, (LLVM = lan
 
 STL is a library in C++ -> libc++, libstdc++. libstdc++ is from GNU project, less aggressive on adopting new C++ standards, good for general-purpose programming. libc++ created with Clang/LLVM suite, more aggresstive on adopting new C++ standards, more lightweight and performant.
 
+The STL source code is difficult to read because:
+
+- It's super optimised
+- It's general
+- It's portable, so #ifdef macros everywhere
+- Resilient, so lots of __ prefixing names to prevent conflict
+- Undocumented
+
 C++ standards:
 
 - C++ is standardized by the ISO. The standard outlines the syntax and semantics of each version of the C++ programming language.
@@ -1300,10 +1308,36 @@ $$ Inline namespaces
 
 
 
-### Strings!!!!
+### Strings
 
+Old, C string representation
 
-`std::string` is a small struct with 
+```c++
+char *myString = "Hello";
+char myString[6] = {'H', 'e', 'l', 'l', 'o', 0};
+```
+
+The last character in the array is the null character, `\0`, containing nominal value 0. For most libraries it assumes the strings ends with null character, such as `prinf`
+
+C++ uses `std::string`, which is effectively an RAII wrapper over the character array with cached size and capacity. 
+
+`std::string` is type shorthand for `std::basic_string<char>`. Others include `std::wstring` for `std::basic_string<wchar>`, `std::u32string` for `std::basic_string<char32_t>` etc. `wchar` is no narrower than `char`, in Microsoft compiler it's 16-bit. UNICODE UTF-16 fits `char16_t`, UTF-32 fits `char32_t` etc.
+
+Elements of basic strings are stored contiguously, i.e. `&*(s.begin() + n) = &*s.begin() + n`
+
+Methods
+
+Accessors: `at`, `[]`, `data()` returns pointer to char array, `c_str` returns non-modifiable c string, `basic_string_view` to return string view
+
+Iterators: `begin`, `end`, `rbegin`, `rend`
+
+Capacity: `empty`, `size`, `length`, `max_size`, `capacity`, `reserve(new_cap)`
+
+Modifiers: `clear`, `insert`, `erase`, ...
+
+$$ Look more into these methods, 
+
+More implementation details in libc++:
 
 ```c++
 // string
@@ -1314,7 +1348,13 @@ struct {
 };
 ```
 
+
 Under the hood it calls `malloc` and `free`. 
+
+^^ Can explore more of these. What happens when I try to allocate more space? I don't think it works like vector<char>, why not? How so?
+
+$$ string_views: https://en.cppreference.com/w/cpp/string/basic_string/operator_basic_string_view
+
 
 Strings cannot be `constexpr` as it cannot be constructed during compile time. For this we need to use `string_view`.
 
@@ -1334,12 +1374,7 @@ Because of this, `string_view` can be a constexpr, as the compiler just needs to
 constexpr std::string_view my_string = "Hello World";
 ```
 
-For C-strings, the below are equivalent
 
-```c++
-char *myString = "Hello";
-char myString[6] = {'H', 'e', 'l', 'l', 'o', 0}
-```
 
 
 
