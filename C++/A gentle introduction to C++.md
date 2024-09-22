@@ -108,9 +108,9 @@ Linking: Linking binary files together so the symbols (aka. variables) can link 
 
 Example C++ compilers: GCC, Clang, MSVC
 
+GCC part of GNU project, end-to-end compiler. Clang works with LLVM, (LLVM = language-agnostic intermediate representation (like typed assembly). Compilers of languages only need to compile to LLVM IR, then write common LLVM IR optimisers, which eventually target to ASM)
 
-
-
+STL is a library in C++ -> libc++, libstdc++. libstdc++ is from GNU project, less aggressive on adopting new C++ standards, good for general-purpose programming. libc++ created with Clang/LLVM suite, more aggresstive on adopting new C++ standards, more lightweight and performant.
 
 C++ standards:
 
