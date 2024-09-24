@@ -21,5 +21,10 @@ A **controlling terminal** is the terminal that started the process and used to 
 
 **TTY = teletypewriter**, originally it's a physical device users type to interact with computer. Now it's virtual
 
-TTY software, after user authenticates via pswd, redirects user command to TTY file (e.g., `/dev/ttyX/`), which is then read and executed by shell (e.g., `bash`). Output is done vice versa.
+TTY software, after user authenticates via pswd, redirects user command to TTY file (e.g., `/dev/ttyX/`), which is then read and executed by shell (e.g., `bash`). Output is done vice versa. This is implemented by the OS kernel. The `/proc/tty/drivers` file contains other supported drivers.
+
+Pseudo-terminals is a software abstraction to allow process to talk as if they're talking to a real TTY, but isn't. This can be useful, say, to operate with a terminal remote, say via SSH. I still don't fully understand how it works, perhaps interesting to "build your own" (https://biriukov.dev/docs/fd-pipe-session-terminal/4-terminals-and-pseudoterminals/). Used also in software like `tmux`
+
+
+
 
