@@ -25,6 +25,12 @@ TTY software, after user authenticates via pswd, redirects user command to TTY f
 
 Pseudo-terminals is a software abstraction to allow process to talk as if they're talking to a real TTY, but isn't. This can be useful, say, to operate with a terminal remote, say via SSH. I still don't fully understand how it works, perhaps interesting to "build your own" (https://biriukov.dev/docs/fd-pipe-session-terminal/4-terminals-and-pseudoterminals/). Used also in software like `tmux`
 
+Getting one level of child processes from parent process: `ps -p <pid of parent>`
+
+Getting process tree of parent process to child processes: `pstree -p <pid of parent>`
+
+Show tree of only my processes: `ps -fjH -u myname`
+
 
 
 
