@@ -49,6 +49,18 @@ MLOps myths
 Distributed training: https://docs.google.com/presentation/d/1RqbEbMDmxq53jhjVi9V30-DYMv0PiUqlNlTZsw9Vm9Y/edit#slide=id.p
 
 
+### ETL / Data engineering
+
+**Extract**: Extract data from sources, streaming or incremental (e.g., end of each month). Usually stored in a staging area (in memory) before transforming
+
+**Transform**: Data cleaning, deduplication, normalisation, derivation, joining, splitting, summarisation etc.
+
+**Load**: Usualy incremental load to persistent storage
+
+ELT also works => in big data sometimes better to load raw to storage, the decide on how to process later
+
+
+
 ### Model deployment
 
 Real-Time streaming -> inference engine and data source connected via broker service (e.g., Kafka), event-driven and scalable
