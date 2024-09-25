@@ -51,13 +51,13 @@ Distributed training: https://docs.google.com/presentation/d/1RqbEbMDmxq53jhjVi9
 
 ### ETL / Data engineering
 
-**Extract**: Extract data from sources, streaming or incremental (e.g., end of each month). Usually stored in a staging area (in memory) before transforming
+**Extract**: Extract data from sources, streaming or incremental (e.g., end of each month). Some data sources don't update you on what's changed, so you must extract entire copy and compare with current version to add the new / altered data. Usually stored in a staging area (in memory) before transforming
 
-**Transform**: Data cleaning, deduplication, normalisation, derivation, joining, splitting, summarisation etc.
+**Transform**: Data cleaning, quality audit, deduplication, normalisation, derivation, joining, splitting, summarisation, encrypting/decrypting etc.
 
 **Load**: Usualy incremental load to persistent storage
 
-ELT also works => in big data sometimes better to load raw to storage, the decide on how to process later
+ELT also works => in big data sometimes better to load raw to storage, the decide on how to process later. Also takes less time to load upfront. Downside is transformation is on analysis time which can be problematic if latency is needed. ETL takes longer to transform up front but you can analyse data immediately.
 
 
 
