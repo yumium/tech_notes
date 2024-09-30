@@ -791,6 +791,9 @@ Syntax: `grep PATTERNS [FILES ...]`
 ```shell
 # This line adds quotation marks on each line, so you can pipe it to `xargs` to another function without having spaces break up arguments
 xargs -d '\n' -I{} echo "\"{}\""
+
+# or do this to directly execute the command, here we're doing rm
+xargs -d '\n' -I{} sh -c 'rm "{}"'
 ```
 
 
