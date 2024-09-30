@@ -788,6 +788,12 @@ In the simplest terms, grep (global regular expression print) will search input 
 
 Syntax: `grep PATTERNS [FILES ...]`
 
+```shell
+# This line adds quotation marks on each line, so you can pipe it to `xargs` to another function without having spaces break up arguments
+xargs -d '\n' -I{} echo "\"{}\""
+```
+
+
 Flags:
 
 - `-e`: Use extended regex. Can be abbreviated to `egrep`
