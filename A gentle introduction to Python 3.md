@@ -2404,6 +2404,16 @@ def primeFactors(num):
 
 ## Standard Library
 
+### Multiprocessing
+
+Communication with Queue or Pipe (duplex), thread and process safe.
+
+Inter-process sharing state (though bad practice) can be done with concurrent Value and Array.
+
+Process Pools to simplify multiprocess tasks, can specify max # of tasks to complete per process to kill and start fresh process, this helps freeing memory.
+
+
+
 ### Text processing
 
 #### re
