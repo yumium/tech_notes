@@ -71,3 +71,15 @@ NixOS takes Nix to configure entire system (packages to be installed, services t
   system.stateVersion = "24.05";
 }
 ```
+
+### How Nix works
+
+Nix packages are stored in `/nix/store/`, example
+
+```
+/nix/store/b6gvzjyb2pg0kjfwrjmg1vfhh54ad73z-firefox-33.1/
+```
+
+`b6gvzjy...` is the hash of all dependencies of the package
+
+
