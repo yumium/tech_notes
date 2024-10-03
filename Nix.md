@@ -82,4 +82,15 @@ Nix packages are stored in `/nix/store/`, example
 
 `b6gvzjy...` is the hash of all dependencies of the package
 
+- The hash allows multiple versions of the same package exist. This reduces breaking of existing applications when another application requires newer version of a dependency, it just installs the new version alongside the old one.
+- All dependencies are complete DAGs. Patial DAG means it implicitly assumes package version in your machines, which may not be present in another machine
+- Supports many users. If both user have access to same package, they're not installed twice. But a package only available to one user cannot be accessed by another user
+- As upgrading does not overwrite, upgrades are atomic. And so is rolling back
+- Has a garbage collector that uninstalled unused packages (unused packages are not deleted straight away as you may want to roll back)
+- Dependencies built from Nix expressions (describe other packages, sources, build script, environment variables etc.). These are also functions so different variable on same function give different build (and different Nix hash)
+- Deployment tries to find pre-built binary from `cache.nixos.org` first, if not found directly builds from source (which can take long time)
+
+### How Nix OS works
+
+
 
