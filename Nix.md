@@ -90,7 +90,10 @@ Nix packages are stored in `/nix/store/`, example
 - Dependencies built from Nix expressions (describe other packages, sources, build script, environment variables etc.). These are also functions so different variable on same function give different build (and different Nix hash)
 - Deployment tries to find pre-built binary from `cache.nixos.org` first, if not found directly builds from source (which can take long time)
 
+
 ### How Nix OS works
 
-
+- Extends Nix to system config files as well
+- All OS files in `/bin`, `/lib`, `/usr` etc. are stored in `/nix/store`. This allows multiple versions to exist. NixOS does have `/etc` but most files in there are symlinks to files in `/nix/store`
+- Having multiple versions allows atomic upgrade/rollback, reproducibility, testing new builds etc.
 
