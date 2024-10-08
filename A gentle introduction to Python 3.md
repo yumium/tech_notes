@@ -2519,6 +2519,36 @@ def _open(file_path):
 	f.close()
 ```
 
+Possible definitional implementation
+
+```python
+class ContextManager(ContextDecorator):
+    def __init__(self, generator_function):
+        self.generator_function = generator_function
+
+    def __enter__(self):
+        # Start the generator and store the generator object
+        self.generator = self.generator_function()
+        try:
+            return next(self.generator)  # Run the setup code and yield control
+        except StopIteration:
+            raise RuntimeError("The generator didn't yield")
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        try:
+            # Run the cleanup part of the generator
+            next(self.generator)
+        except StopIteration:
+            return  # Normal behavior as generator is supposed to stop after cleanup
+        except Exception as e:
+            # If the cleanup raises an exception, it should propagate further
+            if exc_type is None:
+                raise e
+```
+
+So this decorator acts as a adaptor class that takes in a generator and converts it into a class that product context-like objects. Generator works here because `yield` allows us to transfer control before calling clean-up after main block execution.
+
+
 
 ### time
 
