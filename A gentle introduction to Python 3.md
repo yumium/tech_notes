@@ -2497,6 +2497,29 @@ Common RE expression syntax
 - `textwrap.indent(text, prefix, predicate=None)`: Add prefix to the beginning of selected lines in text, using optional predicate
 
 
+### Runtime libraries
+
+#### contextlib
+
+Like generators for creating iterators, creates context managers without explicitly defining `__enter__` and `__exit__`.
+
+```python
+@contextlib.contextmanager
+def _open(file_path):
+    f = open(file_path)
+    try:
+	yield f
+	# control returns to caller, code inside caller's `with` block is executed
+	# if exception happens inside caller's `with` block, control returns here
+    except Exception as e:
+	print(f"Error occured in caller's with clause: {e}")
+	raise e  # reraise error to cause exception in caller, otherwise caller code immediately after `with` block is executed after clean up, and this exception is suppressed
+    finally:
+	# called at `__exit__` or when exception happens
+	f.close()
+```
+
+
 ### time
 
 
