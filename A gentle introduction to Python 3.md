@@ -2544,6 +2544,9 @@ class ContextManager(ContextDecorator):
             # If the cleanup raises an exception, it should propagate further
             if exc_type is None:
                 raise e
+    	else:
+	    # If the generator yields more than once, raise an error
+	    raise RuntimeError("Generator function has more than one yield statement")
 ```
 
 So this decorator acts as a adaptor class that takes in a generator and converts it into a class that product context-like objects. Generator works here because `yield` allows us to transfer control before calling clean-up after main block execution.
