@@ -3452,7 +3452,10 @@ class MessageWriter(object):
 		self.file = open(self.file_name, 'w')
 		return self.file
 
-	def __exit__(self):
+	# last 3 arguments are filled if exception is raised inside the `with` block
+	# otherwise, `None` is passed to them
+	# to prevent the exception from propagating, return `True` in this method
+	def __exit__(self, exc_type, exc_value, traceback):
 		self.file.close()
 
 # using with statement with MessageWriter
@@ -3461,7 +3464,7 @@ with MessageWriter('my_file.txt') as xfile:
 	xfile.write('hello world')
 ```
 
-When `with` statement is executed, an object is created and immediately after, the `__enter__` method is called, which returns a resource descriptor (handles provided by the OS to use the resource) that is captured by word `xfile`. You can then interact with the resource using `xfile`. After all the code in the block is executed, the `__exit__` method is called.
+When `with` statement is executed, an object is created and immediately after, the `__enter__` method is called, which returns a resource descriptor (handles provided by the OS to use the resource) that is captured by word `xfile`. You can then interact with the resource using `xfile`. After all the code in the block is executed, the `__exit__` method is called. If exception happens within the `with` block, the `__exit__` method is called after the exception, ensuring resoures are reclaimed.
 
 
 
