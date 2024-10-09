@@ -199,10 +199,39 @@ Tools:
 - CometML, Weights and Biases (these are hosted solutions)
 - MLFlow helps you log your results and visualise them in the built-in dashboard tool
 - Past experiment configs are stored as JSON files and loaded to reproduce (can use `ray` as well: https://www.ray.io/)
-- 
 
 
+### Testing (code, data, model)
+
+Example test codebase
+
+```
+tests/
+├── code/
+│   ├── conftest.py
+│   ├── test_data.py
+│   ├── test_predict.py
+│   ├── test_train.py
+│   ├── test_tune.py
+│   ├── test_utils.py
+│   └── utils.py
+├── data/
+│   ├── conftest.py
+│   └── test_dataset.py
+└── models/
+│   ├── conftest.py
+│   └── test_behavioral.py
+```
+
+Data tests:
+
+- Expetation-based testing => test on expectation of what data should look like (e.g., these fields should be non-null, non-zero etc.)
+  - https://github.com/great-expectations/great_expectations
+- ^^ And create quality gates
 
 
+Model tests:
 
+- Sanity checks during training (shape of model output, decrease in loss, training to completion etc.)
+- Behavioural testing => simple sanity input -> output maps
 
