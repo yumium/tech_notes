@@ -148,6 +148,29 @@ Don’t Become A Tool Zealot
 - **Try new tools often**, especially ones that use a different approach.
 - These are the same reasons you should **learn other programming languages**
 
+---
+
+### Versioning
+
+To properly version our models so we can have reproducibility, we need to version code, config, data, and model.
+
+Data and model doesn't work well with git, as filse are large and tracing changes can lead to large git files (we care less about line-by-line diffs)
+
+Instead, it's better to have VC on references to data and model files.
+
+Potential tools:
+
+- https://git-lfs.com/
+- https://github.com/iterative/dvc
+
+
+###
+
+
+
+
+
+
 
 
 
