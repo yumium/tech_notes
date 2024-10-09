@@ -172,7 +172,13 @@ Stuff to monitor
 
 - System health (can use grafana similar to any piece of software)
 - Performance (accuracy, F1 etc. or business metrics like click-through rate), may want multiple window sizes to catch degration as early as possible
-- 
+  - https://madewithml.com/courses/mlops/monitoring/#importance-weighting
+- Drift
+  - Data drift (aka. feature drift, covariate drift): difference in data distribution for training and production (measure and compare stats). Data drift can cause model performance degration
+  - Target drift: drift in output distribution, performance degration can be mitigated via retraining
+  - Concept drift: P(y|X) distribution changes, ie. the mapping between input and output in production changed from training
+- Locating drift:
+  - 
 
 
 
