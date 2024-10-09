@@ -4766,6 +4766,20 @@ double foo();
 
 
 
+## Absl
+
+
+### Absl::Time
+
+```c++
+absl::Time t = absl::FromUnixNanos(time_uint);
+std::cout << absl::FormatTime(t, absl::UTCTimeZone());
+```
+
+
+
+
+
 
 
 ## Key language concepts
