@@ -177,8 +177,11 @@ Stuff to monitor
   - Data drift (aka. feature drift, covariate drift): difference in data distribution for training and production (measure and compare stats). Data drift can cause model performance degration
   - Target drift: drift in output distribution, performance degration can be mitigated via retraining
   - Concept drift: P(y|X) distribution changes, ie. the mapping between input and output in production changed from training
-- Locating drift:
-  - 
+  - We can locate drift with a sliding window, comparing production stats with reference stats.
+  - 1D tests: KS test (https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test), Pearson's chi squared (https://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test)
+  - nD tests: https://arxiv.org/pdf/1810.11953, https://arxiv.org/abs/1802.03916, https://jmlr.csail.mit.edu/papers/v13/gretton12a.html
+  - `alibi_detect`
+  - Create alerts so we get notified
 
 
 
