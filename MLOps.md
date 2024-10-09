@@ -164,7 +164,15 @@ Potential tools:
 - https://github.com/iterative/dvc
 
 
-###
+### Monitoring
+
+Unlike traditional software, ML models don't have "exact" behaviours. As data changes, model performance can change, usually degrades.
+
+Stuff to monitor
+
+- System health (can use grafana similar to any piece of software)
+- Performance (accuracy, F1 etc. or business metrics like click-through rate)
+- 
 
 
 
