@@ -150,6 +150,9 @@ Don’t Become A Tool Zealot
 
 ---
 
+Source: https://madewithml.com/courses/mlops/
+
+
 ### Versioning
 
 To properly version our models so we can have reproducibility, we need to version code, config, data, and model.
