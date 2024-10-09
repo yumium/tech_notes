@@ -171,7 +171,7 @@ Unlike traditional software, ML models don't have "exact" behaviours. As data ch
 Stuff to monitor
 
 - System health (can use grafana similar to any piece of software)
-- Performance (accuracy, F1 etc. or business metrics like click-through rate)
+- Performance (accuracy, F1 etc. or business metrics like click-through rate), may want multiple window sizes to catch degration as early as possible
 - 
 
 
