@@ -185,6 +185,21 @@ Stuff to monitor
 
 
 
+### Experiment tracking
+
+Useful features
+
+- Organise all necessary components of an experiment
+- Reproduce past results easily
+- Log iterative improvements
+
+Tools:
+
+- MLFlow (100% free, open source)
+- CometML, Weights and Biases (these are hosted solutions)
+- MLFlow helps you log your results and visualise them in the built-in dashboard tool
+- Past experiment configs are stored as JSON files and loaded to reproduce (can use `ray` as well: https://www.ray.io/)
+- 
 
 
 
