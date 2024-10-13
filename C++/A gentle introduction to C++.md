@@ -1351,28 +1351,29 @@ Capacity:
 
 Access
 
-- `operator[]`: returns cahracter
-- `.back()`
-- `.front()`
+- `operator[]`: returns character at position. If position given is length of string, returns null character at end of string
+- `.back()`: returns reference to last character of string (undefined behaviour for empty strings)
+- `.front()`: ^^ first character
 
 Modifiers
 
-- `operator+=`
-- `operator+`
-- `relational ops`
+- `operator+=`: extends string by adding additional characters at end
+- `operator+`: returns newly constructed string object with lhs ++ rhs
+- `relational ops`: <, > etc. uses `string::compare` for comparison
 - `<<`, `>>`
-- `.append()`
-- `.push_back()`
-- `.pop_back()`
-- `.assign()`
-- `.insert()`
-- `.erase()`
-- `.replace()`
-
-
-Modifiers: `clear`, `insert`, `erase`, ...
-
-$$ Look more into these methods, 
+- `.append(const string& str)`: appends copy of str (is overloaded with other argument types)
+- `.append(const string& str, size_t subpos, size_t sublen)`: appends copy of substring 
+- `.push_back(c)`: appends `c` to end of string
+- `.pop_back()`: erases last character of string
+- `.assign(const string& str)`: replaces current content with copy of str, (is overloaded with other argument types)
+- `.assign(const string& str, size_t subpos, size_t sublen)`: replaces current content with copy of str[subpos, subpos+sublen)
+- `.insert(size_t pos, const string& str)`: insert str as position pos, (is overloaded with other argument types)
+- `.insert(size_t pos, const string& str, size_t subpos, size_t sublen)`: insert str[subpos, subpos+sublen) at pos
+- `.erase(size_t pos, size_t len)`:  erases string[pos, pos+len), (is overloaded with other argument types)
+- `.erase(const_iterator p)`: erases character pointed by `p` 
+- `.erase(const_iterator first, const_iterator last)`: erases string[first..last)
+- `.replace(size_t pos, size_t len, const string& str)`: removes string[pos, pos+len) and inserts str (is overloaded with other argument types)
+- `.replace(size_t pos, size_t len, const string& str, size_t subpos, size_t sublen)`: removes string[pos, pos+len) and inserts str[subpos, subpos+sublen)
 
 More implementation details in libc++: https://joellaity.com/2020/01/31/string.html
 
