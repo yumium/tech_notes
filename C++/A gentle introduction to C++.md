@@ -1355,7 +1355,7 @@ Access
 - `.back()`: returns reference to last character of string (undefined behaviour for empty strings)
 - `.front()`: ^^ first character
 
-Modifiers
+Modifiers (includes string operations (e.g., `std::string::substr`))
 
 - `operator+=`: extends string by adding additional characters at end
 - `operator+`: returns newly constructed string object with lhs ++ rhs
@@ -1374,6 +1374,8 @@ Modifiers
 - `.erase(const_iterator first, const_iterator last)`: erases string[first..last)
 - `.replace(size_t pos, size_t len, const string& str)`: removes string[pos, pos+len) and inserts str (is overloaded with other argument types)
 - `.replace(size_t pos, size_t len, const string& str, size_t subpos, size_t sublen)`: removes string[pos, pos+len) and inserts str[subpos, subpos+sublen)
+- `.substr(pos, len)`: return copy of str[pos, pos+len)
+- `.find(const string& str / const char* s / char c, size_t pos = 0)`: searches string for the first occurrence of str/s/c, if `pos` is given search in space str[pos, N)
 
 More implementation details in libc++: https://joellaity.com/2020/01/31/string.html
 
