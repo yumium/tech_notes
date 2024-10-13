@@ -1358,7 +1358,7 @@ Access
 Modifiers (includes string operations (e.g., `std::string::substr`))
 
 - `operator+=`: extends string by adding additional characters at end
-- `operator+`: returns newly constructed string object with lhs ++ rhs
+- `operator+`: returns newly constructed string object with lhs ++ rhs, can be between string and char
 - `relational ops`: <, > etc. uses `string::compare` for comparison
 - `<<`, `>>`
 - `.append(const string& str)`: appends copy of str (is overloaded with other argument types)
@@ -1374,8 +1374,10 @@ Modifiers (includes string operations (e.g., `std::string::substr`))
 - `.erase(const_iterator first, const_iterator last)`: erases string[first..last)
 - `.replace(size_t pos, size_t len, const string& str)`: removes string[pos, pos+len) and inserts str (is overloaded with other argument types)
 - `.replace(size_t pos, size_t len, const string& str, size_t subpos, size_t sublen)`: removes string[pos, pos+len) and inserts str[subpos, subpos+sublen)
-- `.substr(pos, len)`: return copy of str[pos, pos+len)
+- `.substr(pos, len = npos)`: return copy of str[pos, pos+len)
 - `.find(const string& str / const char* s / char c, size_t pos = 0)`: searches string for the first occurrence of str/s/c, if `pos` is given search in space str[pos, N)
+
+A note on npos: `std::string::npos` is defined as `-1` with type `size_t`. As `size_t` is an unsigned type, this represented the largest possible value for this type. Used as default value for arguments `len`, this means "until the end of the string"
 
 More implementation details in libc++: https://joellaity.com/2020/01/31/string.html
 
