@@ -1319,7 +1319,7 @@ char myString[6] = {'H', 'e', 'l', 'l', 'o', 0};
 
 The last character in the array is the null character, `\0`, containing nominal value 0. For most libraries it assumes the strings ends with null character, such as `prinf`
 
-C++ uses `std::string`, which is effectively an RAII wrapper over the character array with cached size and capacity. 
+C++ uses `std::string`, which is effectively an RAII wrapper over the character array with cached size and capacity (?).
 
 `std::string` is type shorthand for `std::basic_string<char>`. Others include `std::wstring` for `std::basic_string<wchar>`, `std::u32string` for `std::basic_string<char32_t>` etc. `wchar` is no narrower than `char`, in Microsoft compiler it's 16-bit. UNICODE UTF-16 fits `char16_t`, UTF-32 fits `char32_t` etc.
 
@@ -1337,15 +1337,105 @@ Modifiers: `clear`, `insert`, `erase`, ...
 
 $$ Look more into these methods, 
 
-More implementation details in libc++:
+More implementation details in libc++: https://joellaity.com/2020/01/31/string.html
+
+Source code difficult to read directly, as it's highly optimized, general (`std::string` = `std::basic_string<char8>`), portable (`#ifdef` everywhere), resilient (private identifiers are preceeded with `_`), and undocumented.
 
 ```c++
-// string
-struct {
-    int len;
-    int capacity;
-    char* data;
+templace <class _CharT, class _Traits, class _Allocator>
+class _LIBCPP_TEMPLACE_VIS basic_string : private __basic_string_common<true> {
+  // code omittted
+
+  private:
+    // 3*8 = 24 bytes long
+    struct __long {
+      size_t __cap_;
+      size_t __size_;
+      char* __data_;
+    }
+
+  public:
+    size_t capacity() {
+      if (__cap_ & 1) { // long string mode.
+	// buffer size
+
+        size_t buffer_size = __cap_ & ~1ul;
+	// Subtract 1 because the null terminator takes up one spot in
+	// the character buffer.
+	return buffer_size - 1;
+      }
+
+      // handle short string mode
+    }
+
+
+}
+
+```
+- 2 modes, short and long strings modes. Uses `union` to reuse same bytes for both modes. Short string mode is optimized to store up to 22 characters without heap allocation.
+- `__cap_`: amount of space in underlying buffer. Least significant bit indicates short or long mode, so capacity always even number. If capacity is to be exceeded, reallocation takes place
+- `__size_`: size of current string
+
+
+
+
+
+```c++
+template <class _CharT, class _Traits, class _Allocator>
+class _LIBCPP_TEMPLATE_VIS basic_string : private __basic_string_common<true> {
+  // <Code omitted.>
+
+private:
+  struct __long {
+    size_type __cap_;
+    size_type __size_;
+    pointer __data_;
+  };
+
+  static const size_type __short_mask = 0x01;
+  static const size_type __long_mask = 0x1ul;
+
+  enum {
+    __min_cap = (sizeof(__long) - 1) / sizeof(value_type) > 2
+                    ? (sizeof(__long) - 1) / sizeof(value_type)
+                    : 2
+  };
+
+  struct __short {
+    union {
+      unsigned char __size_;
+      value_type __lx;
+    };
+    value_type __data_[__min_cap];
+  };
+
+  union __ulx {
+    __long __lx;
+    __short __lxx;
+  };
+
+  enum { __n_words = sizeof(__ulx) / sizeof(size_type) };
+
+  struct __raw {
+    size_type __words[__n_words];
+  };
+
+  struct __rep {
+    union {
+      __long __l;
+      __short __s;
+      __raw __r;
+    };
+  };
+
+  __compressed_pair<__rep, allocator_type> __r_;
+
+public:
+  // <Code omitted.>
 };
+
+// In another file:
+typedef basic_string<char> string;
 ```
 
 
@@ -1354,6 +1444,8 @@ Under the hood it calls `malloc` and `free`.
 ^^ Can explore more of these. What happens when I try to allocate more space? I don't think it works like vector<char>, why not? How so?
 
 $$ string_views: https://en.cppreference.com/w/cpp/string/basic_string/operator_basic_string_view
+
+
 
 
 Strings cannot be `constexpr` as it cannot be constructed during compile time. For this we need to use `string_view`.
