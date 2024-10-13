@@ -1335,9 +1335,40 @@ Methods
 
 Accessors: `at`, `[]`, `data()` returns pointer to char array, `c_str` returns non-modifiable c string, `basic_string_view` to return string view
 
-Iterators: `begin`, `end`, `rbegin`, `rend`
+Iterators: `begin`, `end`, `rbegin`, `rend` => iterates the characters
 
-Capacity: `empty`, `size`, `length`, `max_size`, `capacity`, `reserve(new_cap)`
+Capacity: 
+
+- `.empty()`: if string is empty
+- `.size()`: size of current string in # of bytes (so it's # of characters of `std::string`)
+- `.length()`: same as `.size()`
+- `.max_size()`: max potential length the string can reach on system (usually much higher than capacity)
+- `.capacity()`: # of bytes of storage allocated for the string, not limit on string size and object and reallocate
+- `.reserve(new_cap_bytes)`: if new request is bigger than current capacity, immediately increases capacity to at least `new_cap_bytes`, otherwise non-inding request to shrink capacity as per implementation
+- `.resize(n, c)`: truncate to `n` characters or append character `c` until length `n` is reached
+- `.clear()`: erase content of string to make it into empty string
+- `.shrink_to_fit()`: non-inding request to shrink capacity
+
+Access
+
+- `operator[]`: returns cahracter
+- `.back()`
+- `.front()`
+
+Modifiers
+
+- `operator+=`
+- `operator+`
+- `relational ops`
+- `<<`, `>>`
+- `.append()`
+- `.push_back()`
+- `.pop_back()`
+- `.assign()`
+- `.insert()`
+- `.erase()`
+- `.replace()`
+
 
 Modifiers: `clear`, `insert`, `erase`, ...
 
@@ -1399,8 +1430,7 @@ class _LIBCPP_TEMPLACE_VIS basic_string : private __basic_string_common<true> {
   public:
     size_t capacity() {
       if (__cap_ & 1) { // long string mode.
-	// buffer size
-
+	// Clear last flag bit from __cap_
         size_t buffer_size = __cap_ & ~1ul;
 	// Subtract 1 because the null terminator takes up one spot in
 	// the character buffer.
