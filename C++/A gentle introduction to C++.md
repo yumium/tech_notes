@@ -5317,6 +5317,8 @@ A non-standard that is implemented in most compiler. If added to a file, it is o
 
 This simplifies file dependencies (e.g., allow circular dependencies, though it's a bad pattern) and can speed up compilation.
 
+ID-ing files usually done by comparing file path.
+
 Example
 File "grandparent.h"
 
@@ -5341,7 +5343,7 @@ File "child.c"
 #include "parent.h"
 ```
 
-Main challenge is it's not trivial to know if the file is the same file (e.g., in the presence of symlinks, same file copied many times). One alternative is this
+Main challenge is it's not trivial to know if the file is the same file (e.g., in the presence of symlinks, same file copied many times). One alternative is to resort to old way of using include guards.
 
 ```c++
 #ifndef GRANDPARENT_H
@@ -5349,6 +5351,8 @@ Main challenge is it's not trivial to know if the file is the same file (e.g., i
 ... contents of grandparent.h
 #endif /* !GRANDPARENT_H */
 ```
+
+Downside of include guards is overhead of maintaining these constants and code bloat
 
 
 
