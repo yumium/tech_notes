@@ -1381,6 +1381,8 @@ constexpr std::string_view my_string = "Hello World";
 
 ### Arrays
 
+Arrays are stored in the stack (see stack vs. heap)
+
 ```c++
 // Declaring an array
 int foo [5];
