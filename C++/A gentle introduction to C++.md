@@ -1319,7 +1319,13 @@ char myString[6] = {'H', 'e', 'l', 'l', 'o', 0};
 
 The last character in the array is the null character, `\0`, containing nominal value 0. For most libraries it assumes the strings ends with null character, such as `prinf`
 
-C++ uses `std::string`, which is effectively an RAII wrapper over the character array with cached size and capacity (?).
+C++ uses `std::string`, which comes with benefits like:
+
+- Memory management: frees `char*` via RAII, automatic reallocation
+- Rich functionalities: iterators, operator overloading (`+=` etc.), move semantics
+- Bound checking
+- Performance optimisation (e.g., small-string optimisation)
+- etc.
 
 `std::string` is type shorthand for `std::basic_string<char>`. Others include `std::wstring` for `std::basic_string<wchar>`, `std::u32string` for `std::basic_string<char32_t>` etc. `wchar` is no narrower than `char`, in Microsoft compiler it's 16-bit. UNICODE UTF-16 fits `char16_t`, UTF-32 fits `char32_t` etc.
 
@@ -1352,6 +1358,42 @@ class _LIBCPP_TEMPLACE_VIS basic_string : private __basic_string_common<true> {
       size_t __cap_;
       size_t __size_;
       char* __data_;
+    };
+
+    struct __short {
+      unsigned char __size_;
+      char __data_[23];
+    };
+
+    // convenience constants used for checking mode
+    static const size_t __short_mask = 0x01;
+    static const size_t __long_mask = 0x1ul;
+
+    // only used to calculate __n_words
+    union __ulx {
+      __long __lx;
+      __short __lxx;
+    };
+
+    // __n_words = 3 in 64-bit systems
+    enum { __n_words = sizeof (__ulx) / sizeof (size_t) };
+
+    // used as convenience for methods that don't care long/short string mode (e.g., __zero())
+    struct __raw {
+      size_t __words[__n_words];
+    };
+
+    // std::string internal rep
+    struct __rep {
+      union {
+	__long __l;
+	__short __s;
+	__raw __r;
+      };
+    };
+
+    void __zero() {
+      
     }
 
   public:
@@ -1368,85 +1410,25 @@ class _LIBCPP_TEMPLACE_VIS basic_string : private __basic_string_common<true> {
       // handle short string mode
     }
 
+    size_t size() {
+      if (__size_ & 1u == 0) {
+	return __size_ >> 1;
+      }
 
+      // handle long string mode
+    }
+
+    // omitted code
 }
 
 ```
 - 2 modes, short and long strings modes. Uses `union` to reuse same bytes for both modes. Short string mode is optimized to store up to 22 characters without heap allocation.
 - `__cap_`: amount of space in underlying buffer. Least significant bit indicates short or long mode, so capacity always even number. If capacity is to be exceeded, reallocation takes place
 - `__size_`: size of current string
+- `__size_` for short strings are left shifted by 1, as the last bit is used as mode flag shown above
 
-
-
-
-
-```c++
-template <class _CharT, class _Traits, class _Allocator>
-class _LIBCPP_TEMPLATE_VIS basic_string : private __basic_string_common<true> {
-  // <Code omitted.>
-
-private:
-  struct __long {
-    size_type __cap_;
-    size_type __size_;
-    pointer __data_;
-  };
-
-  static const size_type __short_mask = 0x01;
-  static const size_type __long_mask = 0x1ul;
-
-  enum {
-    __min_cap = (sizeof(__long) - 1) / sizeof(value_type) > 2
-                    ? (sizeof(__long) - 1) / sizeof(value_type)
-                    : 2
-  };
-
-  struct __short {
-    union {
-      unsigned char __size_;
-      value_type __lx;
-    };
-    value_type __data_[__min_cap];
-  };
-
-  union __ulx {
-    __long __lx;
-    __short __lxx;
-  };
-
-  enum { __n_words = sizeof(__ulx) / sizeof(size_type) };
-
-  struct __raw {
-    size_type __words[__n_words];
-  };
-
-  struct __rep {
-    union {
-      __long __l;
-      __short __s;
-      __raw __r;
-    };
-  };
-
-  __compressed_pair<__rep, allocator_type> __r_;
-
-public:
-  // <Code omitted.>
-};
-
-// In another file:
-typedef basic_string<char> string;
-```
-
-
-Under the hood it calls `malloc` and `free`. 
-
-^^ Can explore more of these. What happens when I try to allocate more space? I don't think it works like vector<char>, why not? How so?
 
 $$ string_views: https://en.cppreference.com/w/cpp/string/basic_string/operator_basic_string_view
-
-
-
 
 Strings cannot be `constexpr` as it cannot be constructed during compile time. For this we need to use `string_view`.
 
