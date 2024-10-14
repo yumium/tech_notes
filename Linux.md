@@ -36,6 +36,13 @@ Process states: https://man7.org/linux/man-pages/man1/ps.1.html
 - D = uninterruptible sleep. Usually due to waiting for I/O, it can only wake up by end of that I/O, not by interrupt. This is due to preventing interrupting I/O in the middel and lead to data corruption. Implemented in some linux kernels. Normal `S` interruptible sleep can also be interrupted by signals, such as SIGINT
 
 
+---
+
+`df`: Disk free
+
+`du`: Disk used   (`du -shc /<dir>/*` directory size totals)
+
+
 
 
 
