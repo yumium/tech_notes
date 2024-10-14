@@ -29,7 +29,19 @@ Questions to ask about your data sources:
 
 **Destinations**
 
+Have a look at different data storage technologies.
 
+**Ingestion process**
+
+Frequency: batch (process a group by data points together), micro-batch (batch at higher frequency), streaming (process (nearly) as each data point comes)
+
+Message services: Kafka, Redpanda, Google Pub/Sub, Kinesis
+
+Payload: cost, latency, throughput/scalability (can ingestion system handle large spike of increased data volume?), retention (should we delete old data?)
+
+Structure: unstructured (text, video, audio, images), semi-structured (XML, JSON), structured (defined columns, keys etc.)
+
+Declarative vs. imperative solutions: declarative (declarative pipelines, simple on frontend but hard to extend), imperative (usually more work but very easy to extend as we're working with code directly, pays off with higher data flexibility)
 
 
 
