@@ -43,9 +43,39 @@ Structure: unstructured (text, video, audio, images), semi-structured (XML, JSON
 
 Declarative vs. imperative solutions: declarative (declarative pipelines, simple on frontend but hard to extend), imperative (usually more work but very easy to extend as we're working with code directly, pays off with higher data flexibility)
 
-
-
 **Change data capture**: see wiki page
+
+
+
+# Data transformation
+
+Transformation = altering raw data into more usable format by end users
+
+Environments:
+
+- Data warehouses: transformation done using SQL
+- Data lakes: cheaper to store than data warehouses, usually no compute
+- Data lakehouses: data lakes + compute (e.g., Spark)
+
+Data staging: during transformation, data usually first loaded into a staging environment where transformation takes place. This staged data is usually temporary and deleted once transformation is done.
+
+
+Frameworks and tools:
+
+- Python => Pandas, Polars, Dusk, Ray
+- SQL
+- Rust/C++, though less used
+- Hadoop (though used less now, Map/Reduce not suitable for transforming stream data)
+- Spark
+- Datawarehouse transformation tools
+
+Data transformation patterns:
+
+
+
+
+
+
 
 
 
