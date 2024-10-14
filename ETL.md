@@ -71,6 +71,33 @@ Frameworks and tools:
 
 Data transformation patterns:
 
+- Enrichment (appending additional data)
+- Joining
+- Filtering
+- Structuring => transform data into required format
+- Conversion, e.g., time formats
+- Aggregation => summing, combining
+- Anonymisation
+- Splitting => single complex column into multiple columns
+- Deduplication
+
+Data update patterns
+
+- Overwrite: drop previous table to build again. Simplest but gets infeasible as data size grows
+- Insert: add new rows, useful when new data independent of old data (e.g., data for new day)
+- Upsert: update or insert
+- Delete (soft or hard)
+
+Best practices:
+
+- Staging: helps prevent data loss
+- Idempotency: running pipeline twice with same input give same output ("stateless", "functional")
+- Normalisation vs. denormalisation
+- Incrementality: try to make your pipeline incremental (reduce data changed each time)
+
+Real-time data transformation: usually more complicated than batch transformation, Apache Spark has APIs that can do this
+
+These days new tools come often, generally more powerful and simpler to use. Fundamental understanding and process stays the same.
 
 
 
