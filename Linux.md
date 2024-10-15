@@ -42,6 +42,11 @@ Process states: https://man7.org/linux/man-pages/man1/ps.1.html
 
 `du`: Disk used   (`du -shc /<dir>/*` directory size totals)
 
+`id`: Check your own UID or ID of others given username
+
+`stat`: Check ownership and other stats about file/dir (last modified etc.)
+
+
 
 
 
