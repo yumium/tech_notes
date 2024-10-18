@@ -5188,6 +5188,13 @@ for (int i = 0; i < size; i++)
 
 ## Misc
 
+### constexpr
+
+`constexpr` function means the value of the output can be determined at compile time. The function must be deterministic (e.g., it can't sample from a distribution), but it doesn't need to be pure (it can have side effects).
+
+
+
+
 ### Lambda Expression
 
 ```c++
