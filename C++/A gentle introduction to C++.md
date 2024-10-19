@@ -4874,7 +4874,21 @@ bool foo(T& t);
 double foo();
 ```
 
+### std::bitset
 
+Fixed size sequence of N bits.
+
+Constructor
+- `std::bitset<8> b;`: 8 bits all to 0
+- `std::bitset<10> b(16);`: 10 bits with right bits set to the bit representation of the number
+- `std::bitset<10> b("ABBABAB", 2, 3, /*0*/'A', /*0*/'B');`: 10 bits with right bits equal to string[2, 2+3) mapped with A->0, B->1. Here it's 0000000101
+
+Element access:
+- `.test(pos)`: return whether bit at `pos` is true. `std::bitset<3> b ("100", 0, 3, '0', '1'); b.test(0) // true`
+- `.all()`
+- `.any()`
+- `.none()` => !any()
+- `.count()`: # of bits set to true
 
 
 ## Absl
