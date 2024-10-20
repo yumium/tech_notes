@@ -2448,6 +2448,8 @@ int main ()
 
 Static functions are the same but for functons.
 
+Note, static functions cannot have `const` qualifier for object, as there's no underlying object
+
 Static members have "static storage duration". They are always created before program execution and destroyed after program halts.
 
 Initialisation of static members can be static or dynamic. Static initialisation happens at compile time and doesn't need to be run during runtime. Compiler prefers static initialisation whenever it is possible. Example:
