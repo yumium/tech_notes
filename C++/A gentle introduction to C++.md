@@ -4518,6 +4518,8 @@ Arrays vs Vector:
 
 For these reasons, vectors are almost always preferred. Times when arrays are preferred include knowing the size of the array at compile time, coding on constrained devices, and C compatibility.
 
+**Caveat**: For static constexpr arrays you need `std::array`, as `std::vector` allocates to heap and C arrays can't be declared in-class, which constexpr requires.
+
 Initialisation
 
 - If using brackets, initialisation list is preferred `std::vector<int> vec {N, 1};  // initialises vector of 2 elements, N and 1`
