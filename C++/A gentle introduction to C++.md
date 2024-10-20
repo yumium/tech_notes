@@ -4426,6 +4426,8 @@ int main () {
 
 ## Standard Library
 
+Data structures:
+
 
 ### std::pair
 
@@ -4492,6 +4494,14 @@ Lookup (complexity is log to the size of the set)
 - `iterator find( const Key& key )`: finds `key` in the set, returns the iterator, or `set.end()` otherwise. So you check for non-existance using `s.find(elem) == s.end()`
 - `.contains()`: new in C++20
 
+
+### std::unordered_set
+
+Interface very similar to `std::set` but data structure implemented as a hash table using chaining collision detection (because standard requires calculation of bucket size (bucket = elements with same hash value) to be constant time).
+
+`std::unordered_set` iterators `.begin()` and `.end()` does not traverse in any sorted order.
+
+`std::set` has range queries but `std::unordered_set` has bucket operations
 
 
 ### std::vector
@@ -4904,6 +4914,22 @@ Modifiers:
 - `.reset()`: Set all bi to false. `.reset(pos)`: set bit at `pos` to `false`
 - `.flip()`: Flip all bits in-place
 - `.flip(pos)`: Flip bit at `pos`
+
+### <algorithms>
+
+The algorithms library defines functions for a variety of purposes (e.g. searching, sorting, counting, manipulating) that operate on ranges of elements. 
+
+- `std::reverse( BidirIt first, BidirIt last );`
+- `std::find( InputIt first, InputIt last, const T& value );`
+- `std::find_if( InputIt first, InputIt last, UnaryPred p );`
+- `std::find_if_not( InputIt first, InputIt last, UnaryPred q );`
+- `std::min( const T& a, const T& b );`
+- `std::min( const T& a, const T& b, Compare comp );`
+
+
+### <cctype>
+
+- `int isspace( int ch );`: 
 
 
 
