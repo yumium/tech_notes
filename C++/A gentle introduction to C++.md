@@ -4876,7 +4876,7 @@ double foo();
 
 ### std::bitset
 
-Fixed size sequence of N bits.
+Fixed size sequence of N bits. Very memory efficient, good for fixed-sized bitmapping, easy to do bit-wise operations, useful for permission masks or other bitmasks
 
 Constructor
 - `std::bitset<8> b;`: 8 bits all to 0
@@ -4889,6 +4889,18 @@ Element access:
 - `.any()`
 - `.none()` => !any()
 - `.count()`: # of bits set to true
+
+Capacity:
+- `.size()` Return # of bits the set holds
+
+Modifiers:
+- Bitwise: `&=`, `|=`, `^=`, `>>`, `<<`, `>>=`, `<<=`
+- `~` -> returns copy of bitset with bits flipped, e.g., `cout << ~b << " (not b_" << endl;`
+- `.set()`: Set all bits to true. `.set(pos, val)`: set bit at `pos` to `val`
+- `.reset()`: Set all bi to false. `.reset(pos)`: set bit at `pos` to `false`
+- `.flip()`: Flip all bits in-place
+- `.flip(pos)`: Flip bit at `pos`
+
 
 
 ## Absl
