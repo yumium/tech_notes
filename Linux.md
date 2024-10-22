@@ -48,6 +48,14 @@ Adding other fields (e.g., psr for which processing is being used): `ps -eLo pid
 
 `stat`: Check ownership and other stats about file/dir (last modified etc.)
 
+---
+
+To learn:
+
+- `history`
+- `taskset`
+- `netstat`
+
 
 
 
