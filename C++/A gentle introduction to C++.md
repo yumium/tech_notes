@@ -3315,7 +3315,7 @@ Note, `override` is not a reserved word in C++, it only has special meaning when
 
 Abstract base classes contain at least one pure virtual function (a virtual function with no definition).
 
-Abstract base classes can only be used as a base class to inherit from. It cannot be instantiated directly.
+Abstract base classes can only be used as a base class to inherit from. It cannot be instantiated directly. All derivations must implement all pure virtual functions.
 
 ```c++
 #include <iostream>
