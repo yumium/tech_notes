@@ -1989,14 +1989,15 @@ Conversion to and from int
 
 ```c++
 colors_t mycolor = blue;
-int i = static_cast<int>(mycolor);
-colors_t thecolor = static_cast<colors_t>(i);
+int i = mycolor; // implicit conversion used
+bool eq = i == mycolor;  // true
+colors_t thecolor = i;
 ```
 
 
 **Enumerated types with enum class**
 
-You can create enum types that have more type safety (you can't compare directly a member with an integer)
+You can create enum types that have more type safety (there is no implicit conversion to/from integers, you have to use `static_cast`).
 
 ```c++
 enum class Colors { blue, green }
