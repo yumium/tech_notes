@@ -866,8 +866,12 @@ switch (x) {
 - Matches the first case and executes the code block. It "falls through" with break statements (will flow into default clause too)
 - Each `case` keyword must be followed by a constant expression, not variables. If you want ot use variables, use `if` statements
 - The `default` clause is executed (if it exists) when no case is matched
+- Code after the `switch` clause is execute next if no matches inside `switch` and no `default` clause
 
-
+When to use switch:
+- Modern C++ barely have any switch statements
+- In cases of many else-if statements in sequence, syntax may be cleaner with `switch` statements
+- Switch cases can perform better in some cases when compiler can optimise to use less # of conditional statements
 
 
 
