@@ -4606,6 +4606,35 @@ for (auto& element : vec) {
 }
 ```
 
+### std::array
+
+Interface comparison to std::vector
+- No resizing (no .reserve(), .capacity(), .shrink_to_fit())
+- No appending (no .push_back(), .pop_back())
+
+Other comparison with std::vector
+- Size known at compile time and cannot be changed after creation
+- Memory allocated on stack always, providing less overhead, and more optimisation possible
+
+Initialisation:
+```c++
+std::array<int, 5> = {1,2,3};  // last 2 elements are zero-initiated
+```
+
+Methods:
+- Element access: `at`, `operator[]`, `front`, `back`, `data` (-> returns pointer to underlying data, if array is empty may or may not return nullptr)
+- Iterators: `begin`, etc.
+- Capacity: `empty`, `size`, `max_size` (-> identical to `size()`)
+- Operations: `swap`, `fill(value)` (-> linear function to assign `value` to all elements in container)
+
+Comparison with C arrays[]
+- Size information isn't stored in C arrays data structures, functions on them must also get size argument
+- No bound checking for C arrays while std::array throws std::out_of_range exception
+- C arrays can be allocated on heap using `int* heap_arr = new int[5]` but heap allocation no possible with std::array
+- C arrays have no built-in helper functions unlike std::array
+- C arrays aren't objects so don't have copy assignment or comparison, while you can do `int arr2[5]; arr2 = arr; cout << arr == arr2 << endl; // true`
+- C arrays decay to pointers when passed as arguments, losing size information; not for std::array
+- C arrays compatible with C code, std::array is so with `.data()`
 
 
 
