@@ -5274,6 +5274,7 @@ for (int i = 0; i < size; i++)
 - https://en.cppreference.com/w/cpp/language/inline
 - Different from what you may think, about saying if multiple definitions of the same function appear in the same namespace (e.g., when you import .h in multiple .cpp files), telling compiler they are indeed the same function (no need to raise error).
 
+- .cpp vs .h files
 
 
 ## Misc
