@@ -5386,7 +5386,7 @@ Exceptions are
 - Global and static variables are stored in data segment or BSS (all zeros, used for zero data or uninitialised data)
 - rvalues could be stored in registers
 - Large return values could be optimised to use return value optimisation to be constructed where it is needed
-
+  - How RVO works: when a function returns a value normally it'll copy the value again to the memory location of caller after constructing the return value. RVO allows the value to be constructed directly at caller's memory region.
 
 ### new vs. malloc
 
