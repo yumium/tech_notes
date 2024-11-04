@@ -100,7 +100,33 @@ Real-time data transformation: usually more complicated than batch transformatio
 These days new tools come often, generally more powerful and simpler to use. Fundamental understanding and process stays the same.
 
 
+# Misc
 
+**What happens when data changes and you need to modify code?**
+
+You would need to reflect this change in code, if just changing the processing code for new data then the same code won't work for old data.
+
+A few approaches. You can version data (v1, v2 ...) and have switch code to apply pipelines based on version
+
+```python
+def transform(data, version):
+  if version == 'v1':
+    v1_pipeline(data)
+  else:
+    v2_pipeline(data)
+```
+
+Or you can version with timestamp if time is a natural cutoff point:
+
+```python
+def transform(data, timestamp):
+  CUTOFF = pd.Timestamp('2024-10-01')
+
+  if timestamp <= CUTOFF:
+    old_pipeline(data)
+  else:
+    new_pipeline(data)
+```
 
 
 
