@@ -121,6 +121,12 @@ Dependencies are usually represented by DAGs.
 
 ## Data orchestration tools
 
+Options:
+- Build a solution: only Uber/Airbnb scale need this, when tools in market can't handle the scale
+- Buy an off-the-shelf tool: easy to get started, may have vendor lock in
+- Self host
+- Use tool associated with your data engineering platform
+
 
 
 
