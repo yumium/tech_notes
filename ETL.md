@@ -121,6 +121,26 @@ Dependencies are usually represented by DAGs.
 
 ## Data orchestration tools
 
+Options:
+
+- Build a solution: only Uber/Airbnb scale need this, when tools in market can't handle the scale
+- Buy an off-the-shelf tool: easy to get started, may have vendor lock in
+- Self host
+- Use tool associated with your data engineering platform
+
+
+## Design Patterns and Best Practices
+
+- Backfills: Make sure your pipeline is backwards compatible, so if you wake up with no data, you can run your pipeline all the way back to get data (implement conditional branching similar to data pipelines)
+- Idempotence: Running the same pipelines many times yield same results
+- Event-driven architecture: Keep data most up to date and avoids issues of scheduling overlap
+- Conditional logic: 
+- Concurrency: Independent tasks should be able to run in parallel
+- Fast feedback loops: Set timeouts (can be adaptive to data size), parallelize tasks, validate data early, use heartbeats ...
+- Retry and fallback logic: 
+- Parameterized execution: Reusability
+- Pipeline decomposition: Make pipelines small
+
 
 
 
