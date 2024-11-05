@@ -100,6 +100,30 @@ Real-time data transformation: usually more complicated than batch transformatio
 These days new tools come often, generally more powerful and simpler to use. Fundamental understanding and process stays the same.
 
 
+# Data Orchestration
+
+Data transformation happens in steps. An orchestrator help facilitate these steps, achieving:
+
+- timely execution
+- accurate and repeatable results
+- resource efficiency and scalability
+- automation (e.g., error handling & recovery, say with retry logic and patch code,
+
+An orchestrator does this with:
+
+- Scheduling management (like cron)
+- Task triggers
+- Monitoring tool and alerting
+- Resource allocation (e.g., scaling)
+- Compliance and auditing, say by creating an audit trail
+
+Dependencies are usually represented by DAGs.
+
+## Data orchestration tools
+
+
+
+
 # Misc
 
 **What happens when data changes and you need to modify code?**
