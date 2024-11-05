@@ -76,7 +76,7 @@ An example of use is for a logging facility (usually we target *one* central log
 ```c++
 class Singleton {
 public:
-  // Lazy instantiation
+  // Lazy instantiation, can add thread safety here with locks, say
   Singleton& get() {
     if (instance == nullptr) instance = new Singleton();
     return *instance;
@@ -97,10 +97,17 @@ public:
   void set_value(int val) { value = val; }
 
 private:
+  // Constructor not accessible outside class
   Singleton() = default;
   ~Singleton() = default;
   static Singleton* instance = nullptr;
   int value = 0;
+}
+
+int main() {
+  Singleton::get().set_value(42);
+  std::cout << Singleton::get().get_value() << std::endl;  // 42
+  Singleton::destruct();
 }
 ```
 
