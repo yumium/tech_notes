@@ -64,5 +64,49 @@ int main() {
 ```
 
 
+## Singleton
+
+A preferred way for global state over global variables because:
+- Doesn't pollute global namespace
+- Lazy allocation (only allocate if using the instance)
+- Thread safety in the class
+
+An example of use is for a logging facility (usually we target *one* central logger)
+
+```c++
+class Singleton {
+public:
+  // Lazy instantiation
+  Singleton& get() {
+    if (instance == nullptr) instance = new Singleton();
+    return *instance;
+  }
+
+  // Avoid duplication so delete these constructors
+  Singleton(const Singleton&) = delete;
+  Singleton& operator=(const Singleton&) = delete;
+
+  // Clean up
+  static void destruct() {
+    delete instance;
+    instance = nullptr;
+  }
+
+  // Arbitrary methods
+  int get_value() { return value; }
+  void set_value(int val) { value = val; }
+
+private:
+  Singleton() = default;
+  ~Singleton() = default;
+  static Singleton* instance = nullptr;
+  int value = 0;
+}
+```
+
+
+
+
+
 
 
