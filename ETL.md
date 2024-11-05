@@ -132,7 +132,11 @@ Options:
 ## Design Patterns and Best Practices
 
 - Backfills: Make sure your pipeline is backwards compatible, so if you wake up with no data, you can run your pipeline all the way back to get data (implement conditional branching similar to data pipelines)
-- Idempotence: Running the same pipelines many times yield same results
+- Idempotence: Running the same pipelines many times yield same results. This required deduplication techniques:
+  - Use UID check on insertion code
+  - Use Upsert logic on insertion code (update existing records instead of duplicating)
+  - Checkpointing (checkpoints throughout task so continue where it left off)
+  - Transactional/Atomic operations with rollbacks
 - Event-driven architecture: Keep data most up to date and avoids issues of scheduling overlap
 - Conditional logic: 
 - Concurrency: Independent tasks should be able to run in parallel
