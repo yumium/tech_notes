@@ -183,6 +183,44 @@ new_circle.color = "red"
 
 
 
+# Behavioural
+
+- Subject maintain a list of observers
+- Subject notify observers when there are events
+- Things this pattern solve
+  - Subject and observer dependency should be loosely coupled. Subject just push message to observers without knowing how they are consumed. Observers take messages without knowing how they are created
+  - The logic of updating list of observers should be done automatically, without rewriting in client code
+  - Observers can (de)register themselves at runtime
+- Sometimes you may want subject and observer to be tightly coupled, if they are strongly related or for performance reasons
+
+This pattern is quite basic and does not concern much about scalability, peformance, message guarantee. These are more concerned in message queue implementations, where observer pattern is a small part (e.g., Kafka).
+
+```python
+class Observable:
+    def __init__(self):
+        self._observers = []
+
+    def register_observer(self, observer) -> None:
+        self._observers.append(observer)
+
+    def notify_observers(self, *args, **kwargs) -> None:
+        for observer in self._observers:
+            observer.notify(self, *args, **kwargs)
+
+
+class Observer:
+    def __init__(self, observable):
+        observable.register_observer(self)
+
+    def notify(self, observable, *args, **kwargs) -> None:
+        print("Got", args, kwargs, "From", observable)
+
+
+subject = Observable()
+observer = Observer(subject)
+subject.notify_observers("test", kw="python")
+```
+
 
 
 
