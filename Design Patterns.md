@@ -156,6 +156,32 @@ render_ui(factory)
 ```
 
 
+## Prototype pattern
+
+Create new objects by cloning existing "prototype" objects instead of calling the constructor, useful when:
+- Creation is costly, easier to copy
+- Creation is complex, with complex configuration inputs, ideally don't want to have client code do this everytime
+- Lots of subclasses, so easier to clone the complex object and modify slightly for each instance
+
+```python
+import copy
+
+# Prototype object
+class Shape:
+    def __init__(self, shape_type):
+        self.shape_type = shape_type
+        self.color = "black"
+
+    # Has clone function to allow cloning of prototype object
+    def clone(self):
+        return copy.deepcopy(self)
+
+circle_prototype = Shape("Circle")
+new_circle = circle_prototype.clone()
+new_circle.color = "red"
+```
+
+
 
 
 
