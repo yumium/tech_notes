@@ -50,6 +50,16 @@ Adding other fields (e.g., psr for which processing is being used): `ps -eLo pid
 
 `taskset`: Change CPU affinity of processes (https://quickref.me/taskset.html)
 
+`nice`: `nice -n -10 command_to_run`
+- Change priority of the command to run
+- Default priority all at 0. Range is -20 to 19. negative = higher priority
+- Only sudo can assign negative priorities
+
+`renice`: `renice 10 -p process_id` => change priority of already running process
+
+To read: https://blogs.oracle.com/linux/post/task-priority
+
+
 ---
 
 To learn:
