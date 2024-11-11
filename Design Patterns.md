@@ -111,6 +111,50 @@ int main() {
 }
 ```
 
+## Abstract Factory
+
+Useful when you have a group of related objects and you want to instantiate them under the same set of configs to keep uniform, but you may have many version of that config.
+
+You encapsulate the config mapping to a separate Abstract Factory object, and keep client code same.
+
+This can be useful for say UI components where a group of components need to share a theme and there are both light and dark themes.
+
+```python
+# Abstract Factory Interface
+class GUIFactory:
+    def create_button(self):
+        pass
+
+    def create_window(self):
+        pass
+
+# Concrete Factory for Mac
+class MacGUIFactory(GUIFactory):
+    def create_button(self):
+        return MacButton()
+
+    def create_window(self):
+        return MacWindow()
+
+# Concrete Factory for Windows
+class WindowsGUIFactory(GUIFactory):
+    def create_button(self):
+        return WindowsButton()
+
+    def create_window(self):
+        return WindowsWindow()
+
+# Client Code
+def render_ui(factory: GUIFactory):
+    button = factory.create_button()
+    window = factory.create_window()
+    # Render the button and window in the UI
+
+# Usage
+factory = MacGUIFactory()  # Or WindowsGUIFactory based on platform
+render_ui(factory)
+```
+
 
 
 
