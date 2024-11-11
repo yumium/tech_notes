@@ -7,7 +7,7 @@
 
 When there are multiple concrete implementation of a common interface or base class, we don't want to expose what concrete class we're using to client code.
 
-We create a common object creation interface, where the implementation logic will instantiate the correct concrete class.
+We create a common object creation interface, where the implementation logic will instantiate the correct concrete class. Essentially the Factory interface takes in some class ID and creates common class with the right concrete implementation.
 
 This has various benefits:
 
