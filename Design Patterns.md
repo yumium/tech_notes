@@ -63,6 +63,20 @@ int main() {
 };
 ```
 
+How this could be implemented in practice:
+
+- Have a templated class `FactoryT` that have two public methods, `instantiate` and `enroll`
+  - The class tracks internally a static map that maps template::key to template::constructor
+  - `enroll` just inserts to this map
+  - `instantiate` will find the constructor taking the key and call the constructor
+- For each type of Factory, say Candy Factory, define the shape of the constructor
+- Then for each type of Candy, inherit from Factory::Register as a Mixin, say, where using a hack like `using _static__enrolled = std::integral_constant<decltype(&_enrolled), &_enrolled>;` we force the compiler to generate code that calls `enroll` before `main()` entry
+  - This constructs the switch logic
+- Then at runtime, client code will call `instantiate(candy.key())` and the `FactoryT` will call the correct constructor
+- The idea is the same, the client code just calls `instantiate(key)` and the pre-calculated map knows which constructor to call. So we can extend new constructors without modifying client code.
+
+
+
 
 ## Singleton
 
