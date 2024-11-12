@@ -451,6 +451,24 @@ FROM testSchema.Orders CROSS JOIN testSchema.Customers
 
 
 
+#### Correlated subqueries
+
+Subqueries with variable from outer query, example
+
+```sql
+ SELECT employee_number, name
+   FROM employees emp
+  WHERE salary > (
+        SELECT AVG(salary)
+          FROM employees
+         WHERE department = emp.department);
+```
+
+Naive implementation means the subquery needs to be executed for every tuple in the outer query.
+Here, at best we'll need to execute per department and cache the result somehow.
+
+Algorithm optimisation goes along the line of "flattening" the query so there is no correlation. But that's hard to do in general for all query forms.
+Another way is to use GPU acceleration as the subquery execution can be easily parallelised.
 
 
 
