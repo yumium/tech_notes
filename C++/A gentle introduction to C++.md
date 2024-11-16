@@ -4796,7 +4796,7 @@ Lookup: `count(key)`, `find(key)`, `contains(key)`,
 
 Note: `operator[]` insertion will overwrite if key exists. `insert` will do no-op if key exists.
 
-
+`for (auto val : map)` here `val` has type `std::pair<key_type, value_type>`
 
 
 
