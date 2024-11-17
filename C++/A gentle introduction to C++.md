@@ -1385,7 +1385,7 @@ A note on npos: `std::string::npos` is defined as `-1` with type `size_t`. As `s
 
 A note on performance of `+` concat operator:
 - The `std::basic_ostringstream` library probably won't be much faster
-- `+` simple usecases are OK, but slower when you do `a + b + c`. C++ doesn't have triple overloading on operators so this operation is done as `(a + b) + c`. So result of `a + b` is allocated temporarily then appends `c` to it. Worstcase if capacity of `a + b` isn't enough that's another allocation, so # of allocations can be worst case O(N).
+- `+` simple usecases are OK, but slower when you do `a + b + c`. C++ doesn't have triple overloading on operators so this operation is done as `(a + b) + c`. So result of `a + b` is allocated temporarily then appends `c` to it. Worstcase if capacity of `a + b` isn't enough that's another allocation, so # of allocations can be worst case O(N) where N is the # of subjects.
 
 More implementation details in libc++: https://joellaity.com/2020/01/31/string.html
 
