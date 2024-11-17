@@ -1383,6 +1383,10 @@ Modifiers (includes string operations (e.g., `std::string::substr`))
 
 A note on npos: `std::string::npos` is defined as `-1` with type `size_t`. As `size_t` is an unsigned type, this represented the largest possible value for this type. Used as default value for arguments `len`, this means "until the end of the string"
 
+A note on performance of `+` concat operator:
+- The `std::basic_ostringstream` library probably won't be much faster
+- `+` simple usecases are OK, but slower when you do `a + b + c`. C++ doesn't have triple overloading on operators so this operation is done as `(a + b) + c`. So result of `a + b` is allocated temporarily then appends `c` to it. Worstcase if capacity of `a + b` isn't enough that's another allocation, so # of allocations can be worst case O(N).
+
 More implementation details in libc++: https://joellaity.com/2020/01/31/string.html
 
 Source code difficult to read directly, as it's highly optimized, general (`std::string` = `std::basic_string<char8>`), portable (`#ifdef` everywhere), resilient (private identifiers are preceeded with `_`), and undocumented.
@@ -4964,6 +4968,21 @@ The algorithms library defines functions for a variety of purposes (e.g. searchi
 ### <cctype>
 
 - `int isspace( int ch );`: 
+
+
+
+
+### IO libraries
+
+https://en.cppreference.com/w/cpp/io
+
+Very old library, poeple often criticise the difficulty in using (e.g., confusing overloading, stateful formatting, verbose interface).
+
+There are more modern alternatives around (e.g., `std::format`)
+
+Also this: https://github.com/fmtlib/fmt
+
+
 
 
 
