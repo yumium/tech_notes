@@ -1641,7 +1641,7 @@ $> python ./do-stuff.py > output.txt 2> error.txt
 $> python ./do-stuff.py >> output.txt 2>> output.txt
 
 # Or do this in one operator (like "output stderr to same destination as stdout")
-$> python ./do-stuff.py 2>&1 output.txt
+$> python ./do-stuff.py > output.txt 2>&1
 ```
 
 
