@@ -2001,7 +2001,7 @@ colors_t thecolor = i;
 
 **Enumerated types with enum class**
 
-You can create enum types that have more type safety (there is no implicit conversion to/from integers, you have to use `static_cast`).
+You can create enum types that have more type safety (there is no implicit conversion to/from integers, you have to use `static_cast`, comparison can only be done between enum values of same class).
 
 ```c++
 enum class Colors { blue, green }
