@@ -1392,7 +1392,7 @@ A note on performance of `+` concat operator:
 - The `std::basic_ostringstream` library probably won't be much faster
 - `+` simple usecases are OK, but slower when you do `a + b + c`. C++ doesn't have triple overloading on operators so this operation is done as `(a + b) + c`. So result of `a + b` is allocated temporarily then appends `c` to it. Worstcase if capacity of `a + b` isn't enough that's another allocation, so # of allocations can be worst case O(N) where N is the # of subjects.
 
-More utility functions around strings:
+More utility functions around strings inside header `<string>`
 - `std::istringstream& getline( std::istringstream& input, std::string& str, char delim = '\n');` Used to separate stringstream into lines using delimiter. Usage is usually
 
 ```c++
@@ -1406,6 +1406,9 @@ for (std::string line; std::getline(input, line);) {
     // do stuff
 }
 ```
+
+- `int stoi (const std::string& str, std::size_t* pos = nullptr, int base = 10);` Parse string to int, this is the C++ library version of `strtoi` from C. Throws `std::invalid_argument` if parsing failes, throws `std::out_of_range` if resulting value out of range of output type.
+
 
 
 More implementation details in libc++: https://joellaity.com/2020/01/31/string.html
