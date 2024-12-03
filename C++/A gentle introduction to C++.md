@@ -302,8 +302,6 @@ These types are more readable (know exact size allocated, not just minimum size 
 
 
 
-
-
 **Variable declarations**
 
 ```c++
@@ -337,6 +335,13 @@ We can initialize variables in several (equivalent) ways
 int a = 3;  // c-like, assignment initialisation
 int a (3);  // constructor initialisation
 int a {3};  // uniform initialisation
+```
+
+Simultaneous assignment is done like this
+
+```c++
+int a = 0, b = 0;  // assign a and b to 0
+int a = 0, b;      // assign a to 0, b unassigned
 ```
 
 After C++11, we always prefer uniform initialisation, as it'll work for almost all types. We can also omit `{}` where the default constructor will be called.
