@@ -4823,6 +4823,7 @@ Lookup: `count(key)`, `find(key)`, `contains(key)`,
 - `upper_bound(key)`: Return an iterator to the first element <= key
 
 Note: `operator[]` insertion will overwrite if key exists. `insert` will do no-op if key exists.
+	=> use `.at(i)` instead if your map is const
 
 `for (auto val : map)` here `val` has type `std::pair<key_type, value_type>`
 
