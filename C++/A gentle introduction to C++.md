@@ -4977,7 +4977,8 @@ Modifiers:
 - `.flip()`: Flip all bits in-place
 - `.flip(pos)`: Flip bit at `pos`
 
-### <algorithms>
+
+### <algorithm>
 
 The algorithms library defines functions for a variety of purposes (e.g. searching, sorting, counting, manipulating) that operate on ranges of elements. 
 
@@ -4987,6 +4988,7 @@ The algorithms library defines functions for a variety of purposes (e.g. searchi
 - `std::find_if_not( InputIt first, InputIt last, UnaryPred q );`
 - `std::min( const T& a, const T& b );`
 - `std::min( const T& a, const T& b, Compare comp );`
+- `std::sort( RandomAccessIterator first, RandomAccessIterator last[, Compare comp )`: sorts [first, last) in-place with average NlogN complexity (most libraries use quicksort)
 
 
 ### <cctype>
