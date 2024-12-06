@@ -2071,7 +2071,7 @@ Classes = A collection of members. Like Struct, but also have function members +
 
 
 
-Access specifier:
+#### Access specifiers
 
 - private: accessible only from within class or other members of same class (called "friends")
 - protected: accessible from members of same class or derived class
@@ -2123,7 +2123,7 @@ Functions defined directly inside the class are automatically marked as inline f
 
 
 
-Constructor function
+#### Constructor function
 
 ```c++
 class Rectangle {
@@ -2185,7 +2185,7 @@ int main () {
 }
 ```
 
-
+#### Initialisation
 
 Uniform initialisation
 
@@ -2304,7 +2304,7 @@ cout << prect->area() << '\n';
 
 ### Class II
 
-**Overloading operators**
+#### Overloading operators
 
 Operators can also be overloaded to support, say expressions like `a + b` where a and b are objects of the same type.
 
@@ -2406,7 +2406,7 @@ Parameters for different operators to be overloaded
 
 
 
-**The keyword `this`**
+#### The keyword `this`
 
 The `this` keyword inside the member function returns a reference to the object itself.
 
@@ -2450,8 +2450,7 @@ CVector& CVector::operator= (CVector other)
 
 
 
-
-**Static members**
+#### Static members
 
 Static variables are like non-member variables but require qualifying by class (or object)
 
@@ -2561,9 +2560,7 @@ int main()
 
 
 
-
-
-**Const member functions**
+#### Const member functions
 
 Const data members => immutable and read-only variable
 
@@ -2626,7 +2623,7 @@ Note, the constructor can still modify `const` data members, and is the only fun
 
 
 
-**Class templates**
+#### Class templates
 
 Like function templates, class templates allow creation of objects that are polymorphic.
 
@@ -2668,9 +2665,7 @@ T mypair<T>::getmax ()
 
 
 
-
-
-**Template specialization**
+#### Template specialization
 
 If we want to define additional function members when certain types are used, we can specialize a template
 
