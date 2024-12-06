@@ -2620,7 +2620,49 @@ Note, the constructor can still modify `const` data members, and is the only fun
 
 
 
+#### mutable specifier
 
+Used for members that can be modified in a const method inside a class. It's used to specify that modifying this member does not affect overall const-ness of the object
+
+`mutable` can only be used on non-static class members of non-reference non-const type:
+
+```c++
+class X
+{
+    mutable const int* p;  // OK, the `const` here specifies the underlying data p points to cannot change, but p can change, so can be used together with `mutable`
+    mutable int* const q;  // ill-formed, `const` here specifies the pointer q cannot change, so cannot be declared together with `mutable`
+    mutable int&       r;  // ill-formed, `mutable` cannot be used with references
+}
+```
+
+example
+
+```c++
+#include <iostream>
+#include <string>
+
+class Logger {
+private:
+    mutable int access_count; // Mutable allows modification in const member functions
+    std::string message;
+
+public:
+    Logger(const std::string& msg) : message(msg), access_count(0) {}
+
+    void printMessage() const {
+        access_count++; // Allowed because access_count is mutable
+        std::cout << message << " (Accessed " << access_count << " times)" << std::endl;
+    }
+};
+
+int main() {
+    const Logger logger("Hello, World!"); // Logger object is const
+    logger.printMessage();               // Prints: Hello, World! (Accessed 1 times)
+    logger.printMessage();               // Prints: Hello, World! (Accessed 2 times)
+
+    return 0;
+}
+```
 
 
 #### Class templates
