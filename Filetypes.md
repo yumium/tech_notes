@@ -68,6 +68,15 @@ Implements the Dremel paper (https://github.com/julienledem/redelm/wiki/The-stri
 
 
 
+## CSV
+
+Text file format, uses commas to separate values, uses newlines to separate records
+Stores tabular data in plaintext
+There's no commonly followed standard for CSV files, so software taking CSV input must take variations into consideration
+But widespread due to readability and simplicity
+
+MS Excel row limit: a bit over 1M rows
+
 
 
 
