@@ -5428,7 +5428,7 @@ Lambda body, can refer to:
 - Class data members, only if `this` is captured
 ```c++
 [this] () { // blah };  // `this` is a pointer so captured by value
-[&foo = _foo} () { // blah };  // `foo` is a member of the class, pass by reference into the lambda
+[&foo = _foo] () { // blah };  // `foo` is a member of the class, pass by reference into the lambda
 ```
 
 - Variable with static storage location, e.g., global vars
