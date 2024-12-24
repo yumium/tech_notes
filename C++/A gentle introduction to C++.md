@@ -4564,6 +4564,8 @@ Lookup (complexity is log to the size of the set)
 - `iterator find( const Key& key )`: finds `key` in the set, returns the iterator, or `set.end()` otherwise. So you check for non-existance using `s.find(elem) == s.end()`
 - `.contains()`: new in C++20
 
+- `operator==`: LHS and RHS have same elements and elements all compare equal at same position
+
 
 ### std::unordered_set
 
@@ -4650,6 +4652,8 @@ Methods
 - `resize(count, [value])`: Resizes container to remove elements or add `value` or default elements (if `value` not provided). O(|count-size()|) plus time taken for reallocation if needed when adding elements
 - `swap(vector& other)`: Exchanges the contents and capacity of the container with those of other. No move or copy invoked.
 - `append_range(rg)`: Inserts range `rg` to the end of the vector, reallocation can happen. Complexity is O(|rg|) or O(|new_size|) if reallocation needed
+- `operator==`: Returns true is LHS and RHS have same # of elements and every element returns true on `==`
+
 
 Logical operators (>= etc) compares 2 vectors lexicographically
 
