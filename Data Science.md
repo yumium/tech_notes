@@ -2,6 +2,8 @@
 
 Some notes from various data science books. I have pretty good understanding of how to use various tools and statistical models. This notebook fills in gaps in workflows (e.g., data cleaning, exploratory data analysis, hypothesis testing ...)
 
+Data analytics is the foundation for more advanced data science methods, which you can build on
+
 Focus is on structured data (tabular, timeseries ...)
 
 Why is Python used today for data science and AI?
@@ -50,13 +52,30 @@ Data preparation (loading, cleaning, transforming, rearranging etc.) take up 80%
 
 **Data tranformation**
 
-`duplicated`, `drop_duplicates` (removing duplicates), `map` (mapping values), `replace` (replacing values), 
-
+`duplicated`, `drop_duplicates` (removing duplicates), `map` (mapping values), `replace` (replacing values), `index`, `rename` (renaming axis), `cut`, `qcut`, `value_counts` (discretization and binning), `describe` (outliers), `permutation`, `take`, `sample` (permutation and random sampling), string manipulations (splitting, regex ...), 
 
 
 ## Data wrangling
 
+**Hierarchical indexing**
 
+**Combining and merging**
+
+**Reshaping and pivoting**
+
+**Group operations**
+
+**Timeseries**
+
+See pandas methods on timeseries data
+
+
+
+
+## Data plotting
+
+
+## Model building
 
 
 ## Data analysis workflow
