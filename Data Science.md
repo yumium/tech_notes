@@ -21,9 +21,36 @@ Why is Python used today for data science and AI?
 
 ## Data loading
 
+Loading data in text format: `pd.read_csv`
+
+Loading data in json format: use the `json` library
+
+```python
+import json
+result = json.loads(obj)  # loads JSON into Python object
+df = pd.DataFrame(result['siblings'], columns=['name', 'age'])  # convert to data frame
+```
+
+Web scraping: `pd.read_html`, attempts to parse tabular data inside `<table>`
+
+Binary data: `pd.read_pickle`, `pd.read_parquet`
+
+Interact with databases
+
 
 
 ## Data cleaning and preparation
+
+Data preparation (loading, cleaning, transforming, rearranging etc.) take up 80% of data analytics project time. This is normal.
+
+**Handling missing data**
+
+`isna`, `notna`, `dropna` (filtering out missing data), `fillna` (filling missing data, `ffill` and `bfill`)
+
+
+**Data tranformation**
+
+`duplicated`, `drop_duplicates` (removing duplicates), `map` (mapping values), `replace` (replacing values), 
 
 
 
