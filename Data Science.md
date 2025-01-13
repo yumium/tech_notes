@@ -1,5 +1,16 @@
 # Data Science handbook
 
+Sources:
+- https://wesmckinney.com/book/
+- https://github.com/GeorgeQLe/Textbooks-and-Papers/blob/master/%5BMathematics%5D%20Think%20Stats%20-%20Exploratory%20Data%20Analysis%20in%20Python.pdf
+- https://github.com/terencetachiona/Python-Data-Science-Handbook/blob/master/Python%20Data%20Science%20Handbook%20-%20Jake%20VanderPlas.pdf
+
+My notes:
+- My probablity notes
+- My ML notes on basic models
+
+
+
 Some notes from various data science books. I have pretty good understanding of how to use various tools and statistical models. This notebook fills in gaps in workflows (e.g., data cleaning, exploratory data analysis, hypothesis testing ...)
 
 Data analytics is the foundation for more advanced data science methods, which you can build on
@@ -105,11 +116,23 @@ Plotly is good for interactive plots
 
 ## Model building
 
-Most commercial statistical problems can be solved with 
+Most commercial statistical problems can be solved with simple models (e.g., variations on linear regression). Sometimes more sophisticated models are used
+
+Interfacing between pandas and model code
+- Cleaned data are then usually turned into features, this is called feature engineering
+- Point of contact between data (from pandas) and model is usually a numpy array, use `pd.to_numpy`
+
+`Patsy` is useful for reating metadata on models (e.g., formulae)
+
 
 ## Data analysis workflow
 
 Load some data, clean data, wrangle data to get into right shape, plotting and visualisation for exploratory data analysis, data aggregation, modelling 
+
+
+
+## Models yet to learn
+
 
 
 
