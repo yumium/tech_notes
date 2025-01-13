@@ -57,13 +57,22 @@ Data preparation (loading, cleaning, transforming, rearranging etc.) take up 80%
 
 ## Data wrangling
 
+Combining many sources of data together.
+
 **Hierarchical indexing**
+
+`MultiIndex`, `stack`, `unstack`, `swaplevel`, `sort_index`, `set_index`, `reset_index` => work with high-dimensional data in 2D
 
 **Combining and merging**
 
+`merge`, `concat`, `concatenate`
+
 **Reshaping and pivoting**
 
+`
+
 **Group operations**
+
 
 **Timeseries**
 
