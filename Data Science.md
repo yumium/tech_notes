@@ -19,6 +19,26 @@ Why is Python used today for data science and AI?
 - `statsmodels`: Statistical analysis package (regression models, ANOVA, time series analysis, nonparametric models (kernal density), visualiation)
 
 
+## Data loading
+
+
+
+## Data cleaning and preparation
+
+
+
+## Data wrangling
+
+
+
+
+## Data analysis workflow
+
+Load some data, clean data, wrangle data to get into right shape, plotting and visualisation for exploratory data analysis, data aggregation, modelling 
+
+
+
+
 
 
 
