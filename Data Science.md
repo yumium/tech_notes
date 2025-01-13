@@ -45,6 +45,8 @@ Interact with databases
 
 Data preparation (loading, cleaning, transforming, rearranging etc.) take up 80% of data analytics project time. This is normal.
 
+So a proficient data scientist is necessary proficient in data preprocessing.
+
 **Handling missing data**
 
 `isna`, `notna`, `dropna` (filtering out missing data), `fillna` (filling missing data, `ffill` and `bfill`)
@@ -69,10 +71,13 @@ Combining many sources of data together.
 
 **Reshaping and pivoting**
 
-`
+`stack`, `unstack`, `head`, `melt`
 
 **Group operations**
 
+Split by keys, calculate group summary stats, apply within-group transformations and manipulations (normalisation, linear regression, rank, subset selection ...), pivot tables, quantile analysis etc.
+
+General pattern is split-apply-combine, your usual `GroupBy` operation
 
 **Timeseries**
 
@@ -83,9 +88,24 @@ See pandas methods on timeseries data
 
 ## Data plotting
 
+Plotting is useful for exploratory process (finding outliers, needed data transformations, generate ideas for models)
+
+Sometimes interactive webapp may be the end goal
+
+Matplotlib primer:
+- Plots reside inside `Figure` object
+- `Figure` can have many `subplot`s, can modify # of subplots, spacing etc
+- For each plot, can modify marker, line style, line colours; set titles, labels, legends
+- Save file to `.svg`, `.png`
+
+Can also plot with pandas directly, or with seaborn
+
+Plotly is good for interactive plots
+
 
 ## Model building
 
+Most commercial statistical problems can be solved with 
 
 ## Data analysis workflow
 
