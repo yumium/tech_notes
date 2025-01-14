@@ -131,9 +131,23 @@ Load some data, clean data, wrangle data to get into right shape, plotting and v
 
 
 
-## Models yet to learn
+## Models and other DS concepts yet to learn
 
+Stats:
+- Hypothesis testing
+- Correlation test
+- Chi-squared test
 
+Timeseries:
+- Moving averages
+- Serial correlation
+- Autocorrelation
+
+ML:
+- Bayesian ML
+- Kernel density estimation
+- Gaussian mixture models
+- Manifold learning
 
 
 
