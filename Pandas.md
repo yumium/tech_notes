@@ -1258,6 +1258,9 @@ Other random stuff:
 https://pandas.pydata.org/docs/user_guide/window.html#binary-window-functions
 ^^ You can pass another series/dataframe into the rolling function to compute covariants or correlations
 
+https://github.com/pandas-dev/pandas/issues/53235
+^^ .rolling(..).apply(..) have a bug where the .apply cannot see across column, functions are applied per column only. You can apply across columns in .groupby
+
 
 **Weighted Window**
 
