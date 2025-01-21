@@ -971,6 +971,7 @@ Following the above approach, your solution will be organised, practical, and ha
 
 > Moral: If we have infinite resources, we will test every possible case (every arrangement of the environment, every possible sequence of user moves ...). But given resources are constraint, we try to maximize the coverage of our tests on the use cases. (e.g., if I have tested one scenario, it's probably better to test a different scenario rather than writing another test case for the same scenario)
 
+**How to name tests**: Follow a scheme throughout codebase. Example is "scenario + expected result", e.g., "login_successful_with_valid_credentials"
 
 
 **How to troubleshoot bugs?**
