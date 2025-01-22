@@ -5394,6 +5394,7 @@ Capture group
 Captures variables in scope
 
 - `[&total, factor]`: & means pass by reference, otherwise by value
+- `[]`: No variables are captured
 - `[&]`: Capture all by reference
 - `[=]`: Capture all by value
 - `[&, total]`: Capture all by reference, apart from variable `total`. You can do the same with `=`
