@@ -1,0 +1,23 @@
+{
+    "editor.fontFamily": "Fira Code",
+    "editor.fontWeight": "400",
+    "editor.fontLigatures": true,
+    "vim.handleKeys": {
+        "<C-d>": true,
+        "<C-s>": false,
+        "<C-z>": false,
+        "<C-p>": false,
+        "<C-,>": false,
+        "<C-w>": false,
+        "<C-b>": false,
+        "<C-a>": false,
+        "<C-c>": false,
+        "<C-v>": false,
+    },
+    "workbench.colorTheme": "Default Light+",
+    "git.suggestSmartCommit": false,
+    "git.autofetch": true,
+    "diffEditor.ignoreTrimWhitespace": false,
+    "git.confirmSync": false,
+    "window.zoomLevel": -1
+}
