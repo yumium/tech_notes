@@ -5424,6 +5424,7 @@ Exception specifier
 Return type
 
 - `auto x1 = [](int i){ return i; };`: Return type is automatically deduced, here it's an int. You cannot use brace-init-list as return type, like `... return{i, j};`
+- `auto x1 = [](int i) -> int { return i; };`: You can using trailing return type signature to specify the type (e.g., when there are multiple return statements in the lambda
 
 Lambda body, can refer to:
 
