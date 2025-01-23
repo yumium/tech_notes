@@ -963,6 +963,17 @@ void do_stuff(int a = 1; int b = 2; int c = 3) { //blah }
 do_stuff(4, 5);  // this specifies a and b. There's no way in the language to specify only a and c
 ```
 
+Return types
+- You can use `auto` as return type to have compiler do type deduction
+- If there are multiple return statements, they must all deduce to the same type
+```c++
+auto f(bool val)
+{
+    if (val) return 123; // deduces return type int
+    else return 3.14f;   // Error: deduces return type float
+}
+```
+
 
 
 Declaring functions
