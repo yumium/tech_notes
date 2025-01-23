@@ -57,6 +57,8 @@ Adding other fields (e.g., psr for which processing is being used): `ps -eLo pid
 
 `renice`: `renice 10 -p process_id` => change priority of already running process
 
+`pgrep`: like `ps aux | grep`
+
 To read: https://blogs.oracle.com/linux/post/task-priority
 
 
