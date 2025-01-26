@@ -62,6 +62,25 @@ Adding other fields (e.g., psr for which processing is being used): `ps -eLo pid
 To read: https://blogs.oracle.com/linux/post/task-priority
 
 
+/proc pseudo filesystem
+
+Only exists in memory, not persisted on disk. Gives information about the kernel.
+It’s a virtual file system (VFS), so gives illusion of file system
+Kernel synthetize data on every user I/O, so most files in /proc behave like pipes
+
+
+/proc/meminfo
+
+https://access.redhat.com/solutions/406773
+
+https://blogs.oracle.com/linux/post/understanding-linux-kernel-memory-statistics
+
+https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/6/html/deployment_guide/s2-proc-meminfo#s2-proc-meminfo
+
+https://superuser.com/questions/521551/cat-proc-meminfo-what-do-all-those-numbers-mean
+
+
+
 ---
 
 To learn:
