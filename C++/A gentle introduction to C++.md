@@ -2048,6 +2048,12 @@ if (mycolor != Colors::green)
 enum class EyeColor : char { blue, green, brown };	// Specify the underlying representation type
 ```
 
+Can also create using constructor, just put enum integer as arg
+
+```c++
+auto blue = Colors{0};
+auto green = Colors{1};
+```
 
 
 
