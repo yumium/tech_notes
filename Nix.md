@@ -30,9 +30,11 @@ Example custom package
 }:
 
 stdenv.mkDerivation {
+  # every package must specify name and version number
   pname = "icat";
   version = "v0.5";
 
+  # where the src is for the package
   src = fetchFromGitHub {
     owner = "atextor";
     repo = "icat";
