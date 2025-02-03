@@ -5014,26 +5014,34 @@ Benefits
 
 
 
+
 You cannot do `std::optional<T&>`, you must copy the object.
 
 **Ways of returning optional values**
 
 ```c++
-// Returning an nullptr
+// Returning an nullptr. Issue: possible mishandling of nullptr, e.g. trying to dereference it
 T* foo();
 
 // Returning an optional
 std::optional<T> foo();
 
-// Returning a pair, the value and whether it's valid
-std::pair<T, bool> foo();
-
-// Returning a boolean, mutating the argument
+// Returning a boolean, mutating the argument. Issue: require object to be in argument
 bool foo(T& t);
 
-// Returning agreed invalid value if fails, e.g., NaN here
+// Returning agreed invalid value if fails, e.g., NaN here. Issue: overhead of rememebering the failure value
 double foo();
+
+// Returning a pair, the value and whether it's valid. Better as this can be standardized, but 1) syntax is cumbersome, 2) still have danger of accessing first value when second value is False, and 3) overhead of default constructing T when second value is False
+std::pair<T, bool> foo();
 ```
+
+
+
+
+
+
+
 
 ### std::bitset
 
