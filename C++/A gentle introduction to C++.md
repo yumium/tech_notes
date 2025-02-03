@@ -5395,6 +5395,15 @@ for (int i = 0; i < size; i++)
 
 ## Misc
 
+### Expressing failure
+
+- Pass mutable value by reference and return whether output succeeded `bool foo(T&);`
+- Assert / Throw exception to let function die if fails. OK if at initial of trading, not great otherwise
+- Return a pair of value and success/failure `std::pair<T, bool> foo();`
+- Returning a std::optional `std::optional<T> foo();` <- preferred way to return when function may or may not output the resulting value
+
+
+
 ### constexpr
 
 `constexpr` function means the value of the output can be determined at compile time. The function must be deterministic (e.g., it can't sample from a distribution), but it doesn't need to be pure (it can have side effects).
