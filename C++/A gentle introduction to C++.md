@@ -4658,7 +4658,7 @@ Methods
 - `at(idx)`: Return value at `idx`, gives `std::out_of_range` error is idx < 0 or idx >= size
 - `[idx]`: Return value at `idx`
 - `emtpy()`: If container is empty
-- `size()`: # of elements
+- `size()`: # of elements, constant time complexity
 - `max_size()`: Max # of elements possible due to system or library implementation limitations.
 - `reserve(new_cap)`: Reserve additional memory to such that capacity allows for up to `new_cap` elements. if `new_cap` < `.capacity()`, the function does nothing. If `new_cap` > `.max_size()`, throws `std::length_error`
 - `capacity()`: # of elements that can be held in currently allocated storage
