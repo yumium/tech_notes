@@ -5422,6 +5422,7 @@ Caveats:
 - Reference can mutate variables outside, by value can't
 - Reference introduces lifetime dependency, if lambda running async, it may be gone when lambda executes
 - Reference reflects change of variable outside
+- Capture group and function body are both required, argument list can be omitted if no argument
 
 Parameter list:
 
