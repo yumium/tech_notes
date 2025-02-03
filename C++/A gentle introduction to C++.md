@@ -4527,6 +4527,18 @@ std::pair<T1, T2> make_pair( T1 t, T2 u);
 auto p1 = std::make_pair(1, 3.14);
 ```
 
+If your function returns a pair you can do automatic unpacking
+```c++
+auto [a, b] = foo();
+
+// if you want to document return type explicitly, do this
+std::pair<int, double> p = foo();
+auto [a, b] = p;
+
+// DO NOT DO THIS, this isn't allowed
+std::pair<int, double> [a, b] = foo();
+```
+
 
 
 
