@@ -5008,10 +5008,13 @@ Benefits
 - No runtime overhead when value is not present
 - Elegant error handling and functional programming support
 
-
-
-
-
+Semantics
+- Any instance of std::optional<T> at any given time either contains a value or does not contain a value
+- If std::optional<T> contains a value, the value is guaranteed to be nested within the optional object, no dynamic allocation takes place
+- The optional object contains a value if
+  - 
+- The optional object does not contain a value if
+  - 
 
 
 
@@ -5032,7 +5035,7 @@ bool foo(T& t);
 // Returning agreed invalid value if fails, e.g., NaN here. Issue: overhead of rememebering the failure value
 double foo();
 
-// Returning a pair, the value and whether it's valid. Better as this can be standardized, but 1) syntax is cumbersome, 2) still have danger of accessing first value when second value is False, and 3) overhead of default constructing T when second value is False
+// Returning a pair, the value and whether it's valid. Better as this can be standardized, but 1) syntax is cumbersome, 2) still have danger of accessing first value when second value is False, and 3) overhead of default constructing T when second value is False, esp when object is expensive to construct
 std::pair<T, bool> foo();
 ```
 
