@@ -3392,7 +3392,7 @@ struct B : A
 };
 ```
 
-Note, `override` is not a reserved word in C++, it only has special meaning when appended to member functions
+Note, `override` is not a reserved word in C++, it only has special meaning when appended to member functions. Only specify in `.h` file no need in `.cpp` file
 
 
 
