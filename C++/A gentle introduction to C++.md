@@ -5000,6 +5000,20 @@ https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2003/n1456.html
 
 ### std::optional
 
+`std::optional` is used for return values of function when the function can fail.
+
+Benefits
+- Unified way to represent if value exist or not
+- Safe access, won't dereference a pointer
+- No runtime overhead when value is not present
+- Elegant error handling and functional programming support
+
+
+
+
+
+
+
 You cannot do `std::optional<T&>`, you must copy the object.
 
 **Ways of returning optional values**
@@ -5391,16 +5405,6 @@ for (int i = 0; i < size; i++)
 - Different from what you may think, about saying if multiple definitions of the same function appear in the same namespace (e.g., when you import .h in multiple .cpp files), telling compiler they are indeed the same function (no need to raise error).
 
 - .cpp vs .h files
-
-
-## Misc
-
-### Expressing failure
-
-- Pass mutable value by reference and return whether output succeeded `bool foo(T&);`
-- Assert / Throw exception to let function die if fails. OK if at initial of trading, not great otherwise
-- Return a pair of value and success/failure `std::pair<T, bool> foo();`
-- Returning a std::optional `std::optional<T> foo();` <- preferred way to return when function may or may not output the resulting value
 
 
 
