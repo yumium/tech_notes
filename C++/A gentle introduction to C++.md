@@ -5012,11 +5012,38 @@ Semantics
 - Any instance of std::optional<T> at any given time either contains a value or does not contain a value
 - If std::optional<T> contains a value, the value is guaranteed to be nested within the optional object, no dynamic allocation takes place
 - The optional object contains a value if
-  - 
+  - The object is initialised with/assigned from a value of type T or another optional that contains a value
 - The optional object does not contain a value if
-  - 
+  - The (std::optional) object is default-initialised
+  - The object is initialised with/assigned from a value of type std::nullopt_t or another optional that contains a value
+  - The member function `reset()` is called
+
+Member functions
+- `->`, `*`: Access contained value (even though not stored as pointer internally), undefined behaviour if `*this` does not contain a value
+- `has_value`: Checks whether *this contains value
+- `value`: Return value if *this contains value, otherwise throw exception
+- `value_or(default)`: Returns *this if have value, otherwise returns default
+
+Object structure
+```c++
+template <typename T>
+class optional
+{
+public:
+    // blah
+
+private:
+    bool _has_value;
+    std::aligned_storage_t<sizeof(T), alignof(T)> _storage;
+};
+```
+Effectively `std::optional` is a storage container reservered for the object with a boolean.
 
 
+Performance
+- Checking if there's value will take 1 branch. This is unavoidable. Unless in extreme case this usually doesn't matter much
+- May be space inefficient if object size small. E.g., for `int` will take 8 bytes because of alignment. May benefit from custom structs that can pack multiple bools together
+  
 
 You cannot do `std::optional<T&>`, you must copy the object.
 
