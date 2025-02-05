@@ -4515,6 +4515,16 @@ int main () {
 
 Data structures:
 
+### std::ranges
+
+https://ericniebler.github.io/std/wg21/D4128.html#motivation-and-scope
+
+Motivation:
+- Eliminate the need to provide iterator and sentinel pair for common case (ie. `std::sort(v.begin(), v.end())` -> `std::sort(v)`). This makes code cleaner and avoids issues with specified iterator
+- 
+
+
+
 
 ### std::pair
 
