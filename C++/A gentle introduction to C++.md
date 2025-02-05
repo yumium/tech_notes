@@ -4521,7 +4521,59 @@ https://ericniebler.github.io/std/wg21/D4128.html#motivation-and-scope
 
 Motivation:
 - Eliminate the need to provide iterator and sentinel pair for common case (ie. `std::sort(v.begin(), v.end())` -> `std::sort(v)`). This makes code cleaner and avoids issues with specified iterator
-- 
+- Range adaptors to transform ranges lazily and allow chaining, probably more powerful
+
+```c++
+// Old way. Intermediate results must be stored somehow
+std::vector<int> input = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+std::vector<int> intermediate, output;
+
+std::copy_if(input.begin(), input.end(), std::back_inserter(intermediate), [](const int i) { return i%3 == 0; });
+std::transform(intermediate.begin(), intermediate.end(), std::back_inserter(output), [](const int i) {return i*i; });
+
+// New way. With ranges the function is triggered per element when needed. Intermediate result not stored first, final elements are moved to the destination
+// requires /std:c++20
+std::vector<int> input = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+auto output = input
+    | std::views::filter([](const int n) {return n % 3 == 0; })
+    | std::views::transform([](const int n) {return n * n; })
+```
+
+https://learn.microsoft.com/en-us/cpp/standard-library/range-adaptors?view=msvc-170
+Range adaptors (`std::ranges::drop`, `std::ranges::filter` ...) takes a range and produces a View object.
+View objects are lightweight ranges:
+- `std::ranges::drop` produces `std::ranges::drop_view` object etc.
+- Views can be composed, as discussed before
+- Views represent future computation
+- View object itself can be moved, copied etc. in O(1) time, regardless of size of container it points to
+- Views don't own the underlying container, so if container changes so does the view
+```c++
+#include <algorithm>
+#include <iostream>
+#include <ranges>
+
+int main()
+{
+    int input[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    auto even = [](const int n) { return n % 2 == 0; };
+    auto x = input | std::views::filter(even); // create a view of the even elements from input
+
+    for (int &i : x)
+    {
+        std::cout << i << ' '; // 0 2 4 6 8 10
+    }
+    std::cout << '\n'; 
+
+    std::ranges::fill(x, 42); // changes the evens from input[] to 42
+    for (int &i : input) // demonstrates that the even elements in the range are modified
+    {
+        std::cout << i << ' '; // // 42 1 42 3 42 5 42 7 42 9 42
+    }
+}
+```
+
+Range algorithms take range object as input and return iterators, otherwise work similarly to algos in `<algorithm>`. You can't chain return type of range algorithms as they return iterators. But you can chain range adaptors as they return views.
 
 
 
