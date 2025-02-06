@@ -4529,6 +4529,7 @@ template<
 
 `Extent` is default equal to `std::dynamic_extent`. If the span has static_extent, the `Extent` equals the size.
 
+Object size is very small so just copy it when passing through functions. Typically a pointer and a size. If extent is static, just pointer (size is taken care of at compile time)
 
 Constructors:
 - `span( R&& range );`
