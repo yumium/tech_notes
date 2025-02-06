@@ -4513,7 +4513,55 @@ int main () {
 
 ## Standard Library
 
-Data structures:
+### std::span
+
+A view of a contiguous memory, useful when you want to pass some contiguous sequence but not owning the memory.
+
+It only supports contiguous memory because internals do pointer arithmetic. For general iterators (e.g., for `std::list`), use `std::ranges::subrange`
+
+Type signature
+```c++
+template<
+  class T,
+  std::size_t Extent = std::dynamic_extent
+> class span;
+```
+
+`Extent` is default equal to `std::dynamic_extent`. If the span has static_extent, the `Extent` equals the size.
+
+
+Constructors:
+- `span( R&& range );`
+- `span( It first, size_type count );`
+- `span( It first, End last );`
+- etc.
+
+```c++
+void print_span(const std::span<int> span)
+{
+  if (span.extent == std::dynamic_extent)
+    std::cout << "dynamic: " << std::endl;
+  else
+    std::cout << "static: " << std::endl;
+
+  for (auto& elem : span)
+    std::cout << elem << std::endl;
+}
+
+int main()
+{
+  std::vector<int> vec1 = {1,2,3,4,5};
+
+  std::span<int> span1 (vec1); 
+  std::span<int, 4> span2 (vec1, 4);
+
+  print_span(span1);  // dynamic: 1,2 ...
+  print_span(span2);  // static: 1,2 ...
+}
+```
+
+
+
 
 ### std::ranges
 
