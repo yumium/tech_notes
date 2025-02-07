@@ -2516,6 +2516,35 @@ int MyStruct::a = 67;
 
 Here, the value `67` is a constant expression, so the compiler knows that it can be evaluated and initialised at compile time. At times, you may want to tell the compiler it is a constant expression using `constexpr`
 
+Static members inside functions is a different concept. Semantics ensure it's only initialised once at the first call (lazy initialisation), and thread safe. They live until end of application. So additional protection logic is in-place for the variable, making it slower. In most cases you don't need static, example case where you do
+
+```c++
+// Meyer's Singleton
+<template typename T>
+class Singleton
+{
+
+static
+singleton_t &
+get() {
+  static singleton_t val;
+  return val;
+}
+
+// no copy or move
+singleton_t(const singleton_t&) = delete;
+singleton_t operator=(const singleton_t&) = delete;
+
+private:
+  // construct/destruct hidden behind `get()`
+  singleton_t() {}
+  ~singleton_t() {}
+}
+
+singleton_t val1 = singleton_t.get();
+singleton_t val2 = singleton_t.get();  // same value
+```
+
 In C++20, we have `constinit`, which acts like `constexpr` (compiler can evaluate its value at compile time) but allows the value to be mutated at runtime.
 
 Sometimes we have to use dynamic initialisation, such as initialising strings (due to how memory is managed for strings)
@@ -5776,6 +5805,8 @@ std::string s = createString(); // s can "steal" the temporary string
 - In general, we will put everything in source (.cpp) file, unless it's impossible (e.g., templates)
 - This way, any changes in source file means only that file needs to be recompiled, not all files that depend on the header
 - Only exception perhaps is putting code in header to speed up compilation
+- Try to move headers to .cpp files, only keep necessary ones in .h file so when you include that header file elsewhere less code is needed to compile
+
 
 ### Random pieces
 
