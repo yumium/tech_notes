@@ -2520,7 +2520,6 @@ Static members inside functions is a different concept. Semantics ensure it's on
 
 ```c++
 // Meyer's Singleton
-<template typename T>
 struct singleton_t
 {
 
