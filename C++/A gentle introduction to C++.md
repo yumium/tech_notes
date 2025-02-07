@@ -2521,7 +2521,7 @@ Static members inside functions is a different concept. Semantics ensure it's on
 ```c++
 // Meyer's Singleton
 <template typename T>
-class Singleton
+struct singleton_t
 {
 
 static
@@ -2542,7 +2542,7 @@ private:
 }
 
 singleton_t val1 = singleton_t.get();
-singleton_t val2 = singleton_t.get();  // same value
+singleton_t val2 = singleton_t.get();  // same instance
 ```
 
 In C++20, we have `constinit`, which acts like `constexpr` (compiler can evaluate its value at compile time) but allows the value to be mutated at runtime.
