@@ -74,8 +74,8 @@ Kernel synthetize data on every user I/O, so most files in /proc behave like pip
 MemTotal:        7823412 kB   // Total memory size (RAM)
 MemFree:         2433100 kB   // Total memory free
 MemAvailable:    4020868 kB   // Estimate of total memory available (free memory + easily reclaimable ones (page caches, slab caches, ...)
-Buffers:          132568 kB
-Cached:          2555960 kB
+Buffers:          132568 kB   // Transient, in-memory cache for block devices, used to consolidate data from multiple read/write requests and execute them in a block I/O operation. Typically a small value
+Cached:          2555960 kB   // Size of the page cache
 SwapCached:            0 kB
 Active:          3245436 kB   // Total memory of pages in active LRU lists
 Inactive:         820488 kB   // Total memory of pages in inactive LRU lists
@@ -85,20 +85,20 @@ Active(file):     955284 kB   // ... for page cache
 Inactive(file):   788664 kB
 Unevictable:      909912 kB   // Total memory of pages unevictable (some pages must be kept in main memory
 Mlocked:          299120 kB   // Total memory pinned in memory by `mlock()`, used by applications to specify memory range to block
-SwapTotal:       1808384 kB   // 
-SwapFree:        1808384 kB
-Dirty:              9724 kB
-Writeback:             0 kB
-AnonPages:       2287856 kB
-Mapped:           927816 kB
-Shmem:            645444 kB
+SwapTotal:       1808384 kB   // Total swap space
+SwapFree:        1808384 kB   // Total available swap space
+Dirty:              9724 kB   // Total memory modified and waiting to be written back
+Writeback:             0 kB   // Total amount of actively written-back pages
+AnonPages:       2287856 kB   // Total memory of anonymous pages
+Mapped:           927816 kB   // Total memory for mapping files
+Shmem:            645444 kB   // Total shared memory
 KReclaimable:     136048 kB
 Slab:             239580 kB
 SReclaimable:     136048 kB
 SUnreclaim:       103532 kB
-KernelStack:       32608 kB
-PageTables:        67664 kB
-NFS_Unstable:          0 kB
+KernelStack:       32608 kB   // Total kernal stack memory. Each user space process gets a kernel stack used for executing kernel functions (e.g., sys calls, traps ...). Always in main memory and not attached to LRU lists
+PageTables:        67664 kB   // Total memory of page tables. Page tables are used to track mapping from virtual to physical memory
+NFS_Unstable:          0 kB 
 Bounce:                0 kB
 WritebackTmp:          0 kB
 CommitLimit:     5720088 kB
