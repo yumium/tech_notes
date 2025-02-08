@@ -135,6 +135,25 @@ https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/6/html/deploym
 
 https://superuser.com/questions/521551/cat-proc-meminfo-what-do-all-those-numbers-mean
 
+`free` gives parses memory information from `/proc/meminfo` and makes it easier to consume.
+
+```
+zaiyu@zaiyu-Vostro-5581:~$ free -h
+              total        used        free      shared  buff/cache   available
+Mem:           7.5G        2.3G        2.5G        634M        2.7G        4.0G
+Swap:          1.7G          0B        1.7G
+```
+
+Mapping:
+- `Mem: total` => `MemTotal`
+- `Mem: used` => `MemTotal` - `MemFree`
+- `Mem: free` => `MemFree`
+- `Mem: buffers` => `Buffers`
+- `Mem: Cached` => `Cached`
+- `Swap: total` => `SwapTotal`
+- `Swap: used` => `SwapTotal` - `SwapFree`
+- `Swap: free` => `SwapFree`
+
 
 
 ---
