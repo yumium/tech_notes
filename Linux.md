@@ -154,7 +154,30 @@ Mapping:
 - `Swap: used` => `SwapTotal` - `SwapFree`
 - `Swap: free` => `SwapFree`
 
+`pmap`: Give schema of memory mapping of a particular process. Example output dump
 
+```
+$ pmap 1234
+1234:   /usr/bin/example_process
+0000000000400000    4K r-x-- /usr/bin/example_process
+0000000000601000   12K rw--- /usr/bin/example_process
+00007fffb6b2b000   56K r---- [heap]
+00007fffb6b30000  2048K rw--- [heap]
+00007fffb6d2c000    4K r-x-- /lib/x86_64-linux-gnu/libc-2.31.so
+00007fffb6d2d000    4K r---- /lib/x86_64-linux-gnu/libc-2.31.so
+00007fffb6d2e000    4K rw--- /lib/x86_64-linux-gnu/libc-2.31.so
+00007fffb6e00000   64K rw--- [stack]
+00007fffb6e40000    4K r---- [vdso]
+00007fffb6e41000   12K r-x-- [vdso]
+00007fffb6e45000     4K rw--- [vdso]
+```
+
+- Start address
+- Size of that block
+- Process permissions on that block
+- Name of memory mapped
+
+Each process has their own virtual memory block. Of course all memory is in them ain memory block, so they need to be mapped to the process virtual memory, e.g., executable files (for this process), shared libraries needed, heap & stack etc.
 
 ---
 
