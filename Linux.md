@@ -70,6 +70,62 @@ Kernel synthetize data on every user I/O, so most files in /proc behave like pip
 
 
 /proc/meminfo
+```
+MemTotal:        7823412 kB   // Total memory size (RAM)
+MemFree:         2433100 kB   // Total memory free
+MemAvailable:    4020868 kB   // Estimate of total memory available (free memory + easily reclaimable ones (page caches, slab caches, ...)
+Buffers:          132568 kB
+Cached:          2555960 kB
+SwapCached:            0 kB
+Active:          3245436 kB   // Total memory of pages in active LRU lists
+Inactive:         820488 kB   // Total memory of pages in inactive LRU lists
+Active(anon):    2290152 kB   // ... for anonymous pages
+Inactive(anon):    31824 kB
+Active(file):     955284 kB   // ... for page cache
+Inactive(file):   788664 kB
+Unevictable:      909912 kB   // Total memory of pages unevictable (some pages must be kept in main memory
+Mlocked:          299120 kB   // Total memory pinned in memory by `mlock()`, used by applications to specify memory range to block
+SwapTotal:       1808384 kB   // 
+SwapFree:        1808384 kB
+Dirty:              9724 kB
+Writeback:             0 kB
+AnonPages:       2287856 kB
+Mapped:           927816 kB
+Shmem:            645444 kB
+KReclaimable:     136048 kB
+Slab:             239580 kB
+SReclaimable:     136048 kB
+SUnreclaim:       103532 kB
+KernelStack:       32608 kB
+PageTables:        67664 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:     5720088 kB
+Committed_AS:   14363624 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:       52184 kB
+VmallocChunk:          0 kB
+Percpu:             3456 kB
+HardwareCorrupted:     0 kB
+AnonHugePages:         0 kB
+ShmemHugePages:        0 kB
+ShmemPmdMapped:        0 kB
+FileHugePages:         0 kB
+FilePmdMapped:         0 kB
+CmaTotal:              0 kB
+CmaFree:               0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+Hugetlb:               0 kB
+DirectMap4k:      286968 kB
+DirectMap2M:     7776256 kB
+DirectMap1G:           0 kB
+```
+
 
 https://access.redhat.com/solutions/406773
 
