@@ -5804,7 +5804,8 @@ std::string s = createString(); // s can "steal" the temporary string
 - In general, we will put everything in source (.cpp) file, unless it's impossible (e.g., templates)
 - This way, any changes in source file means only that file needs to be recompiled, not all files that depend on the header
 - Only exception perhaps is putting code in header to speed up compilation
-- Try to move headers to .cpp files, only keep necessary ones in .h file so when you include that header file elsewhere less code is needed to compile
+- Try to move `#include` headers to .cpp files, only keep necessary ones in .h file so when you include that header file elsewhere less code is needed to compile
+- Try to make headers of each class self-sufficient. E.g, if a vector is used add `#include <vector>`, don't rely on headers of other includes to have `<vector>`. This way when I change the headers of a class I won't have propagating import errors elsewhere.
 
 
 ### Random pieces
