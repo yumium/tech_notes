@@ -28,4 +28,28 @@ Basic debugger workflow:
 - Fix bug / change code, rerun, repeat until you fix the issues
 
 
+## Other tips
+
+### Flaky tests
+
+Flaky test = tests that fails, but if rerun repeatedly, eventually passes.
+
+Example reasons for flaky tests:
+- Data state leaked from previous test
+- Test assumes existence of some dataset, which may not be present at test time
+- Service limits (e.g., too many SQL queries, say from previous tests)
+- Random values
+- Datetime sensitive => test environment has different tz information than local
+- Race conditions
+
+How to detect flaky tests:
+- 
+
+How to fix flaky tests:
+- 
+
+
+
+
+
 
