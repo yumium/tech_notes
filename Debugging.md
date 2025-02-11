@@ -42,11 +42,7 @@ Example reasons for flaky tests:
 - Datetime sensitive => test environment has different tz information than local
 - Race conditions
 
-How to detect flaky tests:
-- 
-
-How to fix flaky tests:
-- 
+Try to do a lot of reruns to get the tests to fail. Use log lines for clues
 
 
 
