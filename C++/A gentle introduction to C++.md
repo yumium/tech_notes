@@ -266,6 +266,8 @@ Fundamental data types
 | Void type                | **void**                     | no storage, lack of type                           |
 | Null pointer             | **decltype(nullptr)**        | A special type of pointer                          |
 
+There are also strict size types (e.g., `uint32_t`). These guarantee the underlying type to be exact 32 bits, so overflows exactly after 2^32-1. Whereas `unsigned` takes size of whatever is most efficient on the target machine (usually means can fit inside the register). It basically says a "small unsigned integer", with a minimum range.
+
 A C++ program does not need to know where the data is stored, it can reference the data using the variable name. It does, however, need to know the underlying type of variables.
 
 Note, for type names the italic parts can be omitted. (`signed long int` can be abbreviated as `long`)
