@@ -2666,6 +2666,21 @@ Note, the constructor can still modify `const` data members, and is the only fun
 
 
 
+#### const pointers
+
+- `const T* foo`: underlying object of `foo` cannot be modified via `foo`
+- `T* const foo`: underlying object of `foo` can be modified but the pointer `foo` itself cannot be modified
+```c++
+int x = 10;
+int y = 20;
+const int* ptr = &x;
+int* const ptr2 = &x; // Allowed
+*ptr = 15;  // ❌ Error: Cannot modify a `const int`
+ptr = &y;   // ✅ Allowed: Pointer itself can change
+*ptr2 = 15;  // ✅ Allowed: `x` can be modified
+ptr2 = &y;   // ❌ Error: Pointer `ptr` cannot change
+```
+
 
 #### mutable specifier
 
