@@ -4251,6 +4251,44 @@ When the preprocessor finds an `#include` directive it replaces it by the entire
 #include "file" 
 ```
 
+There are 2 slightly different syntax for #include files
+
+```c++
+#include <iostream>  // usually for library files
+#include "person.h"  // usually for user source files
+```
+
+The inclusion behaviour is the same, difference is in the search path for files. The difference is implementation specific to the pre-processor used. Below is from the C standard
+
+-   A preprocessing directive of the form
+
+    ```
+    #include <h-char-sequence> new-line
+    ```
+
+    searches a sequence of implementation-defined places for a **header** identified uniquely by the specified sequence between the `<` and `>` delimiters, and causes the replacement of that directive by the entire contents of the **header**. How the places are specified or the header identified is implementation-defined.
+
+-   A preprocessing directive of the form
+
+    ```
+    #include "q-char-sequence" new-line
+    ```
+
+    causes the replacement of that directive by the entire contents of the **source file** identified by the specified sequence between the `"` delimiters. The named **source file** is searched for in an implementation-defined manner. If this search is not supported, or if the search fails, the directive is reprocessed as if it read
+
+    ```
+    #include <h-char-sequence> new-line
+    ```
+
+    with the identical contained sequence (including `>` characters, if any) from the original directive.
+
+So the standard only gives semantic separation but no info on concrete differences.
+
+Here's the gcc implementation details (https://gcc.gnu.org/onlinedocs/cpp/Search-Path.html)
+- `#include "file"` searches first from currrent directory before going into standard system directories
+- `#include <file>` only searches through standard system directories
+
+Include chains: If C.h includes B.h includes A.h, 
 
 
 
