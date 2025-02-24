@@ -4288,7 +4288,8 @@ Here's the gcc implementation details (https://gcc.gnu.org/onlinedocs/cpp/Search
 - `#include "file"` searches first from currrent directory before going into standard system directories
 - `#include <file>` only searches through standard system directories
 
-Include chains: If C.h includes B.h includes A.h, 
+Include chains: If C.h includes B.h includes A.h, then compiler first processes A.h, then B.h (pasting the processed A.h in), then C.h
+
 
 
 
