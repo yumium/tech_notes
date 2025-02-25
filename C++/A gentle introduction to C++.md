@@ -5183,7 +5183,7 @@ Observers:
 
 - `.get()`: returns pointer to object or `nullptr` if no object is owned
 - `.get_deleter()`: returns custom deleter if it's used for destruction of object
-- `*`, `->`: Dereferences pointer to the managed object
+- `*`, `->`: Dereferences pointer to the managed object. `*` is equivalent to `*get()`, and `->` is equivalent to `get()`
 
 
 
