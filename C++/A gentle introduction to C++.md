@@ -3439,7 +3439,48 @@ struct B : A
 
 Note, `override` is not a reserved word in C++, it only has special meaning when appended to member functions. Only specify in `.h` file no need in `.cpp` file
 
+**Default arguments in virtual members**
+- Default arguments in base method are not overriden in derived method
+- Which default argument is used is decided by the static type of the object, reference or pointer
 
+```c++
+using std::stringstream;
+using std::string;
+using std::cout;
+using std::endl;
+
+struct Base { virtual string Speak(int n = 42); };
+struct Der : public Base { string Speak(int n = 84); };
+
+string Base::Speak(int n) 
+{ 
+    stringstream ss;
+    ss << "Base " << n;
+    return ss.str();
+}
+
+string Der::Speak(int n)
+{
+    stringstream ss;
+    ss << "Der " << n;
+    return ss.str();
+}
+
+int main()
+{
+    Base b1;
+    Der d1;
+
+    Base *pb1 = &b1, *pb2 = &d1;
+    Der *pd1 = &d1;
+    cout << pb1->Speak() << "\n"    // Base 42
+        << pb2->Speak() << "\n"     // Der 42
+        << pd1->Speak() << "\n"     // Der 84
+        << endl;
+}
+```
+
+Here, for `pb2` the derived method is called as expected, because `Speak` is a virtual function in `Base` class. But default argument used that of its static type, `Base`.
 
 
 
