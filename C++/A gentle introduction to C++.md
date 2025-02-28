@@ -4191,6 +4191,28 @@ cout << "test";
 Because preprocessor replacements happen before C++ syntax check, complex preprocessor replacements can make the code less readable.
 
 
+Multiple statements in a macro should use the do-while loop like so
+
+```c++
+#define FOO(a, b)
+  do {
+    if (a != b) {
+      LOG_CRITICAL("Expected equal, got {} and {}", a, b);
+      return false;
+    }
+  } while (0)
+```
+
+This is safer because simply using braces won't work in the following scenario
+
+```c++
+if (pred)
+   FOO(a,b);  // macro here
+else
+   bar();
+```
+
+This is because using only braces we'll have an empty else statement before the semicolon, and the `else` after causes a syntax error
 
 
 
