@@ -3299,6 +3299,59 @@ int main () {
 
 This kind of works like mixins.
 
+Note on constructor and destructor call order: 
+- Constructors for base classes called in order of base-list, before constructor of derived class is called
+- Destructors for base classes called in reverse order of base-list, after destructor of derived class is called
+- So unless the constructor/destructor order matters, order of base-list is irrelevant
+
+Note on the diamond problem: 
+- Consider the following inheritence pattern
+```
+   A
+ /  \
+B    C
+ \  /
+  D
+```
+- Here, separate object of A is constructed for B and C
+- When D calls a data member which appears in many of these base classes, ambiguity occurs
+- Ambiguity is resolved if one class dominates all others. class A dominates class B if A is derived from B
+- So if A has method `foo()` that B overrides, `D.foo()` isn't ambiguous as `B.foo()` dominates `A.foo()`
+- Otherwise, we must qualify the method. If `B.foo()` and `C.foo()` both overrides, then inside D to use `foo()` we must call either `B::foo()` or `C::foo()`
+- Last problem is calling data members of A in D. It's unclear which instantiation of A that member is called (B's copy or C's copy)
+
+
+Virtual inheritance:
+- Avoids duplicated instantiation of common base class
+```c++
+class A { };
+class B : virtual public A { };
+class C : virtual public A { };
+class D : public A { };
+
+// 2 instantiations of As here at E's instantiation, one virtual shared between B and C, one for D
+class E : public B, public C, public D { };
+```
+- Virtual inheritence solves the last issue in ambiguity. When all inheritence in base-list are virtual, there's only 1 ancestor base class, so ambiguity is solved
+```c++
+class A
+{
+    public:
+        int a() { return 0; }
+};
+
+class B : virtual public A { };
+
+class C : virtual public A { };
+
+class D : public B, public C { };
+
+int main()
+{
+    D d;
+    std::cout << d.a() << std::endl; // 0, no ambiguity
+}
+```
 
 
 
