@@ -199,6 +199,8 @@ new_circle.color = "red"
 
 # Behavioural
 
+## Observer pattern
+
 - Subject maintain a list of observers
 - Subject notify observers when there are events
 - Things this pattern solve
@@ -234,6 +236,42 @@ subject = Observable()
 observer = Observer(subject)
 subject.notify_observers("test", kw="python")
 ```
+
+
+
+
+# Structural
+
+## Adapter pattern
+
+Problems
+- How can a class be reused that does not have an interface that a client requires?
+- How can classes that have incompatible interfaces work together?
+- How can an alternative interface be provided for a class?
+
+Solutions
+- Have separate `Adater` class that wraps around the service class to reuse (via composition). The `Adapter` interface is that of the client class. `Adapter` simply does the translation and forwards calls to the service class.
+- This allow reuse of classes with a slightly different interface
+
+Trivial example
+
+```python
+# Adapter implements interface for Android charging slot, with iPhone object internally via composition
+class IPhoneAdapter(FormatAndroid):
+    def __init__(self, mobile):
+        self.mobile = mobile
+
+    def recharge(self):
+        self.mobile.recharge()
+
+    def use_micro_usb(self):
+        print(CONNECTED.format(POWER_ADAPTERS["Android"]))
+        self.mobile.use_lightning()
+```
+
+
+
+
 
 
 
