@@ -515,6 +515,49 @@ def echo() -> str:
 
 
 
+## Cron expression
+You may set your DAG to run on a simple schedule by setting its schedule argument to either a cron expression, a datetime.timedelta object, or one of the Cron Presets.
+
+```python
+from airflow.models.dag import DAG
+
+import datetime
+
+dag = DAG("regular_interval_cron_example", schedule="0 0 * * *", ...)
+
+dag = DAG("regular_interval_cron_preset_example", schedule="@daily", ...)
+
+dag = DAG("regular_interval_timedelta_example", schedule=datetime.timedelta(days=1), ...)
+```
+
+
+Cron presets:
+
+| preset        | meaning                                                            | cron          |
+| ------------- | ------------------------------------------------------------------ | ------------- |
+| `None`        | Don’t schedule, use for exclusively “externally triggered” DAGs    |               |
+| `@once`       | Schedule once and only once                                        |               |
+| `@continuous` | Run as soon as the previous run finishes                           |               |
+| `@hourly`     | Run once an hour at the end of the hour                            | `0 * * * *`   |
+| `@daily`      | Run once a day at midnight (24:00)                                 | `0 0 * * *`   |
+| `@weekly`     | Run once a week at midnight (24:00) on Sunday                      | `0 0 * * 0`   |
+| `@monthly`    | Run once a month at midnight (24:00) of the first day of the month | `0 0 1 * *`   |
+| `@quarterly`  | Run once a quarter at midnight (24:00) on the first day            | `0 0 1 */3 *` |
+| `@yearly`     | Run once a year at midnight (24:00) of January 1                   | `0 0 1 1 *`   |
+
+
+## Timezones
+
+Default timezone is UTC, can be changed in config
+
+```
+[core]
+default_timezone = utc
+```
+
+
+
+
 
 
 
