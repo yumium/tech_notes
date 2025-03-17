@@ -571,8 +571,146 @@ print(dag.timezone)  # <Timezone [Europe/Amsterdam]>
 ```
 
 
+## Production deployment
+
+Switch to a production grade DB (PostgreSQL, MySQL), check config here:
+
+```
+[database]
+sql_alchemy_conn = my_conn_string
+```
+
+Once you have changed the backend, airflow needs to create all the tables required for operation. Create an empty DB and give Airflow’s user permission to CREATE/ALTER it. Once that is done, you can run -
+
+```
+airflow db migrate
+```
 
 
+
+## Testing
+
+**Basic syntax checks**
+
+```python
+python your-dag-file.py
+```
+
+Use same environment as production nodes, this checks for any uninstalled dependency and syntax errors
+
+**Unit tests**
+
+Loading
+
+```python
+import pytest
+
+from airflow.models import DagBag
+
+
+@pytest.fixture()
+def dagbag():
+    return DagBag()
+
+
+def test_dag_loaded(dagbag):
+    dag = dagbag.get_dag(dag_id="hello_world")
+    assert dagbag.import_errors == {}
+    assert dag is not None
+    assert len(dag.tasks) == 1
+```
+
+DAG structure
+
+```python
+def assert_dag_dict_equal(source, dag):
+    assert dag.task_dict.keys() == source.keys()
+    for task_id, downstream_list in source.items():
+        assert dag.has_task(task_id)
+        task = dag.get_task(task_id)
+        assert task.downstream_task_ids == set(downstream_list)
+
+
+def test_dag():
+    assert_dag_dict_equal(
+        {
+            "DummyInstruction_0": ["DummyInstruction_1"],
+            "DummyInstruction_1": ["DummyInstruction_2"],
+            "DummyInstruction_2": ["DummyInstruction_3"],
+            "DummyInstruction_3": [],
+        },
+        dag,
+    )
+```
+
+Custom operator
+
+```python
+import datetime
+
+import pendulum
+import pytest
+
+from airflow import DAG
+from airflow.utils.state import DagRunState, TaskInstanceState
+from airflow.utils.types import DagRunType
+
+DATA_INTERVAL_START = pendulum.datetime(2021, 9, 13, tz="UTC")
+DATA_INTERVAL_END = DATA_INTERVAL_START + datetime.timedelta(days=1)
+
+TEST_DAG_ID = "my_custom_operator_dag"
+TEST_TASK_ID = "my_custom_operator_task"
+
+
+@pytest.fixture()
+def dag():
+    with DAG(
+        dag_id=TEST_DAG_ID,
+        schedule="@daily",
+        start_date=DATA_INTERVAL_START,
+    ) as dag:
+        MyCustomOperator(
+            task_id=TEST_TASK_ID,
+            prefix="s3://bucket/some/prefix",
+        )
+    return dag
+
+
+def test_my_custom_operator_execute_no_trigger(dag):
+    dagrun = dag.create_dagrun(
+        state=DagRunState.RUNNING,
+        execution_date=DATA_INTERVAL_START,
+        data_interval=(DATA_INTERVAL_START, DATA_INTERVAL_END),
+        start_date=DATA_INTERVAL_END,
+        run_type=DagRunType.MANUAL,
+    )
+    ti = dagrun.get_task_instance(task_id=TEST_TASK_ID)
+    ti.task = dag.get_task(task_id=TEST_TASK_ID)
+    ti.run(ignore_ti_state=True)
+    assert ti.state == TaskInstanceState.SUCCESS
+    # Assert something related to tasks results.
+```
+
+
+
+
+**Staging environment**
+
+Run your DAG in UAT environment before releasing to prod
+
+
+**Mocking variables and connections**
+
+```python
+conn = Connection(
+    conn_type="gcpssh",
+    login="cat",
+    host="conn-host",
+)
+conn_uri = conn.get_uri()
+with mock.patch.dict("os.environ", AIRFLOW_CONN_MY_CONN=conn_uri):
+    assert "cat" == Connection.get_connection_from_secrets("my_conn").login
+```
 
 
 
