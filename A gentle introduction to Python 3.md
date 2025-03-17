@@ -53,12 +53,6 @@ pycache (.pyc)
 
 
 
-range vs. xrange
-
-- xrange is the equivalent construct in Python 2. It behaves the same in Python 3, good for legacy support
-
-
-
 threading / GIL lock
 
 - The standard CPython implementation introduces the global interpreter lock (GIL), which means only one thread ($$) can execute Python bytecode at a time. This makes implementation simpler, as objects such as dictionaries are trivially thread safe.
