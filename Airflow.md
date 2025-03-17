@@ -1,0 +1,529 @@
+# Airflow
+
+OSS orchestration tool
+
+Features:
+
+- Develop, schedule and monitor batch-oriented workflows
+- Dynamic: pipelines can be generated dynamically
+- Extensible: to various environments
+- Workflows are stored as code, so you get the benefits of version control, unit testing, extensibility etc.
+
+
+
+Why not airflow?
+
+- If you want a low-code thing
+- If you have an infinitely running event-based workflow or streaming
+  - Airflow better for finite workflows
+
+
+
+
+
+## Quickstart
+
+
+
+Airflow needs home folder (to store configs, DB etc.). Default is `~/airflow` overwrite with `AIRFLOW_HOME` environment var.
+
+CLI
+
+```
+airflow standalone
+```
+
+This sets up default config in `AIRFLOW_HOME` and launches airflow with UI at `localhost:8080`. Uses default SQLite database (not scalable)
+
+What `standalone` command does under the hood
+
+```
+airflow db migrate
+
+airflow users create \
+    --username admin \
+    --firstname Peter \
+    --lastname Parker \
+    --role Admin \
+    --email spiderman@superhero.org
+
+airflow webserver --port 8080
+
+airflow scheduler
+```
+
+
+
+
+
+## Fundamental concepts
+
+
+
+Airflow Python script is really just a config file for DAG structure. Actual tasks are run by different workers. Don't try to pass data between tasks.
+
+
+
+**Importing**
+
+```python
+import textwrap
+from datetime import datetime, timedelta
+
+# The DAG object; we'll need this to instantiate a DAG
+from airflow.models.dag import DAG
+
+# Operators; we need this to operate!
+from airflow.operators.bash import BashOperator
+```
+
+
+
+**Instantiate a DAG**
+
+```python
+with DAG(
+    # DAG ID
+    "tutorial",
+    
+    # These args will get passed on to each operator
+    # You can override them on a per-task basis during operator initialization
+    default_args={
+        "depends_on_past": False,
+        "email": ["airflow@example.com"],
+        "email_on_failure": False,
+        "email_on_retry": False,
+        "retries": 1,
+        "retry_delay": timedelta(minutes=5),
+        # 'queue': 'bash_queue',
+        # 'pool': 'backfill',
+        # 'priority_weight': 10,
+        # 'end_date': datetime(2016, 1, 1),
+        # 'wait_for_downstream': False,
+        # 'sla': timedelta(hours=2),
+        # 'execution_timeout': timedelta(seconds=300),
+        # 'on_failure_callback': some_function, # or list of functions
+        # 'on_success_callback': some_other_function, # or list of functions
+        # 'on_retry_callback': another_function, # or list of functions
+        # 'sla_miss_callback': yet_another_function, # or list of functions
+        # 'on_skipped_callback': another_function, #or list of functions
+        # 'trigger_rule': 'all_success'
+    },
+    description="A simple tutorial DAG",
+    schedule=timedelta(days=1),
+    start_date=datetime(2021, 1, 1),
+    catchup=False,
+    tags=["example"],
+) as dag:
+```
+
+DAG = collection of tasks with dependencies between them
+
+
+
+**Operators**
+
+Operator = a unit of work for Airflow
+
+Inherits from `BaseOperator`
+
+Eg. `PythonOperator`, `BashOperator`
+
+
+
+**Task**
+
+To use an operator in a DAG, you have to instantiate it as a task. Tasks determine how to execute your operator’s work within the context of a DAG.
+
+2 tasks:
+
+```python
+t1 = BashOperator(
+    task_id="print_date",
+    bash_command="date",
+)
+
+t2 = BashOperator(
+    task_id="sleep",
+    depends_on_past=False,
+    bash_command="sleep 5",
+    retries=3,  # optional argument in `BaseOperator` that we're overwriting here
+)
+```
+
+Precedence rules for params:
+
+1. Explicitly passed arguments
+2. Values that exist in the `default_args` dictionary
+3. The operator’s default value, if one exists
+
+
+
+**Templating with Jinja**
+
+```python
+templated_command = textwrap.dedent(
+    """
+{% for i in range(5) %}
+    echo "{{ ds }}"
+    echo "{{ macros.ds_add(ds, 7)}}"
+{% endfor %}
+"""
+)
+
+t3 = BashOperator(
+    task_id="templated",
+    depends_on_past=False,
+    bash_command=templated_command,
+)
+```
+
+
+
+**Adding documentation**
+
+DAG documentation supports markdown
+
+Task documentation supports plain text, markdown, reStructuredText, json, and yaml
+
+```python
+t1.doc_md = textwrap.dedent(
+    """\
+#### Task Documentation
+You can document your task using the attributes `doc_md` (markdown),
+`doc` (plain text), `doc_rst`, `doc_json`, `doc_yaml` which gets
+rendered in the UI's Task Instance Details page.
+![img](https://imgs.xkcd.com/comics/fixing_problems.png)
+**Image Credit:** Randall Munroe, [XKCD](https://xkcd.com/license.html)
+"""
+)
+
+dag.doc_md = __doc__  # providing that you have a docstring at the beginning of the DAG; OR
+dag.doc_md = """
+This is a documentation placed anywhere
+"""  # otherwise, type it like this
+```
+
+
+
+**Setting up dependencies**
+
+Different ways
+
+```python
+t1.set_downstream(t2)
+
+# This means that t2 will depend on t1
+# running successfully to run.
+# It is equivalent to:
+t2.set_upstream(t1)
+
+# The bit shift operator can also be
+# used to chain operations:
+t1 >> t2
+
+# And the upstream dependency with the
+# bit shift operator:
+t2 << t1
+
+# Chaining multiple dependencies becomes
+# concise with the bit shift operator:
+t1 >> t2 >> t3
+
+# A list of tasks can also be set as
+# dependencies. These operations
+# all have the same effect:
+t1.set_downstream([t2, t3])
+t1 >> [t2, t3]
+[t2, t3] << t1
+```
+
+
+
+**Recap**
+
+```python
+
+import textwrap
+from datetime import datetime, timedelta
+
+# The DAG object; we'll need this to instantiate a DAG
+from airflow.models.dag import DAG
+
+# Operators; we need this to operate!
+from airflow.operators.bash import BashOperator
+with DAG(
+    "tutorial",
+    # These args will get passed on to each operator
+    # You can override them on a per-task basis during operator initialization
+    default_args={
+        "depends_on_past": False,
+        "email": ["airflow@example.com"],
+        "email_on_failure": False,
+        "email_on_retry": False,
+        "retries": 1,
+        "retry_delay": timedelta(minutes=5),
+        # 'queue': 'bash_queue',
+        # 'pool': 'backfill',
+        # 'priority_weight': 10,
+        # 'end_date': datetime(2016, 1, 1),
+        # 'wait_for_downstream': False,
+        # 'sla': timedelta(hours=2),
+        # 'execution_timeout': timedelta(seconds=300),
+        # 'on_failure_callback': some_function, # or list of functions
+        # 'on_success_callback': some_other_function, # or list of functions
+        # 'on_retry_callback': another_function, # or list of functions
+        # 'sla_miss_callback': yet_another_function, # or list of functions
+        # 'on_skipped_callback': another_function, #or list of functions
+        # 'trigger_rule': 'all_success'
+    },
+    description="A simple tutorial DAG",
+    schedule=timedelta(days=1),
+    start_date=datetime(2021, 1, 1),
+    catchup=False,
+    tags=["example"],
+) as dag:
+
+    # t1, t2 and t3 are examples of tasks created by instantiating operators
+    t1 = BashOperator(
+        task_id="print_date",
+        bash_command="date",
+    )
+
+    t2 = BashOperator(
+        task_id="sleep",
+        depends_on_past=False,
+        bash_command="sleep 5",
+        retries=3,
+    )
+    t1.doc_md = textwrap.dedent(
+        """\
+    #### Task Documentation
+    You can document your task using the attributes `doc_md` (markdown),
+    `doc` (plain text), `doc_rst`, `doc_json`, `doc_yaml` which gets
+    rendered in the UI's Task Instance Details page.
+    ![img](https://imgs.xkcd.com/comics/fixing_problems.png)
+    **Image Credit:** Randall Munroe, [XKCD](https://xkcd.com/license.html)
+    """
+    )
+
+    dag.doc_md = __doc__  # providing that you have a docstring at the beginning of the DAG; OR
+    dag.doc_md = """
+    This is a documentation placed anywhere
+    """  # otherwise, type it like this
+    templated_command = textwrap.dedent(
+        """
+    {% for i in range(5) %}
+        echo "{{ ds }}"
+        echo "{{ macros.ds_add(ds, 7)}}"
+    {% endfor %}
+    """
+    )
+
+    t3 = BashOperator(
+        task_id="templated",
+        depends_on_past=False,
+        bash_command=templated_command,
+    )
+
+    t1 >> [t2, t3]
+```
+
+
+
+**Testing**
+
+Python syntax OK
+
+```
+python ~/airflow/dags/tutorial.py
+```
+
+
+
+Airflow parsing OK
+
+```bash
+# initialize the database tables
+airflow db migrate
+
+# print the list of active DAGs
+airflow dags list
+
+# prints the list of tasks in the "tutorial" DAG
+airflow tasks list tutorial
+
+# prints the hierarchy of tasks in the "tutorial" DAG
+airflow tasks list tutorial --tree
+```
+
+
+
+Running specific tasks
+
+```bash
+# command layout: command subcommand [dag_id] [task_id] [(optional) date]
+
+# testing print_date
+airflow tasks test tutorial print_date 2015-06-01
+
+# testing sleep
+airflow tasks test tutorial sleep 2015-06-01
+```
+
+
+
+## TaskFlow API
+
+
+
+An improvement over traditional Airflow DAG API. Benefits:
+
+- More Python and readable code
+  - @task and @dag operators
+- Automatic task dependency using function calls
+- Auto-passing data with return values rather than explicitly using XCom
+- Simple parameter passing via functional arguments
+- Support for Python type hints
+- Easier to test as tasks are now normal Python functions
+
+
+
+**DAG**
+
+```python
+@dag(
+    # DAG parameters inside decorator
+    schedule=None,
+    start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
+    catchup=False,
+    tags=["example"],
+)
+def tutorial_taskflow_api():  # function name is now DAG ID
+    """
+    ### TaskFlow API Tutorial Documentation
+    This is a simple data pipeline example which demonstrates the use of
+    the TaskFlow API using three simple tasks for Extract, Transform, and Load.
+    Documentation that goes along with the Airflow TaskFlow API tutorial is
+    located
+    [here](https://airflow.apache.org/docs/apache-airflow/stable/tutorial_taskflow_api.html)
+    """
+```
+
+
+
+**Tasks**
+
+```python
+@task()
+def extract():  # function name is now task name
+    """
+    #### Extract task
+    A simple Extract task to get data ready for the rest of the data
+    pipeline. In this case, getting data is simulated by reading from a
+    hardcoded JSON string.
+    """
+    data_string = '{"1001": 301.27, "1002": 433.21, "1003": 502.22}'
+
+    order_data_dict = json.loads(data_string)
+    return order_data_dict  # return value available for future tasks
+```
+
+
+
+**Data passing and dependencies**
+
+```python
+# Example ETL task dependencies
+order_data = extract()
+order_summary = transform(order_data)
+load(order_summary["total_order_value"])
+```
+
+Data passed via XCom variables under the hood
+
+https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/xcoms.html
+
+- Tasks are independent and can run on separate machines
+- XCom data is identified by `key`
+- Data stored in object storage, defined in `BaseXCom` class
+
+Dependencies generated automatically via invocations
+
+
+
+**Task reuse**
+
+Tasks are just functions so they can be invoked in many places. Just replace `task_id` etc.
+
+```python
+from airflow.decorators import task, dag
+from datetime import datetime
+
+
+@task
+def add_task(x, y):
+    print(f"Task args: x={x}, y={y}")
+    return x + y
+
+
+@dag(start_date=datetime(2022, 1, 1))
+def mydag():
+    start = add_task.override(task_id="start")(1, 2)
+    for i in range(3):
+        start >> add_task.override(task_id=f"add_start_{i}")(start, i)
+
+
+@dag(start_date=datetime(2022, 1, 1))
+def mydag2():
+    start = add_task(1, 2)
+    for i in range(3):
+        start >> add_task.override(task_id=f"new_add_task_{i}")(start, i)
+
+
+first_dag = mydag()
+second_dag = mydag2()
+```
+
+```python
+# add_task is defined in the `common` file
+from common import add_task
+from airflow.decorators import dag
+from datetime import datetime
+
+
+@dag(start_date=datetime(2022, 1, 1))
+def use_add_task():
+    start = add_task.override(priority_weight=3)(1, 2)
+    for i in range(3):
+        start >> add_task.override(task_id=f"new_add_task_{i}", retries=4)(start, i)
+
+
+created_dag = use_add_task()
+```
+
+
+
+**Conditional skips**
+
+```python
+@task.run_if(lambda context: context["task_instance"].task_id == "run")
+@task.bash()
+def echo() -> str:
+    return "echo 'run'"
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
