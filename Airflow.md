@@ -515,7 +515,12 @@ def echo() -> str:
 
 
 
-## Cron expression
+
+
+
+## Timetables
+
+### Cron expression
 You may set your DAG to run on a simple schedule by setting its schedule argument to either a cron expression, a datetime.timedelta object, or one of the Cron Presets.
 
 ```python
@@ -545,8 +550,7 @@ Cron presets:
 | `@quarterly`  | Run once a quarter at midnight (24:00) on the first day            | `0 0 1 */3 *` |
 | `@yearly`     | Run once a year at midnight (24:00) of January 1                   | `0 0 1 1 *`   |
 
-
-## Timezones
+### Timezone
 
 Default timezone is UTC, can be changed in config
 
@@ -555,13 +559,16 @@ Default timezone is UTC, can be changed in config
 default_timezone = utc
 ```
 
+UI displays times in default timezone (UTC)
 
+Use `pendulum` to define timezone of DAG (if needs be different from default)
+```
+import pendulum
 
-
-
-
-
-
+dag = DAG("my_tz_dag", start_date=pendulum.datetime(2016, 1, 1, tz="Europe/Amsterdam"))
+op = EmptyOperator(task_id="empty", dag=dag)
+print(dag.timezone)  # <Timezone [Europe/Amsterdam]>
+```
 
 
 
