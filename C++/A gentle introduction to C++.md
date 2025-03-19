@@ -497,11 +497,15 @@ Integer rank: long, int, short, signed char
 Floating rank: long double, double, float
 
 Arithematic operator conversion rule:
-- 
+- If either is float
+  - If both operand same type, no conversion
+  - If other is non-floating, convert it to the same type as the floating operand
+  - If bith floating but different rank, convert lower rank operand to the higher rank
+- If both integer (otherwise case)
+  - If both operand same type, no conversion
+  - If both (un)signed, convert to the higher rank type of the two
+  - Mixed signed and unsigned is complex, look up when needed
 
-
-
-/ returns integer if both arguments are integers (floor division), otherwise returns float
 
 
 
