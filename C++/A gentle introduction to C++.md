@@ -490,6 +490,17 @@ x = y = z = 5;  // Multiple assignment
 
 Arithmetic operators: +, -, *, /, %
 
+"Usual arithmetic conversions" (https://en.cppreference.com/w/cpp/language/usual_arithmetic_conversions)
+
+Integer rank: long, int, short, signed char
+
+Floating rank: long double, double, float
+
+Arithematic operator conversion rule:
+- 
+
+
+
 / returns integer if both arguments are integers (floor division), otherwise returns float
 
 
