@@ -3647,6 +3647,272 @@ int main () {
 
 
 
+## Metaprogramming
+
+
+
+### Concepts
+
+Concepts Terminology
+
+- Requirements
+- Concepts = one or more requirements
+- Constraints
+
+
+
+Overloading templated functions
+
+```c++
+template<typename CollT>
+concept HasPushBack = requires (CollT c, CollT::value_type v) {
+    c.push_back(v);  // requires this to be valid code
+} // this is checked at compile time
+
+template<HasPushBack CollT, typename T>
+void add(CollT& coll, const T& val)
+{
+    coll.push_back(val);
+}
+
+template<typename CollT, typename T>
+void add(CollT& coll, const T& val)
+{
+    coll.insert(val);
+}
+
+std::vector<int> coll1;
+std::set<int> coll2;
+
+add(coll1, 42); // more specified function is used
+add(coll2, 42); // only second definition is valid, OK
+```
+
+
+
+You can also use `auto` types in arguments, 
+
+```c++
+// syntactic sugar to templated version
+void add(HasPushBack auto& coll, const auto& val)
+{
+    coll.push_back(val);
+}
+
+void add(auto& coll, const auto& val)
+{
+    coll.insert(val);
+}
+
+std::vector<int> coll1;
+std::set<int> coll2;
+
+add(coll1, 42); // OK
+add(coll2, 42); // OK
+```
+
+
+
+We can also constraint for multiple params
+
+```c++
+template<typename CollT, typename T>
+concept HasPushBack = requires (CollT c, T v) {
+    c.push_back(v);
+}
+
+void add(auto& coll, const auto& val)
+requires CanPushBack<decltype(coll), decltype(val)>
+{
+    coll.push_back(val);
+}
+
+void add(auto& coll, const auto& val)
+{
+    coll.insert(val);
+}
+
+std::vector<int> coll1;
+std::set<int> coll2;
+
+add(coll1, 42); // OK
+add(coll2, 42); // OK
+```
+
+
+
+Generally concepts are coarse-grained
+
+```c++
+template<typename CollT>
+concept SequenceCont = std::ranges::range<CollT> &&
+					   requires (std::remove_cvref_t<CollT> c, std::ranges::range_value_t<CollT> v) {
+    c.push_back(v);
+    c.pop_back();
+    c.insert(c.begin(), v);
+    c.erase(c.begin());
+    c.clear();
+    std::remove_cvref_t<CollT>(v, v, v); // init-list support
+    c = {v, v, v};
+    {c < c} -> std::convertible_to<bool>;
+    ...
+};
+
+void add(SequenceCont auto& coll, const auto& val)
+{
+    coll.push_back(val);
+}
+```
+
+coarse-gained = we pack lots of requirements into a single concept, instead of packing lots of `requires` at the function signature
+
+
+
+Not all requirements can be checked at compile time. Sometimes we use concepts for documentation purposes (by putting comments), e.g. `std::ranges::range` runtime requirement and non-modifying at runtime requirements
+
+
+
+```c++
+void add(auto& coll, const auto& val)
+{
+    if constexpr (requires { coll.push_back(val); }) { // inline concept for compile-time branching
+        coll.push_back(val);
+    }
+    else{
+       	coll.insert(val);
+    }
+}
+```
+
+
+
+Different constraints can cause ambiguities (when there's no clear hierarchy)
+
+```c++
+template<typename CollT>
+concept HasSize = requires (CollT c) {
+    { c.size() } -> std::convertible_to<int>;
+};
+
+template<typename CollT>
+concept HasIndexOp = requires (CollT c) { c[0]; };
+
+template<typename CollT>
+requires HasSize<CollT>
+void foo(CollT& coll) {
+    std::cout << "foo() for container with size()\n";
+}
+
+template<typename CollT>
+requires HasIndexOp<CollT>
+void foo(CollT& coll) {
+    std::cout << "foo() for container []\n";
+}
+
+std::vector<int> vec{0, 8, 15};
+foo(vec); // ambiguous
+```
+
+Note, hierarchy must be defined explicitly, not automatically
+
+```c++
+template<typename T>
+concept GeoObject = requires(T obj) { obj.draw(); };
+
+template<typename T>
+concept Cowboy = requires(T obj) { obj.draw(); obj = obj; }; // Cowboy implicitly is more specific than GeoObject, but compiler does not check for this
+
+class Circle
+{
+public:
+	void draw() const;
+    ...
+};
+
+Circle(c);
+print(c); // ambiguous, compiler only looks at explicit subsumption
+```
+
+```c++
+template<typename T>
+concept BIgType = sizeof(T) > 8;
+
+template<typename T>
+concept ClassType = std::is_class_v<T>;
+
+template<typename T>
+concept BigOrClass = BigType<T> || ClassType<T>; // ORs are more expensive for compile time compute
+
+template<typename T>
+concept BigAndClass = BigType<T> && ClassType<T>; // more specific than individual type alone
+```
+
+
+
+Subsumptions of standard concepts
+
+```
+movable => copyable => semiregular => regular
+```
+
+
+
+Where concepts can be used:
+
+- Function templates
+- Class templates
+- Alias templates
+- Variable templates
+
+
+
+Constraints for member functions
+
+```c++
+template<typename T>
+class MyType {
+   	T value;
+public:
+    ...
+    void print() const {
+        std::cout << value << '\n';
+    }
+    
+    // This member function is only available for T specialisation that satisfies the concept
+    bool is_zero() const requires std::integral<T> || std::floating_point<T> {
+        return value == 0;
+    }
+}
+```
+
+
+
+Constraints for non-type template parameters
+
+```c++
+constexpr bool isPrime(int val)
+{
+    for (int i = 2; i <= val/2; i++)
+    {
+        if (val%i == 0) return false;
+    }
+    
+    return val > 1;
+}
+
+template<auto Val>
+requires (isPrime(Val))
+class C1
+{
+    ...
+}
+
+C1<6> c1;  // Error
+C1<7> c2;  // OK
+```
+
+
+
 
 
 

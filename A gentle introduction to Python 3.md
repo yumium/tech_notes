@@ -46,6 +46,14 @@ Python implementations
 
 
 
+Learn about how cPython interpreter works: https://github.com/python/cpython/blob/main/InternalDocs/garbage_collector.md
+
+
+
+
+
+
+
 pycache (.pyc)
 
 - This is the cached Python bytecode that is compiled from the module
@@ -121,44 +129,17 @@ The last number output is saved in variable `_`
 
 
 
-```python
-print("Hello world!")
-```
-
-
-
-```python
-def fib(x):
-    i = 1
-    a, b = 0, 1
-    # Invariant: b is the i-th fibonacci number
-    while i < x:
-        a, b = b, a+b
-        i += 1
-    return b
-```
-
-**Multiple assignment**: The RHS is evaluated first before assigning simultaneously to the LHS
-
-**Indentation**: Python doesn't use {}, so make sure you indent code blocks, can by the same amount.
-
 
 
 ### Variable names
 
-Python use variables to hold references that points to the values stored in RAM.
-
 Variable names: **letters, numbers, _**; can't start with number; can tell capitalization
 
-A variable name that reference nothing will be deleted from memory. 
 
-We don't need "var", "const" etc. when declaring variables.
 
 
 
 ### Strings
-
-Python strings are very similar to strings in Javascript. String literals are `"` or `'`.
 
 Python has no character data type. A "character" is simply a string of length 1.
 
@@ -194,22 +175,11 @@ You can evoke raw string with `r` to ignore `\n` etc.
 user\name
 ```
 
-`print` can take multiple arguments, which automatically concatenates them with a space in between each one
-
-```
->>> print("I", "am", "batman")
-I am batman
-```
-
 use `end` in print to avoid starting a new line
 
 ```
 >>> print("Enter stuff here", end = ": ")
 ```
-
-
-
-
 
 
 
@@ -220,7 +190,7 @@ a = "abc"
 print(a[2])	#'c'
 ```
 
-There is also negative indices, which is super awesome:
+There is also negative indices
 
 ```
 "	p 	y 	t 	h 	o 	n"
@@ -255,7 +225,7 @@ $$ Note: `string[::k]` is just `string[x:y:k]` with x and y omitted (so takes en
 
 
 
-​	
+#### String methods
 
 **Strings are immutable**
 
@@ -265,8 +235,6 @@ $$ Note: `string[::k]` is just `string[x:y:k]` with x and y omitted (so takes en
 ```
 
 
-
-SEE MORE: page 20, string methods, string as a sequence
 
 **IMPORTANT**: Because strings are immutable, all of the string methods returns the modified shadow copy of the string, which is nice.
 
@@ -326,25 +294,11 @@ SEE MORE: page 20, string methods, string as a sequence
 
 +,-,*,/ (float division, returns float),// (floor division), ** (exponentiation), % (mod), += (increment), -= (decrement)
 
-There's no ++ and --
-
-> Try, 4 / 3, 4 // 3, 4 // 3.0 etc.
-
-
-
-Assignment operator:
-
-=
-
 
 
 #### Logical operator:
 
-All logical operator take precedence after arithmetic operators
-
-
-
-==, !=, <, >, <=, >=;
+==, !=, <, >, <=, >=; and, or, not
 
 These can be chained, you can do: `if 8 < age <= 12: `
 
@@ -352,19 +306,13 @@ Python uses `True` and `False`, capitalized!
 
 
 
-In Python we love pseudo-code, so we have `and`, `or`, and `not` as our logical operators. Priority: not > and > or. This is same in 
 
-eg. `A and not B or C` means `(A and (not B)) or C`.
+
+`A and not B or C` means `(A and (not B)) or C`.
 
 `and` and `or` shortcuits
 
-
-
 `in` and `not in` to detect if a value occurs in a sequence type.
-
-
-
-Aside: Ordering of sequences of the same type uses *lexicographical* ordering.
 
 
 
