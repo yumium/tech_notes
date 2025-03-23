@@ -184,6 +184,7 @@ Each process has their own virtual memory block. Of course all memory is in them
 
 vmstat  reports  information  about  processes,  memory, paging, block IO, traps, disks and cpu activity.
 
+```
 FIELD DESCRIPTION FOR VM MODE
    Procs
        r: The number of runnable processes (running or waiting for run time).
@@ -216,7 +217,7 @@ FIELD DESCRIPTION FOR VM MODE
        id: Time spent idle.  Prior to Linux 2.5.41, this includes IO-wait time.
        wa: Time spent waiting for IO.  Prior to Linux 2.5.41, included in idle.
        st: Time stolen from a virtual machine.  Prior to Linux 2.6.11, unknown.
-
+```
 
 
 
