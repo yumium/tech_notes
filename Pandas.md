@@ -101,8 +101,11 @@ List of all IO tools
 **read_csv**
 
 Used extensively in finance so here are useful params:
-- 
-
+- dtype: dict of column name -> dtype
+- skiprows: skip x number of first rows
+- date_parser: function to parse date
+- parse_dates: boolean of whether to parse date
+- on_bad_lines: 'error', 'warn', 'skip'
 
 
 
