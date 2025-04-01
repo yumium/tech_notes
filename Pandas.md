@@ -96,8 +96,12 @@ List of all IO tools
 | binary      | [SPSS](https://en.wikipedia.org/wiki/SPSS)                            | [read_spss](https://pandas.pydata.org/docs/user_guide/io.html#io-spss-reader)    |                                                                                |
 | binary      | [Python Pickle Format](https://docs.python.org/3/library/pickle.html) | [read_pickle](https://pandas.pydata.org/docs/user_guide/io.html#io-pickle)       | [to_pickle](https://pandas.pydata.org/docs/user_guide/io.html#io-pickle)       |
 | SQL         | [SQL](https://en.wikipedia.org/wiki/SQL)                              | [read_sql](https://pandas.pydata.org/docs/user_guide/io.html#io-sql)             | [to_sql](https://pandas.pydata.org/docs/user_guide/io.html#io-sql)             |
-| SQL         | [Google BigQuery](https://en.wikipedia.org/wiki/BigQuery)             | [read_gbq](https://pandas.pydata.org/docs/user_guide/io.html#io-bigquery)        | [to_gbq](https://pandas.pydata.org/docs/user_guide/io.html#io-bigquery)        |
+| SQL         | [Google BigQuery](https://en.wikipedia.org/wiki/BigQuery)             | [read_gbq](https://pandas.pydata.org/docs/user_guide/io.html#io-bigquery)        | [to_gbq](https://pandas.pydata.org/docs/user_guide/io.html#io-bigquery)        |**
 
+**read_csv**
+
+Used extensively in finance so here are useful params:
+- 
 
 
 
