@@ -63,6 +63,7 @@ e58d0004    str     r0, [sp, #4]
 e58d1000    str     r1, [sp]
 e59d0004    ldr     r0, [sp, #4]
 ...
+```
 
 This trap instruction causes the running process to trigger a trap for OS to regain control. The OS then puts that process to sleep and wakes the debugger, who can then inspect the process state
 
