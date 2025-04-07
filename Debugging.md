@@ -15,8 +15,17 @@ Tips on how to locate bugs:
 - If you can find where code breaks / exception, great. Use debugger to help find it. Think about what you expected your code to do, and what happened instead
 - Examine assumptions and check each to see if they are true (e.g., using right API? using the right way? contain typos? variable expectations?)
 
-Debugger features:
-- 
+## Debugger features:
+
+Debugging Cpp code in VSCode
+
+- Define config in launch.json
+- VSCode uses your local debugger (e.g., gdb) to build and debug
+- F5 to start
+- Change variable name by clicking (relative to current stack)
+- Add variables to watch
+
+
 
 Basic debugger workflow:
 - Run to find where code breaks
