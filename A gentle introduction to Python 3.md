@@ -2821,7 +2821,13 @@ Library for checking text differences, like `gitdiff` and `vimdiff`
 
 
 
+### glob
 
+Used to match pathnames to globs via UNIX rules
+
+- `glob.glob(pathname)`: Returns a list of pathnames matched
+- `glob.iglob(pathname)`: Returns as iterator
+- `glob.translate(pathname)`: Translates and returns UNIX pathname to a regex, which you can match
 
 
 
