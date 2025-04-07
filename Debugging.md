@@ -35,10 +35,6 @@ Basic debugger workflow:
 
 
 
-How a debugger works (e.g., `GDB`):
-
-
-
 
 
 ## How does a debugger work?
