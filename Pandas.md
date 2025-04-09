@@ -362,6 +362,10 @@ Pandas(Index=1, a=2, b='b')
 Pandas(Index=2, a=3, b='c')
 ```
 
+Iterrating a Series
+- Use a for loop directly
+- `ser.iteritems()` returns iterator for (index, value) pairs
+
 
 
 
