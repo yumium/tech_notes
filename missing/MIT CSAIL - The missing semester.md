@@ -6,11 +6,31 @@ Finish exercises in Command-line env. chapter
 
 - curl
 
+From linux commandline (files, networking)
 
 
-### 1. The shell :turtle:
 
-Part 1
+#### The shell :turtle:
+
+- `echo`
+- `date`
+- `which`
+- `pwd`
+- `cd`
+- `ls`: -l long format, -S sort by size, -t sort by mod time, -a all files, -A all files except current and parent dir
+- `mv`
+- `cp`
+- `rm`
+- `mkdir`
+- `man`
+- `cat`
+- `less`
+
+
+
+
+
+
 
 ```shell
 # Primary way to interact w/ computer to do more complex tasks
@@ -221,6 +241,34 @@ shout | output1  # 5
 shout | output2  # 5, 7, 9
 ```
 
+
+
+
+
+#### Directories
+
+- `/etc`: system-wide config
+- `/home`: user's home dir
+- `/lib`: library files used by system
+- `/media`: mount point for removable media (e.g., UBS, CD-ROMs)
+- `/mnt`: mount points
+- `/opt`: optional software
+- `/proc`: virtual file system for kernel
+- `/root`: home for root acc
+- `/sbin`: system binaries
+- `/tmp`: temporary storage
+- `/usr`: all programs and support files for regular users
+  - `/usr/bin`: user executables
+  - `/usr/lib`: share libraries
+- `/var`: data that is likely to change
+  - `/var/log`: record system activity
+
+
+
+
+
+
+
 #### Setting environment variables
 
 ```bash
@@ -259,7 +307,7 @@ curl --head --silent https://missing.csail.mit.edu  #the input to dash
 
 
 
-### 2. Shell Tools and Scripting :page_with_curl:
+#### Shell Tools and Scripting :page_with_curl:
 
 Shell script cheatsheet: https://devhints.io/bash#conditionals
 
@@ -285,48 +333,11 @@ mcd () {
 }
 ```
 
-To avoid typing, save the program in `mcd.sh` and then do `source mcd.sh` on the cmd to execute this file and hence add the function to bash. bash is like an interpreter
 
-```shell
-# $_ give last argument
-mkdir AVeryLongDirName
-cd $_
 
-# !! give last command
-reboot
-sudo !!  # which is sudo reboot
 
-# $? gets the error message
-echo "Hello"
-echo $?  # 0 - everything is fine
 
-grep virus mcd.sh
-echo $?  # 1 - grep didn't find it
-
-# In bash, truth values are flipped
-true
-echo $?  # 0
-false
-echo $?  # 1
-
-# || and && have opposite control flow behaviour
-false || echo "Oops fail"
-true || echo "Will not be printed"
-true && echo "Thing went well"
-false && echo "Thing will not print"
-false; echo "Thing will print regardless"  # command concat
-
-# grabbing values
-foo=$(pwd)  # execute the function pwd and save the result in foo
-
-# process substitution
-cat <(ls) <(ls ..)  # <(stuff) executes stuff in the parenthesis and put it in a temporary file. This is useful when program expects a file rather than a string
-
-# text substitution
-sudo apt install $(cat .my_packages) # $(stuff) executes stuff and insert its output to the command. Here we let aptitude install software in a pre-set list
-```
-
-**Conditional execution vs. condition testing**
+#### **Conditional execution vs. condition testing**
 
 First, let me explain how error is propagated. Every function finishes with an exit code, a number in range 0-255. 0 means success and all other number means failure.
 
@@ -396,7 +407,7 @@ cat yang.txt | fzf
 
 
 
-### Aside1. Globs and Regexp
+#### Globs and Regexp
 
 Globs and regexp are both used to match things. Globs are used in the console to match filenames to be used as inputs. Regexp are used mainly in scripts to test user input or parse data. Regexp is seen in many different programs (`bash`, `grep` etc.) and each have slightly different syntax. We'll introduce the syntax used by `bash` below
 
@@ -462,7 +473,32 @@ Note: In the new version of bash, it's disallowed for regexp to be a string, so 
 
 
 
-### 3. Data wrangling
+
+
+#### Cursor movement
+
+Moving
+
+- `C-a`: to beginning
+- `C-e`: to end
+- `C-f`: forward one character
+- `C-b`: backward one character
+- `Alt-f`: forward one word
+- `Alt-b`: backward one word
+- `C-l`: clear screen
+
+
+
+Modifying text
+
+- `C-d`: delete til beginning of word
+- `C-k`: delete til end
+- `C-u`: delete til beginning
+- `Alt-d`: delete til end of word
+
+
+
+### Data wrangling
 
 #### Regular expressions
 
@@ -577,6 +613,8 @@ Tools in this chapter:
 - `comm`: compare files
 
 - `join`
+
+
 
 
 #### tr
@@ -926,11 +964,7 @@ Commands:
 
 
 
-
-
-### 4. Command-line Environment
-
-**Job Control**
+### Processes
 
 ```shell
 # let process sleep for $1 # of seconds
@@ -1040,7 +1074,7 @@ kill -STOP %1
 
 
 
-**Terminal Multiplexers**
+#### **Terminal Multiplexers**
 
 tmux: session > window > pane; avoids the need to have 10 terminals open
 
@@ -1083,7 +1117,7 @@ Besides managing windows, tmux also keep the processes in a session running when
 
 
 
-**Dotfiles**
+#### **Dotfiles**
 
 aliases - kinda like a variable but you don't need the $ every time to use it
 
@@ -1105,7 +1139,7 @@ GNU Stow: put all dotfiles in one folder and use symlinks to allow system to lin
 
 
 
-**Remote Machines**
+#### **Remote Machines**
 
 ssh: Secure shell, open session in remote machine
 
@@ -1139,7 +1173,7 @@ Some comments:
 
 
 
-### 5. Editor (vim)
+#### Editor (vim)
 
 To do:
 
@@ -1320,9 +1354,7 @@ Other things about vim
 
 
 
-### 6. Debugging & Profiling
 
-There are many debuggers, each for a particular language. For profilers, 
 
 #### Debugging
 
@@ -1425,13 +1457,13 @@ Ways to visualise profiling data (as humans not really great at interpreting lot
 
 
 
-### 7. Metaprogramming
+
 
 #### Build system
 
 Encode commands to run to build a target or run a test suite or any standard pipeline, into a single tool. You might also want to encode file dependencies. `npm` has lots of support for creating build system by tracking dependencies etc.
 
-**Make**
+##### **Make**
 
 - Make is its own language. It's weird like bash but weird in a different way
 - Every call to make does the minimum work to rebuild
@@ -1440,7 +1472,7 @@ Encode commands to run to build a target or run a test suite or any standard pip
 
 
 
-**Repositories:**
+#### **Repositories:**
 
 - Sometimes you want dependencies on packages, which could be too difficult to track with the makefile. That's where repositories come in
 - `pypy`, `npm`, `apt`  etc.
@@ -1448,7 +1480,7 @@ Encode commands to run to build a target or run a test suite or any standard pip
 
 
 
-**Versions:**
+#### **Versions:**
 
 - Versions are useful, as newer versions of a package might break another package
 - Semantic versioning:
@@ -1461,7 +1493,7 @@ Encode commands to run to build a target or run a test suite or any standard pip
 
 
 
-**CI - continuous integration**
+#### **CI - continuous integration**
 
 - eg. Run testsuite when someone submits a pull request, Update on pypy when someone pushes to a commit
 - They are all "event triggered actions (ie. scripts)"
@@ -1471,31 +1503,11 @@ Encode commands to run to build a target or run a test suite or any standard pip
 
 
 
-**Test terms:**
-
-- **Test suite**: A collection of tests
-- **Integration test**: Test relationship between sub-systems
-  say you are building a parser. Integration tester could test the whole system by letting it parse a whole file
-- **Regression test**: Test things that were broken in the past. Add a test for each bug you fixed, prevent program from "regressing" to earlier bugs
-- **Mocking**: Mock a part of your function that needs to be there, but isn't used. 
-  eg. you are creating a ssh functionality and a test cares a functionality that doesn't need a real remote connection. You can then "mock" the connection to save time.
-
-
-
-### 8. Potpourri
 
 
 
 
-**Keyboard remapping**
-
-- CAPSLOCK to be esc in vim
-- Insert to something else, cus insert is horrendous
-- ?: new browser tab
-
-
-
-**Daemons**
+#### **Daemons**
 
 = background processes. Eg. network manager, display manager ...
 
@@ -1526,13 +1538,9 @@ WantedBy=multi-user.target
 
 
 
-**FUSE file system**
-
-... I zoned out
 
 
-
-**Back-ups**
+#### **Back-ups**
 
 Hardware failure do happen
 
@@ -1540,7 +1548,7 @@ Learn more: https://missing.csail.mit.edu/2019/backups/
 
 
 
-**APIs**
+#### **APIs**
 
 Facebook, Spotify etc. all have nice APIs that could be used to do non-trivial tasks. The possibilities are endless
 
@@ -1549,75 +1557,6 @@ Most of these APIs have similar format: structured URLs, often `api.<service>.co
 Tool to chain different APIs: https://ifttt.com/
 
 
-
-**Common command-line flags/patterns**
-
-- `--help`: print condensed information on how to use the service
-- `--version`: print version number, also useful to check if a software is installed
-- `--verbose/-v`: increase info printed from tool. You can do `-vvvv` (more v's) to increase info even more
-- dry run flag: run the tool, not make changes but inform you what you would have done. This is useful for changes that cannot be undone
-- `-i`: interactive mode
-- `-r`: recurse, eg. for `rm`, `cp` etc.
-
-When your argument has the same shape as a flag, eg. a file called `-i`. To get around it, use `--`, which tells the program that whatever follows it aren't flags
-
-```shell
-# remvoe file "-i"
-rm -- -i
-```
-
-
-
-**Window managers**
-
-The default is the "floating window manager"
-
-There's also "tiling window manager" which is like panes in tmux
-
-
-
-**VPNs**
-
-Make your traffic on the internet seems like it comes from somewhere else.
-
-It might not give you more security, because you are simply shifting your trust from internet provider to the VPN provider
-
-
-
-**Markdown**
-
-Been using it for over a year :)
-
-
-
-**Hammerspoon (desktop automation on macOS)**
-
-[Hammerspoon](https://www.hammerspoon.org/) is a desktop automation framework for macOS. It lets you write Lua scripts that hook into operating system functionality, allowing you to interact with the keyboard/mouse, windows, displays, filesystem, and much more.
-
-- Save layouts for different locations (work, home etc.) where there are different displays
-  It can even detect changes, eg. connecting to a network
-
-Similar tools exist in linux
-
-
-
-**Booting in live USB**
-
-The OS lives in the USB and lets you boot into it to interact with the machine. Useful for retrieving data when OS is dead
-
-
-
-**Docker, Vagrant, VMs, Cloud, OpenStack**
-
-VM: virtual machine, useful to create a separate environment to test things
-
-You can also rent VM from the cloud (AWS, Google Cloud): eg. web service, slack bot, doing ML
-
-
-
-**Notebook programming environments**
-
-Jupyter: Interactive notebook that can evaluate snippets of code, good for ML
 
 
 
@@ -1650,26 +1589,15 @@ $> python ./do-stuff.py > output.txt 2>&1
 
 
 
-### Author's notes
-
-Initial feel of bash: Learning curve is steeper than I thought. Main reasons being:
-
-- Bash is an entire programming language that's not quite like other languages as it's quite low-level, so a lot to learn
-- Lots of utilities to learn (eg. grep, sed, awk etc.)
 
 
-
-
-
-
-
-### curl
+#### curl
 
 https://www.affiliate-engine.com/scraping/how-to-use-curl-for-web-scraping/#web-scraping-using-curl
 
 
 
-### symlink
+#### symlink
 
 A symbolic link is like a windows shortcut. We create it using the `ln` util
 
