@@ -33,6 +33,12 @@ Stuff to learn in the future:
 
 - Type hints
 - Logging module, how does it work
+- Packages in detail and preventing circular imports
+-  
+- From elements of programming interviews
+- Garbage collection from cpython internal docs
+- Shallow vs deep copy
+- List vs tuple, what ways are they similar/different
 
 
 

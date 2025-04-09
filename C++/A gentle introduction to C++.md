@@ -3915,6 +3915,387 @@ C1<7> c2;  // OK
 
 
 
+#### Using concepts for performance
+
+https://www.youtube.com/watch?v=qawSiMIXtE4
+
+
+
+Metaprogramming can help us achieve optimal performance
+
+Metaprogramming issues:
+
+1. Hard to write and debug
+2. Hard to read and reason about
+3. Hard to compile
+
+Concept make these easier
+
+
+
+Example tree structure
+
+```
+	 tick_tock
+		 |
+	   Idle
+	 /		\
+    /		 \
+Responder   Idle
+			 |
+		  Responder
+```
+
+We want to write a program where `tick_tock` sends `Tick` messages down the tree, Responders send up `Tock` messages on receiving `Tick`, which ultimately propagates back to `Tock`
+
+
+
+```c++
+struct component_base {
+    virtual void handle(const message_base &m) = 0;
+    
+    vector<unique_ptr<component_base>> children;
+    component_base* parent;
+    
+    void sendDown(message_base &message) {
+        for (unique_ptr<component_base> &c : children) {
+            c->handle(message);
+            c->sendDown(message);
+        }
+    }
+    
+    void sendUp(message_base &message) {
+        if (!parent) return;
+        parent->handle(message);
+        parent->sendUp(message);
+    }
+}
+
+struct component // ...
+
+struct start{}; struct tick{}; struct tock{};
+
+struct tick_tock: component<start, tock> {
+    void handle(const start &message) override {
+        puts("tick");
+        sendDown(tick{});
+    }
+    
+    void handle(const tock &message) override{
+        puts("tock");
+    }   
+}
+
+struct responder: component<tick> {
+    void handle(const tick &message) override {
+        sendUp(tock{});
+    }
+}
+```
+
+
+
+The compiled assembly code will at runtime iterate through the vector of children. This is a shame for cases when the structure of the tree is known at compile time. The compiled code should be able to figure out the destination at compile time and just send to that
+
+
+
+```c++
+template<typename ... Children_> // specify 
+struct component_base {
+    virtual void handle(const message_base &m) = 0;
+    
+    tuple<Children_ ...> children; // use tuple so we know size at compile time
+    
+    // we run into issue here, parent component needs to know type of its children, 
+    // but children needs to know type of parent. Previously using pointer to resolve at runtime
+    component_base* parent; 
+    
+    void sendDown(message_base &message) {
+        for (auto &c : children) {
+            c->handle(message);
+            c->sendDown(message);
+        }
+    }
+    
+    void sendUp(message_base &message) {
+        if (!parent) return;
+        parent->handle(message);
+        parent->sendUp(message);
+    }
+}
+```
+
+
+
+Idea: have the entire tree as data structure at compile time
+
+
+
+
+
+https://github.com/saarraz/slides/blob/master/cppcon2019-concepts-a-day-in-the-life/code.cpp
+
+
+
+```c++
+#include <cstdio>
+#include <type_traits>
+#include <tuple>
+#include <concepts>
+
+#include <boost/hana.hpp>
+using namespace boost::hana::literals;
+namespace hana = boost::hana;
+
+template<typename T>
+concept SizeConstant = std::convertible_to<T, std::size_t> && requires (T t) {
+    { T::value } -> std::convertible_to<std::size_t>;
+    std::integral_constant<std::size_t, (std::size_t)T{}>{};
+};
+
+template<typename T>
+concept Node = std::is_object_v<T>;
+
+template<typename T>
+concept TreeLocation = requires (T t, const T ct) {
+    { t.isRoot } -> std::convertible_to<bool>;
+    t.indices;
+    ct.ofChild(0_c);
+    requires !T::isRoot || requires {
+        { ct.head() } -> std::convertible_to<std::size_t>;
+        ct.tail();
+        ct.ofParent();
+    };
+};
+
+template<std::size_t... indices_>
+struct tree_location {
+    static constexpr const bool
+        isRoot = sizeof...(indices_) == 0;
+
+    std::tuple<std::integral_constant<std::size_t, indices_>...>
+        indices;
+
+    constexpr tree_location() { }
+
+    constexpr tree_location(hana::tuple<hana::size_t<indices_>...>) { }
+
+    auto ofParent() const {
+        return ::tree_location{hana::drop_back(hana::tuple<hana::size_t<indices_>...>{}, 1_c)};
+    }
+
+    auto tail() const {
+        return ::tree_location{hana::drop_front(hana::tuple<hana::size_t<indices_>...>{}, 1_c)};
+    }
+
+    constexpr std::size_t head() const {
+        return std::get<0>(indices);
+    }
+
+    auto ofChild(SizeConstant auto index) const {
+        return tree_location<indices_..., index>{};
+    }
+};
+
+template<typename T>
+concept Tree = requires (T t, tree_location<> location) {
+    { t.root } -> Node;
+    { T::childCount } -> std::convertible_to<std::size_t>;
+    t.subtree(location);
+    requires T::childCount == 0ull || requires {
+        t.template child<0>();
+        t.subtree(tree_location<0>{});
+    };
+};
+
+template<typename T>
+concept TreeRef = std::is_reference_v<T> && Tree<std::remove_reference_t<T>>;
+
+template<Node Root_, Tree... Children_>
+struct tree {
+    Root_ root;
+    std::tuple<Children_...> children;
+    static constexpr const SizeConstant auto childCount = hana::size_c<sizeof...(Children_)>;
+
+    Tree auto& subtree(TreeLocation auto location) {
+        if constexpr (location.isRoot) {
+            return *this;
+        } else {
+            return child<location.head()>().subtree(location.tail());
+        }
+    }
+
+    tree() = default;
+
+    tree(std::convertible_to<Root_> auto&& root)
+      : root(std::forward<decltype(root)>(root)) {
+        static_assert(Tree<tree>);
+    }
+
+    template<std::size_t index_>
+        requires (index_ < sizeof...(Children_))
+    Tree auto &child() {
+        return std::get<index_>(children);
+    }
+};
+
+template<typename T>
+concept Message = std::is_object_v<T>;
+
+template<typename T>
+concept Context = requires (T t) {
+    { t.tree } -> TreeRef;
+    { t.location } -> TreeLocation;
+};
+
+template<Tree Tree_, TreeLocation TreeLocation_ = tree_location<>>
+struct context {
+    Tree_& tree;
+    static constexpr const TreeLocation_ location{};
+
+    // what is location arg doing here?
+    context(Tree_ &tree, TreeLocation_ location = TreeLocation_{}): tree{ tree } {
+        static_assert(Context<context>);
+    }
+
+    void sendDown(Message auto message) {
+        Tree auto &subtree = tree.subtree(location);
+        subtree.childCount.times.with_index(
+            [&] (SizeConstant auto index) {
+                Node auto &child = subtree.template child<index>().root;
+                Context auto childContext = ::context(tree, location.ofChild(index));
+                if constexpr (requires { child.handle(message, childContext); }) {
+                    child.handle(message, childContext);
+                } else if constexpr (requires { child.handle(message); }) {
+                    child.handle(message);
+                    childContext.sendDown(message);
+                } else {
+                    childContext.sendDown(message);
+                }
+            }
+        );
+    }
+
+    void sendUp(Message auto message) {
+        if constexpr (!location.isRoot) {
+            Node auto &parent = tree.subtree(location.ofParent()).root;
+            Context auto parentContext = ::context(tree, location.ofParent());
+            if constexpr (requires { parent.handle(message, parentContext); }) {
+                parent.handle(message, parentContext);
+            } else if constexpr (requires { parent.handle(message); }) {
+                parent.handle(message);
+                parentContext.sendUp(message);
+            } else {
+                parentContext.sendUp(message);
+            }
+        }
+    }
+};
+
+struct start { };
+
+struct tick { };
+
+struct tock { int data; };
+
+struct idle {
+    void handle(Message auto &message) {
+        puts(".");
+    }
+
+    void handle(Message auto &message)
+        requires (sizeof(message) > 1) {
+        puts("!");
+    }
+};
+
+struct tick_tock {
+    void handle(const start& message, Context auto context) {
+        puts("tick: ");
+        context.sendDown(tick{});
+    }
+
+    void handle(const tock& message) {
+        puts("tock!");
+    }
+};
+
+struct responder {
+    void handle(const tick& message, Context auto context) {
+        context.sendUp(tock{});
+    }
+};
+
+int main() {
+    // tree<idle,
+    //      tree<tick_tock,
+    //           tree<idle,
+    //                tree<responder>,
+    //                tree<idle,
+    //                     tree<responder>>>>>
+    //     tr;
+
+    tree<idle, tree<tick_tock>> tr;
+
+
+    context(tr).sendDown(start{});
+}
+```
+
+
+
+
+
+
+
+
+
+concept as code means you can test it
+
+```c++
+// tests
+static_assert(Tree<tree<int>>);
+static_assert(Tree<)
+```
+
+
+
+Final result should compile just to calls of messaging sending, no calls to finding out children etc.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
