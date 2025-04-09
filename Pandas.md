@@ -96,9 +96,16 @@ List of all IO tools
 | binary      | [SPSS](https://en.wikipedia.org/wiki/SPSS)                            | [read_spss](https://pandas.pydata.org/docs/user_guide/io.html#io-spss-reader)    |                                                                                |
 | binary      | [Python Pickle Format](https://docs.python.org/3/library/pickle.html) | [read_pickle](https://pandas.pydata.org/docs/user_guide/io.html#io-pickle)       | [to_pickle](https://pandas.pydata.org/docs/user_guide/io.html#io-pickle)       |
 | SQL         | [SQL](https://en.wikipedia.org/wiki/SQL)                              | [read_sql](https://pandas.pydata.org/docs/user_guide/io.html#io-sql)             | [to_sql](https://pandas.pydata.org/docs/user_guide/io.html#io-sql)             |
-| SQL         | [Google BigQuery](https://en.wikipedia.org/wiki/BigQuery)             | [read_gbq](https://pandas.pydata.org/docs/user_guide/io.html#io-bigquery)        | [to_gbq](https://pandas.pydata.org/docs/user_guide/io.html#io-bigquery)        |
+| SQL         | [Google BigQuery](https://en.wikipedia.org/wiki/BigQuery)             | [read_gbq](https://pandas.pydata.org/docs/user_guide/io.html#io-bigquery)        | [to_gbq](https://pandas.pydata.org/docs/user_guide/io.html#io-bigquery)        |**
 
+**read_csv**
 
+Used extensively in finance so here are useful params:
+- dtype: dict of column name -> dtype
+- skiprows: skip x number of first rows
+- date_parser: function to parse date
+- parse_dates: boolean of whether to parse date
+- on_bad_lines: 'error', 'warn', 'skip'
 
 
 
@@ -354,6 +361,10 @@ Pandas(Index=0, a=1, b='a')
 Pandas(Index=1, a=2, b='b')
 Pandas(Index=2, a=3, b='c')
 ```
+
+Iterrating a Series
+- Use a for loop directly
+- `ser.iteritems()` returns iterator for (index, value) pairs
 
 
 
