@@ -3046,7 +3046,7 @@ class Rectangle {
     	Rectangle() {}
     	Rectangle (int x, int y) : width(x), height(y) {}
     	int area() { return width*height; }
-    	friend Rectangle duplicate (const Rectangle&);
+    	friend Rectangle duplicate (const Rectangle&);  // can also place as private member, this is purely stylistic and does not change behaviour
 };
 
 Rectangle duplicate (const Rectangle& param)
