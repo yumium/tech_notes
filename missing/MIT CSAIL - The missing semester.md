@@ -269,7 +269,22 @@ shout | output2  # 5, 7, 9
 
 
 
-#### Setting environment variables
+#### System Environment
+
+Information stored in a shell session
+
+shell variables and environment variables
+
+Loaded by reading startup files (e.g., `~/.bashrc`)
+
+
+
+- `printenv`: list of env variables, `printenv <var>` prints value of var, same as `echo $var`
+- `export`: mark variables to be passed to child processes
+- `set`: set variable values
+- `alias`: list of aliases (not displayed in `printenv`. replacement string that expands to linux command (not an env variable), used for shorthands (e.g., `alias gs='git status'`)
+
+
 
 ```bash
 # set environment variable only for this process
@@ -281,27 +296,6 @@ command
 ```
 
 
-
-LEDs
-
-In `/sys/classes/leds` you can change the scrollock led for the keboard
-
-
-
-More utils
-
-`nano`: simple text editor
-
-`touch`: util to create new empty file (amongst other things that no one uses it for)
-
-`sh`: dash runs commands. It can also turn files into executables
-
-```shell
-#!/bin/sh  //run with dash (aka. set dash as the the interpreter)
-curl --head --silent https://missing.csail.mit.edu  #the input to dash
-```
-
-`chmod`: change permission of files
 
 
 
@@ -495,6 +489,77 @@ Modifying text
 - `C-k`: delete til end
 - `C-u`: delete til beginning
 - `Alt-d`: delete til end of word
+
+
+
+### Permissions
+
+Unix was designed to be a multiuser system (back then computers were expensive, before PC times)
+
+- `id`: display ID information of current user
+- `chmod`: change permissions of a file, use octal mode `chmod 600 foo.txt` or symbolic mode (`chmod u=rw foo.txt`, same effect). 
+  - u - user, g - group, o - other, a - all 3 buckets; + add - remove = set
+- `su`: `su [user]` start shell as another user
+- `sudo`: execute command as another user
+- chown: change file owner 
+- chgrp: change file group
+- passwd: reset your own password
+
+id: returns current user's uid, gid (id of default group for user), and groups the user belongs to
+
+In most linux versions, the default group contains only the user, but not always
+
+```bash
+[me@linuxbox ~]$ id
+uid=1000(me) gid=1000(me) groups=4(adm),20(dialout),24(cdrom),25(floppy),
+29(audio),30(dip),44(video),46(plugdev),108(lpadmin),114(admin),1000(me)
+```
+
+
+
+`/etc/passwd`: where we store user (login) name, uid, gid, home dir, and default shell binary
+
+`/etc/group`: group definition (group name, id, user names that belong to the group)
+
+`/etc/shadow`: where password is stored, permissions is `---------`
+
+
+
+If these files are deleted, linux cannot map user name to user id. File permissions are stored as user id. User probably not able to login, as most login service reads from `/etc/passwd`
+
+
+
+File permissions are split into 3 buckets: owner of the file, group the file belongs to, and all other users
+
+
+
+When you do `ls -l` you see the permissions of files, something like this `-rwxr-xr-x`
+
+r: allow file to be opened and read
+
+w: allow file to be written to or truncated (rename & delete by directory attributes)
+
+x: allow file to be treated like a program and executed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
