@@ -49,7 +49,7 @@ double d3 = {2.3};  // Note `=` is optional with {}
 
 
 
-
+Standard library is over 60% of ISO C++ standard
 
 
 
