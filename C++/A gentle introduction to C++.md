@@ -51,6 +51,34 @@ double d3 = {2.3};  // Note `=` is optional with {}
 
 Standard library is over 60% of ISO C++ standard
 
+| Header | Common Members |
+| --- | --- |
+| `<algorithm>` | `copy()`, `find()`, `sort()` |
+| `<array>` | `array` |
+| `<chrono>` | `duration`, `time_point` |
+| `<cmath>` | `sqrt()`, `pow()` |
+| `<complex>` | `complex`, `sqrt()`, `pow()` |
+| `<filesystem>` | `path` |
+| `<forward_list>` | `forward_list` |
+| `<fstream>` | `fstream`, `ifstream`, `ofstream` |
+| `<future>` | `future`, `promise` |
+| `<ios>` | `hex`, `dec`, `scientific`, `fixed`, `defaultfloat` |
+| `<iostream>` | `istream`, `ostream`, `cin`, `cout` |
+| `<map>` | `map`, `multimap` |
+| `<memory>` | `unique_ptr`, `shared_ptr`, `allocator` |
+| `<random>` | `default_random_engine`, `normal_distribution` |
+| `<regex>` | `regex`, `smatch` |
+| `<string>` | `string`, `basic_string` |
+| `<set>` | `set`, `multiset` |
+| `<sstream>` | `istringstream`, `ostringstream` |
+| `<stdexcept>` | `length_error`, `out_of_range`, `runtime_error` |
+| `<thread>` | `thread` |
+| `<unordered_map>` | `unordered_map`, `unordered_multimap` |
+| `<utility>` | `move()`, `swap()`, `pair` |
+| `<variant>` | `variant` |
+| `<vector>` | `vector` |
+
+
 
 
 
