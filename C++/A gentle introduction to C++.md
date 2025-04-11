@@ -26,6 +26,35 @@ Problems C++ tries to solve over C (so you should focus on these first)
 
 
 
+### TODO
+
+- [ ] Initialiser list
+
+```c++
+// The following initialisations are equivalent
+double d1 = 2.3;
+double d2 {2.3};
+double d3 = {2.3};  // Note `=` is optional with {}
+
+```
+
+- [ ] Program building (page 15)
+- [ ] cpp core guidelines (prioritise the ones in the appendix)
+  - [ ] Chapter 3 (page 43)
+- [ ] `std::variant` - safer and easier to use than union
+- [ ] `static_cast` vs `reinterpret_cast` (see in book)
+- [ ] virtual and vtbl (page 70)
+- [ ] `std::swap` (page 89)
+- [ ] templates and concepts chapter
+
+
+
+
+
+
+
+
+
 
 
 
@@ -689,6 +718,14 @@ stringstream(mystr) >> myint;  // myint = 1204
 
 
 
+### Const and constexpr
+
+`const` used to mark variable as immutable. Mainly used for const correctness when passing references/pointers as function arguments
+
+`constexpr` roughly means "to be evaluated at compile time"
+
+
+
 
 
 
@@ -1048,6 +1085,46 @@ int odd(int x)
 
 
 
+#### Argument passing and value return
+
+Guidelines F.15: Prefer simple and conventional ways to passing information
+
+Reason: Using “unusual and clever” techniques causes surprises, slows understanding by other programmers, and encourages bugs.
+
+
+
+`X f()`: Out only and not expensive to move:
+
+`f(X&)`: In/out, could be expensive to move, so modify directly via reference
+
+`f(X)`: In, cheap or impossible to copy (e.g., int, unique_ptr) $$
+
+`f(const X&)`: In, expensive to move
+
+
+
+
+
+#### Structured binding
+
+Generally speaking, we can use structured binding for `std::tuple`, `std::array`, and `struct`/`class` with public members
+
+```c++
+// many times a function may want to return more than 1 value, struct is an easy way to return multiple values
+struct Entry {
+    string name;
+    int age;
+}
+
+Entry read_entry(std::vector<std::string>& names, std::vector<int>& ages, int uid)
+{
+	return {names[i], ages[i]};
+}
+
+// client code can then use structured binding to unpack returned values
+auto [n, a] = read_entry(names, ages, 5);
+```
+
 
 
 
@@ -1162,12 +1239,17 @@ The types of call to `fixed_multiply` is determined at compile time.
 
 
 
-### Namespace
+### Namespace and scope
 
-- Global scope: Variables accessible everywhere in code. Global scope has empty prefix namespaces (`f` in global scope has namespace `::f`)
-- Block scope: Variables inside blocks (called local variables), accessible inside the block (included blocks nested inside it)
+Scope
+
+- Local scope: Inside block of function or lambda, only accessible within this block
+- Class scope: Members of a class, accessible as per class privacy information
+- Namespace scope: All other variables live in the namespace 
 
 Same name can exist across namespaces. Names within a namespace cannot conflict.
+
+Namespaces can be used when your name clashes with that of `std`, say
 
 You can define namespaces
 
@@ -1251,7 +1333,7 @@ namespace {
 }
 ```
 
-With `using` keyword, all names inside the namespace can be used in current scope without qualifiers. If there is name ambiguity on used names, a compilation error will fire.
+With `using` keyword, all names inside the namespace can be used in the scope the `using` statement is declared, without qualifiers. If there is name ambiguity on used names, a compilation error will fire.
 
 ```c++
 #include <iostream>
@@ -1842,6 +1924,8 @@ apple.name = "apple";
 cout << apple.price;
 ```
 
+Note the exact dimensions of `struct` is machine dependent (from padding).
+
 
 
 You can create pointer to `struct`
@@ -1956,7 +2040,7 @@ One use of type aliases is to have a easy way to switch, say between `int` and `
 
 **Unions**
 
-Syntactically like `struct`, but all members occupy the same space.
+Syntactically like `struct`, but all members occupy the same space. So a union's size is that of its largest variant
 
 ```c++
 union mytypes_t {
@@ -1967,6 +2051,8 @@ union mytypes_t {
 ```
 
 They all occupy the same underlying 4-byte long memory. When you access  `mytypes.char` and `mytypes.f`, they cast the underlying memory to the respective types. Changing one member affects the other members, as the underlying memory changed.
+
+The language does not track what underlying type is actually under the union object. It is up to the programmer to decide
 
 
 
@@ -2023,7 +2109,7 @@ cout << book2.dollars;
 
 **Enumerated types (enum)**
 
-A list of values what can be passed around and compared. These values are implicitly converted to `int` underlying
+A list of values what can be passed around and compared. These values are implicitly converted to `int` underlying. Enums make your code more readable and less error prone by giving it names, during compilation only ints are passed.
 
 ```c++
 enum colors_t { black, blue, green, cyan, red, purple, yellow, white };
@@ -2072,7 +2158,7 @@ auto blue = Colors{0};
 auto green = Colors{1};
 ```
 
-
+Enum class is the modern way to do enums in C++, though plain enums are still common in production code.
 
 
 
@@ -4644,11 +4730,11 @@ b is: class Base *
 
 
 
+### Error handling
 
 
 
-
-## Exceptions
+#### Exceptions
 
 We wrap the code inside a `try` block so catch any exceptions.
 
@@ -4782,6 +4868,54 @@ int main () {
   return 0;
 }
 ```
+
+
+
+
+
+#### Other ways
+
+**Invariants**
+
+It's common for classes to establish some invariant at construction and maintained at each method call.
+
+
+
+**Error code**
+
+This can be returning a `bool` and False on failure. Or an enum value if the system can fail in more than 1 way. Or a `nullptr` is the function returns a ptr. Or perhaps `-1` for integers, `nan` for floats etc.
+
+Error code can be used when it's expected the operation may fail (e.g., opening a file) and the client code can easily handle such error.
+
+
+
+**std::abort**
+
+The error is a kind which we cannot recover so we just die.
+
+Typically do a LOG::CRITICAL() before aborting so user can see the abort reason
+
+
+
+**Assertions**
+
+Useful to check "obvious" behaviours of code. 
+
+`static_assert(cond)` is used for asserting stuff at compile time
+
+There are libraries you can use to do assertions (and perhaps turn off in prod)
+
+
+
+**Alerting**
+
+Useful alongside error code where you need human to know what happened, or need their opinion on how to proceed, while code itself immediately recovers
+
+Have a look at bf::alert and see how it is implemented
+
+
+
+
 
 
 
