@@ -271,13 +271,323 @@ Note, an executable program is created for a specific hardware. The executable c
 
 #### **Preprocessor definitions**
 
-Preprocessor definitions are similar to typed constants, but the replacement is done in preprocessing stage. The identifier is replaced by the constant in a "blind" way, without type or syntax checking.
+
+
+**macro definitions (#define, #undef)**
+
+When the preprocessor encounters this directive, it replaces any occurrence of `identifier` in the rest of the code by `replacement`. Downside is no type or syntax checking
 
 ```c++
-#define PI 3.14159
-...
+#define TABLE_SIZE 100
+int table1[TABLE_SIZE];
+int table2[TABLE_SIZE];
+```
 
-circle = 2 * PI * r;
+becomes
+
+```c++
+int table1[100];
+int table2[100];
+```
+
+
+
+You can also define functional macros, which replaces function name with expression on the right, alongside the correct arguments
+
+```c++
+#include <iostream>
+using namespace std;
+
+#define getmax(a,b) ((a)>(b)?(a):(b))
+
+int main()
+{
+  int x=5, y;
+  y= getmax(x,2);
+  cout << y << endl;
+  cout << getmax(7,x) << endl;
+  return 0;
+}
+```
+
+becomes
+
+```c++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+  int x=5, y;
+  y= ((x)>(2)?(x):(2));
+  cout << y << endl;
+  cout << ((7)>(x)?(7):(x)) << endl;
+  return 0;
+}
+```
+
+
+
+Defined macros are not affected by block structure. A macro lasts until it is undefined with the `#undef` preprocessor directive
+
+```c++
+#define TABLE_SIZE 100
+int table1[TABLE_SIZE];
+#undef TABLE_SIZE
+#define TABLE_SIZE 200
+int table2[TABLE_SIZE];
+```
+
+becomes
+
+```c++
+int table1[100];
+int table2[200];
+```
+
+
+
+`#` in the RHS replaces the argument with a string literal
+
+```c++
+#define str(x) #x
+cout << str(test);
+```
+
+becomes
+
+```c++
+cout << "test";
+```
+
+
+
+`##` on the RHS simply concatenates two arguments
+
+```c++
+#define glue(a,b) a ## b
+glue(c,out) << "test";
+```
+
+becomes
+
+```c++
+cout << "test";
+```
+
+
+
+Because preprocessor replacements happen before C++ syntax check, complex preprocessor replacements can make the code less readable.
+
+
+Multiple statements in a macro should use the do-while loop like so
+
+```c++
+#define FOO(a, b)
+  do {
+    if (a != b) {
+      LOG_CRITICAL("Expected equal, got {} and {}", a, b);
+      return false;
+    }
+  } while (0)
+```
+
+This is safer because simply using braces won't work in the following scenario
+
+```c++
+if (pred)
+   FOO(a,b);  // macro here
+else
+   bar();
+```
+
+This is because using only braces we'll have an empty else statement before the semicolon, and the `else` after causes a syntax error
+
+
+
+
+
+**Conditional inclusions (#ifdef, #ifndef, #if, #endif, #else, and #elif)**
+
+These directives allow to include or discard part of the code of a program if a certain condition is met.
+
+```c++
+// If defined
+#ifdef TABLE_SIZE
+int table[TABLE_SIZE];
+#endif  
+
+// If no defined
+#ifndef TABLE_SIZE
+#define TABLE_SIZE 100
+#endif
+int table[TABLE_SIZE];
+
+#if TABLE_SIZE>200
+#undef TABLE_SIZE
+#define TABLE_SIZE 200
+ 
+#elif TABLE_SIZE<50
+#undef TABLE_SIZE
+#define TABLE_SIZE 50
+ 
+#else
+#undef TABLE_SIZE
+#define TABLE_SIZE 100
+#endif
+ 
+int table[TABLE_SIZE];
+```
+
+
+
+The behavior of `#ifdef` and `#ifndef` can also be achieved by using the special operators `defined` and `!defined` respectively in any `#if` or `#elif` directive:
+
+```c++
+#if defined ARRAY_SIZE
+#define TABLE_SIZE ARRAY_SIZE
+#elif !defined BUFFER_SIZE
+#define TABLE_SIZE 128
+#else
+#define TABLE_SIZE BUFFER_SIZE
+#endif 
+```
+
+
+
+
+
+**Line control (#line)**
+
+Basically let us specify the line number and file name (e.g., when exceptions are thrown)
+
+```c++
+#line number "filename"
+```
+
+Example:
+
+```c++
+#line 20 "assigning variable"
+int a?;
+```
+
+Where `number` is the new line number that will be assigned to the next code line. `"filename"` is an optional parameter that allows to redefine the file name that will be shown.
+
+The following lines will increase line number by 1 incrementally.
+
+
+
+
+
+**Error directive (#error)**
+
+This directive aborts the compilation process when it is found, generating a compilation error that can be specified as its parameter
+
+```c++
+#ifndef __cplusplus
+#error A C++ compiler is required!
+#endif 
+```
+
+
+
+
+
+**Source file inclusion (#include)**
+
+When the preprocessor finds an `#include` directive it replaces it by the entire content of the specified header or file.
+
+```c++
+#include <header>
+#include "file" 
+```
+
+There are 2 slightly different syntax for #include files
+
+```c++
+#include <iostream>  // usually for library files
+#include "person.h"  // usually for user source files
+```
+
+The inclusion behaviour is the same, difference is in the search path for files. The difference is implementation specific to the pre-processor used. Below is from the C standard
+
+- A preprocessing directive of the form
+
+  ```
+  #include <h-char-sequence> new-line
+  ```
+
+  searches a sequence of implementation-defined places for a **header** identified uniquely by the specified sequence between the `<` and `>` delimiters, and causes the replacement of that directive by the entire contents of the **header**. How the places are specified or the header identified is implementation-defined.
+
+- A preprocessing directive of the form
+
+  ```
+  #include "q-char-sequence" new-line
+  ```
+
+  causes the replacement of that directive by the entire contents of the **source file** identified by the specified sequence between the `"` delimiters. The named **source file** is searched for in an implementation-defined manner. If this search is not supported, or if the search fails, the directive is reprocessed as if it read
+
+  ```
+  #include <h-char-sequence> new-line
+  ```
+
+  with the identical contained sequence (including `>` characters, if any) from the original directive.
+
+So the standard only gives semantic separation but no info on concrete differences.
+
+Here's the gcc implementation details (https://gcc.gnu.org/onlinedocs/cpp/Search-Path.html)
+
+- `#include "file"` searches first from currrent directory before going into standard system directories
+- `#include <file>` only searches through standard system directories
+
+Include chains: If C.h includes B.h includes A.h, then compiler first processes A.h, then B.h (pasting the processed A.h in), then C.h
+
+
+
+
+
+**Predefined macro names**
+
+The following macro names are always defined (they all begin and end with two underscore characters, `_`):
+
+| macro             | value                                                        |
+| :---------------- | :----------------------------------------------------------- |
+| `__LINE__`        | Integer value representing the current line in the source code file being compiled. |
+| `__FILE__`        | A string literal containing the presumed name of the source file being compiled. |
+| `__DATE__`        | A string literal in the form "Mmm dd yyyy" containing the date in which the compilation process began. |
+| `__TIME__`        | A string literal in the form "hh:mm:ss" containing the time at which the compilation process began. |
+| `__cplusplus`     | An integer value. All C++ compilers have this constant defined to some value. Its value depends on the version of the standard supported by the compiler: **`199711L`**: ISO C++ 1998/2003**`201103L`**: ISO C++ 2011Non conforming compilers define this constant as some value at most five digits long. Note that many compilers are not fully conforming and thus will have this constant defined as neither of the values above. |
+| `__STDC_HOSTED__` | `1` if the implementation is a *hosted implementation* (with all standard headers available) `0` otherwise. |
+
+The following macros are optionally defined, generally depending on whether a feature is available:
+
+| macro                              | value                                                        |
+| :--------------------------------- | :----------------------------------------------------------- |
+| `__STDC__`                         | In C: if defined to `1`, the implementation conforms to the C standard. In C++: Implementation defined. |
+| `__STDC_VERSION__`                 | In C: **`199401L`**: ISO C 1990, Ammendment 1**`199901L`**: ISO C 1999**`201112L`**: ISO C 2011In C++: Implementation defined. |
+| `__STDC_MB_MIGHT_NEQ_WC__`         | `1` if multibyte encoding might give a character a different value in character literals |
+| `__STDC_ISO_10646__`               | A value in the form `yyyymmL`, specifying the date of the Unicode standard followed by the encoding of `wchar_t` characters |
+| `__STDCPP_STRICT_POINTER_SAFETY__` | `1` if the implementation has *strict pointer safety* (see `get_pointer_safety`) |
+| `__STDCPP_THREADS__`               | `1` if the program can have more than one thread             |
+
+
+
+Example
+
+```c++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+  cout << "This is the line number " << __LINE__;
+  cout << " of file " << __FILE__ << ".\n";
+  cout << "Its compilation began " << __DATE__;
+  cout << " at " << __TIME__ << ".\n";
+  cout << "The compiler gives a __cplusplus value of " << __cplusplus;
+  return 0;
+}
 ```
 
 
@@ -1411,7 +1721,9 @@ C++ uses `std::string`, which comes with benefits like:
 
 Elements of basic strings are stored contiguously, i.e. `&*(s.begin() + n) = &*s.begin() + n`
 
-Methods
+
+
+**Methods**
 
 Accessors: `at`, `[]`, `data()` returns pointer to char array, `c_str` returns non-modifiable c string, `basic_string_view` to return string view
 
@@ -1459,9 +1771,13 @@ Modifiers (includes string operations (e.g., `std::string::substr`))
 
 A note on npos: `std::string::npos` is defined as `-1` with type `size_t`. As `size_t` is an unsigned type, this represented the largest possible value for this type. Used as default value for arguments `len`, this means "until the end of the string"
 
+
+
 A note on performance of `+` concat operator:
 - The `std::basic_ostringstream` library probably won't be much faster
 - `+` simple usecases are OK, but slower when you do `a + b + c`. C++ doesn't have triple overloading on operators so this operation is done as `(a + b) + c`. So result of `a + b` is allocated temporarily then appends `c` to it. Worstcase if capacity of `a + b` isn't enough that's another allocation, so # of allocations can be worst case O(N) where N is the # of subjects.
+
+
 
 More utility functions around strings inside header `<string>`
 - `std::istringstream& getline( std::istringstream& input, std::string& str, char delim = '\n');` Used to separate stringstream into lines using delimiter. Usage is usually
@@ -1619,9 +1935,20 @@ int main()
 
 Otherwise has similar method as strings
 
+In modern c++ you should really use `string_view` as argument type rather than `const string&`. I provides the same benefits (no ownership, no allocation) with 1 fewer pointer indirection
 
+​	(for `const string&` the code needs to first need to unpack reference to the string object, then unpack reference othe char* array inside the object)
 
+This change should be simple as `std::string` has a conversion function to `string_view`
 
+```cpp
+int get_len(string_view s)
+{
+	return s.size();
+}
+
+std::cout << get_len("ABC") << std::endl; $$ check this works
+```
 
 
 
@@ -1692,54 +2019,6 @@ This generalises to all dimensions
 ```
 
 In C++, you cannot pass array by value, so all array variables are pointer to the first value of the array.
-
-
-
-Library arrays
-
-An alternative array type as a standard container. Some improvements over standard arrays inherited from C is that library arrays can be copied, and only decay into pointers when explicitly told to do so.
-
-```c++
-#include <array>
-int main()
-{
-    array<int,3> myarray { 10, 20, 30 };
-    
-    for (int i=0, i=myarray.size(); i++)
-        myarray[i]++;
-    
-    for (int elem : myarray)
-        cout << elem << '\n';
-    
-    return 0;
-}
-```
-
-
-
-**character sequences**
-
-```c++
-// A string can also just be presented explicitly as an array of characters. Don't forget the null character at the end. Null charcter indicates end of a string, by convention.
-char myword [] = { 'H', 'e', 'l', 'l', 'o', '\0' };
-
-// We can also initialize with a string literal, which appends the null character automatically
-char yourword [] = "Hello";
-
-// Reassigning to `yourword` will no be valid
-yourword = "World";	// Invalid
-
-// `yourword` is an array, assignment must be made cell by cell
-myword[0] = 'W';
-myword[1] = 'o';
-myword[2] = 'r';
-myword[3] = 'l';
-myword[4] = 'd';
-
-// In C++, people use both the C-strings (the char array representation) and string types. 
-// C-strings are created when using character arrays explicitly or using the string literal `""`
-// Methods on strings are usually overloaded to deal with both. 
-```
 
 
 
@@ -1819,8 +2098,9 @@ int operation (int x, int y, int (*functocall)(int,int))
     return g;
 }
 // This is one of the ways to pass functions as arguments. Other ways include using the <function> template or using lambda functions
-
 ```
+
+
 
 A reference is roughly a const pointer. It holds the address of another variable, but it must be declared (so cannot be nullptr) on creation and cannot be changed. Referencing and dereferencing is automatic (no need to specify explicitly). Arithmetic on pointers cannot be performed on references.
 
@@ -1890,6 +2170,26 @@ delete bar;
 ```
 
 Deallocates memory for the pointer. If `nullptr` is provided, there will be no effects.
+
+
+
+**new vs. malloc**
+
+- `new` returns a typed pointer, `malloc` does not
+- `new` throws error by default if no allocation, `malloc` returns nullptr
+- `new` have size calculated by compiler based on type, `malloc` you must specify size
+- `new` calls constructor and destructor at `delete`, `malloc` doesn't.  So for `malloc` the uninitialised state can be error-prone
+
+```c++
+int* a = new int;
+int* b = (int*)malloc(sizeof(int));  // As int is a simple type, leaving it uninitialised is OK
+```
+
+Technically `new` is allocated to `free-store` and `malloc` to `heap`, but that's conceptual difference. Almost all implementation they're the same region.
+
+Bottomline: Unless you have to use C, use `new` not `malloc`. And since RAII, don't use `new` unless you have to allocate to stack.
+
+​	`malloc` is basically a C thing, in C++ we use `new`
 
 
 
@@ -1997,8 +2297,6 @@ Structs vs. Class: The two constructs are identical in C++ except that in struct
 
 
 
-
-
 ### **Type aliases**
 
 ```c++
@@ -2061,6 +2359,10 @@ union mix_t {
 ```
 
 Of course, the actual machine representation of these types can vary across machine types, so this introduces potential portability issues.
+
+
+
+In modern C++, prefer `std::variant` over `union` for more safety
 
 
 
@@ -2129,6 +2431,7 @@ colors_t thecolor = i;
 ```
 
 
+
 **Enumerated types with enum class**
 
 You can create enum types that have more type safety (there is no implicit conversion to/from integers, you have to use `static_cast`, comparison can only be done between enum values of same class).
@@ -2159,13 +2462,9 @@ Enum class is the modern way to do enums in C++, though plain enums are still co
 
 
 
-
-
 ## Classes
 
 
-
-### Class I
 
 Structure of class
 
@@ -2179,7 +2478,11 @@ class class_name {
 } object_name;
 ```
 
-Classes = A collection of members. Like Struct, but also have function members + access specifiers.
+Classes = A collection of members
+
+Semantically class and struct are basically identical, except default access and inheritence is public in structs, private in classes
+
+
 
 
 
@@ -2230,8 +2533,6 @@ void Rectangle::set_values (int w, int h) {
 ```
 
 Functions defined directly inside the class are automatically marked as inline functions, while functions defined later outside of the class are marked as not inline.
-
-
 
 
 
@@ -2297,9 +2598,9 @@ int main () {
 }
 ```
 
-### Initialisation
 
-Uniform initialisation
+
+### Initialisation
 
 These are semantically equivalent ways to instantiate an object
 
@@ -2332,8 +2633,6 @@ Rectangle rectc{};	// default constructor called
 ```
 
 Syntax choice is largely personal preference on style.
-
-
 
 
 
@@ -2386,8 +2685,6 @@ int main () {
 
 
 
-
-
 Pointer to class
 
 Of course, you can create a pointer to an object of a class
@@ -2401,16 +2698,6 @@ Then, to access members of that object, use the `->` operator
 ```c++
 cout << prect->area() << '\n';
 ```
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2511,10 +2798,6 @@ Parameters for different operators to be overloaded
 | `a(b,c...)` | `()`                                            | `A::operator()(B,C...)` | -                   |
 | `a->b`      | `->`                                            | `A::operator->()`       | -                   |
 | `(TYPE) a`  | `TYPE`                                          | `A::operator TYPE()`    | -                   |
-
-
-
-
 
 
 
@@ -2706,7 +2989,7 @@ Const data members => immutable and read-only variable
 
 Const function members => no modifications to nonstatic data members, or call nonconst member functions (no change in state)
 
-Const return type => function will not modify the returned data ??
+Const return type => function will not modify the returned data
 
 ```c++
 int get() const { return x; }	// const member function
@@ -2753,33 +3036,16 @@ int main ()
 }
 ```
 
-
-
 Note, the constructor can still modify `const` data members, and is the only function that can do so.
 
 
-
-### const pointers
-
-- `const T* foo`: underlying object of `foo` cannot be modified via `foo`
-- `T* const foo`: underlying object of `foo` can be modified but the pointer `foo` itself cannot be modified
-```c++
-int x = 10;
-int y = 20;
-const int* ptr = &x;
-int* const ptr2 = &x; // Allowed
-*ptr = 15;  // ❌ Error: Cannot modify a `const int`
-ptr = &y;   // ✅ Allowed: Pointer itself can change
-*ptr2 = 15;  // ✅ Allowed: `x` can be modified
-ptr2 = &y;   // ❌ Error: Pointer `ptr` cannot change
-```
 
 
 ### mutable specifier
 
 Used for members that can be modified in a const method inside a class. It's used to specify that modifying this member does not affect overall const-ness of the object
 
-`mutable` can only be used on non-static class members of non-reference non-const type:
+`mutable` can only be used on non-static class members of non-reference non-const type (obviously, otherwise these can't be mutated anyway):
 
 ```c++
 class X
@@ -2823,8 +3089,6 @@ int main() {
 
 
 
-
-
 ### Special members
 
 | Member function                                              | typical form for class `C`: |
@@ -2845,8 +3109,6 @@ A default constructor is a constructor that doesn't take any parameters.
 If no constructors are defined, compiler writes the default constructor for you.
 
 If at least 1 constructor is defined, then the default constructor must be defined by the user as well, otherwise default construction (one without any parameters) is not allowed.
-
-
 
 
 
@@ -2999,14 +3261,14 @@ As a parameter, an *rvalue reference* matches arguments of temporaries of this t
 
 Behaviors of defaults.
 
-| Member function                                              | implicitly defined:                                          | default definition: |
-| :----------------------------------------------------------- | :----------------------------------------------------------- | :------------------ |
-| [Default constructor](https://cplusplus.com/doc/tutorial/classes2/#default_constructor) | if no other constructors                                     | does nothing        |
-| [Destructor](https://cplusplus.com/doc/tutorial/classes2/#destructor) | if no destructor                                             | does nothing        |
-| [Copy constructor](https://cplusplus.com/doc/tutorial/classes2/#copy_constructor) | if no move constructor and no move assignment                | copies all members  |
-| [Copy assignment](https://cplusplus.com/doc/tutorial/classes2/#copy_assignment) | if no move constructor and no move assignment                | copies all members  |
-| [Move constructor](https://cplusplus.com/doc/tutorial/classes2/#move) | if no destructor, no copy constructor and no copy nor move assignment | moves all members   |
-| [Move assignment](https://cplusplus.com/doc/tutorial/classes2/#move) | if no destructor, no copy constructor and no copy nor move assignment | moves all members   |
+| Member function                                              | implicitly defined:                                          | default definition:          |
+| :----------------------------------------------------------- | :----------------------------------------------------------- | :--------------------------- |
+| [Default constructor](https://cplusplus.com/doc/tutorial/classes2/#default_constructor) | if no other constructors                                     | does nothing                 |
+| [Destructor](https://cplusplus.com/doc/tutorial/classes2/#destructor) | if no destructor                                             | does nothing                 |
+| [Copy constructor](https://cplusplus.com/doc/tutorial/classes2/#copy_constructor) | if no move constructor and no move assignment                | copies all members shallowly |
+| [Copy assignment](https://cplusplus.com/doc/tutorial/classes2/#copy_assignment) | if no move constructor and no move assignment                | copies all members shallowly |
+| [Move constructor](https://cplusplus.com/doc/tutorial/classes2/#move) | if no destructor, no copy constructor and no copy nor move assignment | moves all members            |
+| [Move assignment](https://cplusplus.com/doc/tutorial/classes2/#move) | if no destructor, no copy constructor and no copy nor move assignment | moves all members            |
 
 
 
@@ -3049,8 +3311,6 @@ int main ()
     return 0;
 }
 ```
-
-
 
 Note, this function `duplicate` is not a member of the class.
 
@@ -3103,8 +3363,6 @@ int main ()
     return 0;
 }
 ```
-
-
 
 Note, friend relationship is no symmetric nor transitive.
 
@@ -3317,8 +3575,8 @@ B    C
 - When D calls a data member which appears in many of these base classes, ambiguity occurs
 - Ambiguity is resolved if one class dominates all others. class A dominates class B if A is derived from B
 - So if A has method `foo()` that B overrides, `D.foo()` isn't ambiguous as `B.foo()` dominates `A.foo()`
-- Otherwise, we must qualify the method. If `B.foo()` and `C.foo()` both overrides, then inside D to use `foo()` we must call either `B::foo()` or `C::foo()`
-- Last problem is calling data members of A in D. It's unclear which instantiation of A that member is called (B's copy or C's copy)
+- Otherwise, we must qualify the method (as not doing so will cause a compilation error). If `B.foo()` and `C.foo()` both overrides, then inside D to use `foo()` we must call either `B::foo()` or `C::foo()`
+- Last problem is calling data members of A in D. It's unclear which instantiation of A that member is called (B's copy or C's copy) (directly calling so will again cause a compilation error due to ambiguity)
 
 
 Virtual inheritance:
@@ -3332,7 +3590,7 @@ class D : public A { };
 // 2 instantiations of As here at E's instantiation, one virtual shared between B and C, one for D
 class E : public B, public C, public D { };
 ```
-- Virtual inheritence solves the last issue in ambiguity. When all inheritence in base-list are virtual, there's only 1 ancestor base class, so ambiguity is solved
+- Virtual inheritence solves the last issue in ambiguity. When all inheritence in base-list are virtual, there's only 1 ancestor base class, so ambiguity is solved. It also arguably has better performance as only 1 object of A is created for D
 ```c++
 class A
 {
@@ -3544,6 +3802,36 @@ Space-wise it's 1 additional pointer per object and 1 addtional vtbl per dervied
 
 
 
+### Static vs dynamic type
+
+Static type: known at compile time
+
+Dynamic type: known at runtime
+
+As C++ is a statically typed language, the only ever case for dynamic typing is when doing pointer redirection to base classes with virtual functions. This can happen, say in factory methods
+
+```c++
+struct Animal {...}
+
+struct Dog : Animal {...}
+
+struct Cat: Aniaml {...}
+
+std::unqiue_ptr<Animal> create_animal(string_view kind)
+{
+	if (kind == "dog") return std::make_unique<Dog>();
+    if (kind == "cat") return std::make_unique<Cat>();
+    return nullptr;
+}
+
+// in client code
+pet->speak(); // speak is a pure virtual function in Animal, if factory is called based on string depending on run-time, we cannot know the dynamic type of pet at compile time
+```
+
+
+
+
+
 ### Abstract base classes
 
 Abstract base classes contain at least one pure virtual function (a virtual function with no definition).
@@ -3588,8 +3876,6 @@ int main () {
   return 0;
 }
 ```
-
-
 
 
 
@@ -4415,10 +4701,6 @@ int main() {
 
 
 
-
-
-
-
 concept as code means you can test it
 
 ```c++
@@ -4430,40 +4712,6 @@ static_assert(Tree<)
 
 
 Final result should compile just to calls of messaging sending, no calls to finding out children etc.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -5029,346 +5277,6 @@ Have a look at bf::alert and see how it is implemented
 
 
 
-
-
-
-
-
-
-
-
-## Preprocessor directives
-
-These directives starts with `#` and is for the preprocessor.
-
-The preprocessor examines the code and deals with all headers before compilation.
-
-The scope is the file in which it is defined, from the line of definition to end of file (or `#undef`)
-
-**macro definitions (#define, #undef)**
-
-When the preprocessor encounters this directive, it replaces any occurrence of `identifier` in the rest of the code by `replacement`.
-
-```c++
-#define TABLE_SIZE 100
-int table1[TABLE_SIZE];
-int table2[TABLE_SIZE];
-```
-
-becomes
-
-```c++
-int table1[100];
-int table2[100];
-```
-
-
-
-You can also define functional macros, which replaces function name with expression on the right, alongside the correct arguments
-
-```c++
-#include <iostream>
-using namespace std;
-
-#define getmax(a,b) ((a)>(b)?(a):(b))
-
-int main()
-{
-  int x=5, y;
-  y= getmax(x,2);
-  cout << y << endl;
-  cout << getmax(7,x) << endl;
-  return 0;
-}
-```
-
-becomes
-
-```c++
-#include <iostream>
-using namespace std;
-
-int main()
-{
-  int x=5, y;
-  y= ((x)>(2)?(x):(2));
-  cout << y << endl;
-  cout << ((7)>(x)?(7):(x)) << endl;
-  return 0;
-}
-```
-
-
-
-Defined macros are not affected by block structure. A macro lasts until it is undefined with the `#undef` preprocessor directive
-
-```c++
-#define TABLE_SIZE 100
-int table1[TABLE_SIZE];
-#undef TABLE_SIZE
-#define TABLE_SIZE 200
-int table2[TABLE_SIZE];
-```
-
-becomes
-
-```c++
-int table1[100];
-int table2[200];
-```
-
-
-
-`#` in the RHS replaces the argument with a string literal
-
-```c++
-#define str(x) #x
-cout << str(test);
-```
-
-becomes
-
-```c++
-cout << "test";
-```
-
-
-
-`##` on the RHS simply concatenates two arguments
-
-```c++
-#define glue(a,b) a ## b
-glue(c,out) << "test";
-```
-
-becomes
-
-```c++
-cout << "test";
-```
-
-
-
-Because preprocessor replacements happen before C++ syntax check, complex preprocessor replacements can make the code less readable.
-
-
-Multiple statements in a macro should use the do-while loop like so
-
-```c++
-#define FOO(a, b)
-  do {
-    if (a != b) {
-      LOG_CRITICAL("Expected equal, got {} and {}", a, b);
-      return false;
-    }
-  } while (0)
-```
-
-This is safer because simply using braces won't work in the following scenario
-
-```c++
-if (pred)
-   FOO(a,b);  // macro here
-else
-   bar();
-```
-
-This is because using only braces we'll have an empty else statement before the semicolon, and the `else` after causes a syntax error
-
-
-
-
-
-**Conditional inclusions (#ifdef, #ifndef, #if, #endif, #else, and #elif)**
-
-These directives allow to include or discard part of the code of a program if a certain condition is met.
-
-```c++
-// If defined
-#ifdef TABLE_SIZE
-int table[TABLE_SIZE];
-#endif  
-
-// If no defined
-#ifndef TABLE_SIZE
-#define TABLE_SIZE 100
-#endif
-int table[TABLE_SIZE];
-
-#if TABLE_SIZE>200
-#undef TABLE_SIZE
-#define TABLE_SIZE 200
- 
-#elif TABLE_SIZE<50
-#undef TABLE_SIZE
-#define TABLE_SIZE 50
- 
-#else
-#undef TABLE_SIZE
-#define TABLE_SIZE 100
-#endif
- 
-int table[TABLE_SIZE];
-```
-
-
-
-The behavior of `#ifdef` and `#ifndef` can also be achieved by using the special operators `defined` and `!defined` respectively in any `#if` or `#elif` directive:
-
-```c++
-#if defined ARRAY_SIZE
-#define TABLE_SIZE ARRAY_SIZE
-#elif !defined BUFFER_SIZE
-#define TABLE_SIZE 128
-#else
-#define TABLE_SIZE BUFFER_SIZE
-#endif 
-```
-
-
-
-
-
-**Line control (#line)**
-
-Basically let us specify the line number and file name (e.g., when exceptions are thrown)
-
-```c++
-#line number "filename"
-```
-
-Example:
-
-```c++
-#line 20 "assigning variable"
-int a?;
-```
-
-Where `number` is the new line number that will be assigned to the next code line. `"filename"` is an optional parameter that allows to redefine the file name that will be shown.
-
-The following lines will increase line number by 1 incrementally.
-
-
-
-
-
-**Error directive (#error)**
-
-This directive aborts the compilation process when it is found, generating a compilation error that can be specified as its parameter
-
-```c++
-#ifndef __cplusplus
-#error A C++ compiler is required!
-#endif 
-```
-
-
-
-
-
-**Source file inclusion (#include)**
-
-When the preprocessor finds an `#include` directive it replaces it by the entire content of the specified header or file.
-
-```c++
-#include <header>
-#include "file" 
-```
-
-There are 2 slightly different syntax for #include files
-
-```c++
-#include <iostream>  // usually for library files
-#include "person.h"  // usually for user source files
-```
-
-The inclusion behaviour is the same, difference is in the search path for files. The difference is implementation specific to the pre-processor used. Below is from the C standard
-
--   A preprocessing directive of the form
-
-    ```
-    #include <h-char-sequence> new-line
-    ```
-
-    searches a sequence of implementation-defined places for a **header** identified uniquely by the specified sequence between the `<` and `>` delimiters, and causes the replacement of that directive by the entire contents of the **header**. How the places are specified or the header identified is implementation-defined.
-
--   A preprocessing directive of the form
-
-    ```
-    #include "q-char-sequence" new-line
-    ```
-
-    causes the replacement of that directive by the entire contents of the **source file** identified by the specified sequence between the `"` delimiters. The named **source file** is searched for in an implementation-defined manner. If this search is not supported, or if the search fails, the directive is reprocessed as if it read
-
-    ```
-    #include <h-char-sequence> new-line
-    ```
-
-    with the identical contained sequence (including `>` characters, if any) from the original directive.
-
-So the standard only gives semantic separation but no info on concrete differences.
-
-Here's the gcc implementation details (https://gcc.gnu.org/onlinedocs/cpp/Search-Path.html)
-- `#include "file"` searches first from currrent directory before going into standard system directories
-- `#include <file>` only searches through standard system directories
-
-Include chains: If C.h includes B.h includes A.h, then compiler first processes A.h, then B.h (pasting the processed A.h in), then C.h
-
-
-
-
-
-**Predefined macro names**
-
-The following macro names are always defined (they all begin and end with two underscore characters, `_`):
-
-| macro             | value                                                        |
-| :---------------- | :----------------------------------------------------------- |
-| `__LINE__`        | Integer value representing the current line in the source code file being compiled. |
-| `__FILE__`        | A string literal containing the presumed name of the source file being compiled. |
-| `__DATE__`        | A string literal in the form "Mmm dd yyyy" containing the date in which the compilation process began. |
-| `__TIME__`        | A string literal in the form "hh:mm:ss" containing the time at which the compilation process began. |
-| `__cplusplus`     | An integer value. All C++ compilers have this constant defined to some value. Its value depends on the version of the standard supported by the compiler: **`199711L`**: ISO C++ 1998/2003**`201103L`**: ISO C++ 2011Non conforming compilers define this constant as some value at most five digits long. Note that many compilers are not fully conforming and thus will have this constant defined as neither of the values above. |
-| `__STDC_HOSTED__` | `1` if the implementation is a *hosted implementation* (with all standard headers available) `0` otherwise. |
-
-The following macros are optionally defined, generally depending on whether a feature is available:
-
-| macro                              | value                                                        |
-| :--------------------------------- | :----------------------------------------------------------- |
-| `__STDC__`                         | In C: if defined to `1`, the implementation conforms to the C standard. In C++: Implementation defined. |
-| `__STDC_VERSION__`                 | In C: **`199401L`**: ISO C 1990, Ammendment 1**`199901L`**: ISO C 1999**`201112L`**: ISO C 2011In C++: Implementation defined. |
-| `__STDC_MB_MIGHT_NEQ_WC__`         | `1` if multibyte encoding might give a character a different value in character literals |
-| `__STDC_ISO_10646__`               | A value in the form `yyyymmL`, specifying the date of the Unicode standard followed by the encoding of `wchar_t` characters |
-| `__STDCPP_STRICT_POINTER_SAFETY__` | `1` if the implementation has *strict pointer safety* (see `get_pointer_safety`) |
-| `__STDCPP_THREADS__`               | `1` if the program can have more than one thread             |
-
-
-
-Example
-
-```c++
-#include <iostream>
-using namespace std;
-
-int main()
-{
-  cout << "This is the line number " << __LINE__;
-  cout << " of file " << __FILE__ << ".\n";
-  cout << "Its compilation began " << __DATE__;
-  cout << " at " << __TIME__ << ".\n";
-  cout << "The compiler gives a __cplusplus value of " << __cplusplus;
-  return 0;
-}
-```
-
-
-
-
-
-
-
-
-
 ## File I/O
 
 
@@ -5619,7 +5527,7 @@ int main () {
 
 
 
-## STL tandard Library
+## STL Standard Library
 
 Standard library is over 60% of ISO C++ standard
 
@@ -6657,9 +6565,7 @@ for (int i = 0; i < size; i++)
 
 
 
-### constexpr
 
-`constexpr` function means the value of the output can be determined at compile time. The function must be deterministic (e.g., it can't sample from a distribution), but it doesn't need to be pure (it can have side effects).
 
 
 
@@ -6733,28 +6639,9 @@ Lambda body, can refer to:
 
 
 
-### Delete expression
-
-- `delete expr`
-- `delete[] arr`
-
-Calls destructor of object and frees memory.
-
-Compare this with objects on the stack. If object goes out of scope, destructor is called and then object is deallocated from the stack. But if the object is allocated on the heap (using `new`), when object goes out of scope destructor is not called and object memory not freed. Must use `delete` in that case.
 
 
 
-### Namespaces for test
-
-When write unit tests (e.g., using BOOST) for symbols in namespace `foo::bar`, you can do 
-
-```c++
-namespace foo::bar::test {
-    // test cases
-}
-```
-
-This way you don't need to qualify variables with `foo::bar` and also it won't pollute the global namespace. If I used `using namespace foo::bar;` then all test cases are put into the global namespace
 
 
 ### Stack vs. Heap memory
@@ -6773,24 +6660,6 @@ Exceptions are
 - rvalues could be stored in registers
 - Large return values could be optimised to use return value optimisation to be constructed where it is needed
   - How RVO works: when a function returns a value normally it'll copy the value again to the memory location of caller after constructing the return value. RVO allows the value to be constructed directly at caller's memory region.
-
-### new vs. malloc
-
-- `new` returns a typed pointer, `malloc` does not
-- `new` throws error by default if no allocation, `malloc` returns nullptr
-- `new` have size calculated by compiler based on type, `malloc` you must specify size
-- `new` calls constructor and destructor at `delete`, `malloc` doesn't.  So for `malloc` the uninitialised state can be error-prone
-
-```c++
-int* a = new int;
-int* b = (int*)malloc(sizeof(int));  // As int is a simple type, leaving it uninitialised is OK
-```
-
-
-
-Technically `new` is allocated to `free-store` and `malloc` to `heap`, but that's conceptual difference. Almost all implementation they're the same region.
-
-Bottomline: Unless you have to use C, use `new` not `malloc`. And since RAII, don't use `new` unless you have to allocate to stack.
 
 
 
@@ -6871,155 +6740,7 @@ std::string s = createString(); // s can "steal" the temporary string
 
 
 
-### Headers vs. Source files
 
-- In general, we will put everything in source (.cpp) file, unless it's impossible (e.g., templates)
-- This way, any changes in source file means only that file needs to be recompiled, not all files that depend on the header
-- Only exception perhaps is putting code in header to speed up compilation
-- Try to move `#include` headers to .cpp files, only keep necessary ones in .h file so when you include that header file elsewhere less code is needed to compile
-- Try to make headers of each class self-sufficient. E.g, if a vector is used add `#include <vector>`, don't rely on headers of other includes to have `<vector>`. This way when I change the headers of a class I won't have propagating import errors elsewhere.
-
-
-### Random pieces
-
-- In C++, local definition of a function inside a function is not allowed, only exception is defining lambdas inside another function
-
-
-### C++ Concepts (metaprogramming)
-
-Metaprogramming helps performance
-
-But:
-
-- Hard to write and debug
-- Hard to read and reason about
-- Hard to compile (takes a long time)
-
-Concepts make metaprogramming more accessible
-
-
-
-Example for concept use:
-
-Imagine you have a tree, where components can send messages to each other.
-
-If you know the structure of the tree at compile time, you should be able to work out where messages will go at compile time, instead of having the compiled code simulating messages going through the tree at runtime.
-
-Concept allows you to define the structure of the tree as a concept, which compiler can use to optimise code at compile time.
-
-
-
-```c++
-template<typename Context_>
-void handle(const tock& message, Context_ context) {
-    puts("tock!")
-}
-```
-
-becomes
-
-```c++
-template<typename T>
-concept Context = sizeof(T) == 1;
-```
-
-and
-
-```c++
-void handle(const tock& message, Context auto context) {
-    puts("tock!")
-}
-```
-
-
-
-```c++
-template<typename T>
-concept Node = std::is_object_v<T>;
-
-template<typename T>
-concept Tree = requires (T t) {
-    { t.root } -> Node;
-    { T::childCount } -> std::convertible_to<std::size_t>;
-    requires T::childCount == 0 || requires {
-        t.template child<0>();
-    }
-}
-
-template<Node Root_, Tree... Children_>
-struct tree {
-    Root_ root;
-    std::tuple<Children_...> children;
-    static constexpr std::size_t childCount = sizeof...(Children)
-    
-    tree() = default;
-    
-    tree(std::convertible_to<Root_> auto&& root) 
-        : root(std::forward<decltype(root)>(root))
-    { }
-    
-    template<std::size_t index_>
-    	requires (index_ < sizeof ...(Children))
-    Tree auto& child() {
-        return std::get<index_>(children);
-    }
-}
-
-template<typename T>
-concept Context = requires (T t) {
-    t.tree;
-    requires Tree<std::remove_reference_t<decltype>(t.tree)>>;
-    { t.location } -> TreeLocation;
-};
-
-template<typename T>
-concept Message = std::is_object_v<T>
-
-// Omitting TreeLocation concept implementation for now
-
-template<typename Tree_, TreeLocation TreeLocation_ = tree_location<>>
-struct context {
-    Tree_& tree;
-    static constexpr const TreeLocation_ location;
-    
-    context(Tree_& tree) : tree{ tree } ( static_assert(Context<context>))
-    
-    void sendDown(...) {
-		Tree auto& current = tree.subtree(location);
-        current.childCount.times.with_index(
-            [&] (SizeConstant auto childIndex) {
-                Node auto& child = tree.subtree(location.ofChild(childIndex)).root;
-                Context auto childContext = ::context{tree, location.ofChild()};
-                if constexpr (requires { child.handle(message, childContext); }) {
-                    child.handle(message, childContext);
-                } else if constexpr (requires { child.handle(message); }) {
-                    child.handle(message);
-                    childContext.sendDown(message);
-                } else {
-                    childContext.sendDown(message);
-                }
-            }
-        );
-    }
-    
-    void sendUp(Message auto message) {
-        if constexpr (!location.isRoot) {
-            Node auto& parent = tree.subtree(location.ofParent()).root;
-            Context auto parentContext = ::context{tree, location.ofParent()};
-        	if constexpr (requires { parent.handle(message, parentContext); }) {
-                parent.handle(message, parentContext);
-            } else if constexpr (requires { parent.handle(message); }) {
-                parent.handle(message);
-                parentContext.sendUp(message);
-            } else {
-                parentContext.sendUp(message);
-            }
-        }
-    }
-}
-```
-
-Here we model the `context` function taking the whole tree and location of node in tree. This way we avoid defining tree recursively using nodes, where we run into cyclic dependency in types.
 
 ### explicit specifier
 
