@@ -4397,27 +4397,104 @@ template <> class MyContainer <char> { ... };
 
 
 
-Variadic templates
+**Variadic templates**
+
+Templates with an arbitrary argument size, these are very expressive and is used extensively in STL
+
+```c++
+template<typename T, typename.... Tail>
+void print(T head, Tail... tail)
+{
+	std::cout << head;
+    if constexpr(sizeof...(tail) > 0) // avoid last un-used call
+        print(tail...);
+}
+
+print("Hello"s, 1, "World", 3.14);
+```
+
+
+
+**Fold expression**
+
+```c++
+template<typename ... T>
+void print(T&& ... args)
+{
+	(std::cout << ... << args) << std::endl;
+}
+```
+
+Folds simplify writing recursive functions involving variadic templates
+
+1) Unary right fold `(E` *op* `...)` becomes `(E1` *op* `(`... *op* `(EN-1` *op* `EN)))`
+2) Unary left fold `(...` *op* `E)` becomes `(((E1` *op* `E2)` *op* ...`)` *op* `EN)`
+3) Binary right fold `(E` *op* `...` *op* `I)` becomes `(E1` *op* `(`... *op* `(EN−1` *op* `(EN` *op* `I))))`
+4) Binary left fold `(I` *op* `...` *op* `E)` becomes `((((I` *op* `E1)` *op* `E2)` *op* ...`)` *op* `EN)`
+
+Below is foldr and foldl in Haskell as reminder. These are mirrors of the binary case. For the unary case we have restriction `a -> a -> a` for the operator
+
+```haskell
+foldr :: (a -> b -> b) -> b -> [a] -> b
+foldr c n [] = n
+foldr c n (x:xs) = c x (foldr c n xs)
+
+foldr (:) [] = id
+
+foldl :: (a -> b -> a) -> a -> [b] -> a
+foldl s n [] 	 = n
+foldl s n (x:xs) = foldl s (s n x) xs
+
+foldl (\xs x -> xs ++ [x]) [] = id
+```
+
+
+
+Examples
+
+```c++
+template<typename... Args>
+bool all(Args... args) { return (... && args); }
+
+template<typename ... T>
+void print(T&& ... args) { (std::cout << ... << args) << std::endl; }
+```
 
 
 
 
 
-Fold expression
+
+
+
+
+**Forwarding arguments**
+
+It's common to pass argument through an interface unchanged
+
+```c++
+template<typename Transpor t>
+requires concepts::InputTranspor t<Transpor t>
+class InputChannel {
+	public:
+	// ...
+	InputChannel(Transpor tArgs&&... transportArgs)
+		: _transpor t(std::forward<Transpor tArgs>(transpor tArgs)...)
+	{}
+	// ...
+	Transpor t _transpor t;
+};
+```
 
 
 
 
 
-Forwarding arguments
 
 
 
 
-
-
-
-### Concepts $$
+### Concepts
 
 Concepts Terminology
 
