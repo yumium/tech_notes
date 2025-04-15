@@ -35,7 +35,7 @@ Problems C++ tries to solve over C (so you should focus on these first)
 
 - [ ] cpp core guidelines (prioritise the ones in the appendix)
   - [ ] Chapter 3 (page 43)
-- [ ] `std::variant` - safer and easier to use than union
+- [x] `std::variant` - safer and easier to use than union
 - [ ] asynchronous I/O (`std::future`, `std::promise`)
 - [x] `static_cast` vs `reinterpret_cast` (see in book)
 - [x] virtual and vtbl (page 70)
@@ -43,10 +43,18 @@ Problems C++ tries to solve over C (so you should focus on these first)
 - [ ] templates and concepts chapter
 - [x] I/O (the cpp STL is pretty horrible)
 - [ ] Concurrency chapter from tour of cpp book can be better explained in cpp concurrency in action book
-- [ ] Fold expressions and parameter unpacking
+- [ ] Parameter unpacking
 - [ ] Ranges concept and ranges library
 - [ ] Customer allocators
-- [ ] Pointer vs references
+- [x] Pointer vs references
+- [ ] Inline specifier:
+- https://ryonaldteofilo.medium.com/inline-and-one-definition-rule-in-c-db760ec81fb2
+- https://en.cppreference.com/w/cpp/language/inline
+- Different from what you may think, about saying if multiple definitions of the same function appear in the same namespace (e.g., when you import .h in multiple .cpp files), telling compiler they are indeed the same function (no need to raise error).
+
+- .cpp vs .h files
+
+
 
 
 
@@ -592,6 +600,56 @@ int main()
 
 
 
+#### Non standards
+
+**pragma once**
+
+A non-standard that is implemented in most compiler. If added to a file, it is only included in the first include, all subsequent include on the same file is ignored.
+
+This simplifies file dependencies (solving problems are redefinitions) and can speed up compilation
+
+ID-ing files usually done by comparing file path.
+
+Example
+File "grandparent.h"
+
+```c++
+#pragma once
+
+struct foo 
+{
+    int member;
+};
+```
+
+File "parent.h"
+
+```c++
+#include "grandparent.h"
+```
+
+File "child.c"
+
+```c++
+#include "grandparent.h"
+#include "parent.h"  // The second time `grandparent` (inside parent.h) is included is ignored
+```
+
+Main challenge is it's not trivial to know if the file is the same file (e.g., in the presence of symlinks, same file copied many times). One alternative is to resort to old way of using include guards.
+
+```c++
+#ifndef GRANDPARENT_H
+#define GRANDPARENT_H
+... contents of grandparent.h
+#endif /* !GRANDPARENT_H */
+```
+
+Downside of include guards is overhead of maintaining these constants, additional compilation time from evaluating the macros and code bloat
+
+
+
+
+
 
 
 ### Program structure
@@ -658,7 +716,7 @@ There are also strict size types (e.g., `uint32_t`). These guarantee the underly
 
 Unless we need a type to be of exact length, preferred `signed` over `int32_t`, so compiler can choose whatever works best in hardware (e.g., what can fit inside a register, say).
 
-.`size_t`: Type to store the maximum size of a theoretically possible object of any type in C++. The actual definition is hardware dependent (usually a `uint64_t`). Used for array indexing and loops. Always use `size_t` for this purpose as otherwise you can have overflow
+.`size_t`: Type to store the maximum size of a theoretically possible object of any type in C++. The actual definition is hardware dependent (usually a `uint64_t`). Used for array indexing and loops. Always use `size_t` for this purpose as otherwise you can have overflow. `size_t` allows programmers to write portable code
 
 
 ```c++
@@ -1113,6 +1171,206 @@ void good()
 RAII wasn't possible in C because C isn't OOP (there are no destructors)
 
 
+
+### Lambda Expression
+
+```c++
+#include <algorithm>
+#include <cmath>
+
+void abssort(float* x, unsigned n) {
+    std::sort(x, x + n,
+        // Lambda expression begins
+        [](float a, float b) {
+            return (std::abs(a) < std::abs(b));
+        } // end of lambda expression
+    );
+}
+```
+
+Capture group
+
+Captures variables in scope
+
+- `[&total, factor]`: & means pass by reference, otherwise by value
+- `[]`: No variables are captured
+- `[&]`: Capture all by reference
+- `[=]`: Capture all by value
+- `[&, total]`: Capture all by reference, apart from variable `total`. You can do the same with `=`
+- `[&, &total]`: NOT ALLOWED
+
+Caveats:
+
+- Reference can mutate variables outside, by value can't
+- Reference introduces lifetime dependency, if lambda running async, it may be gone when lambda executes
+- Reference reflects change of variable outside
+- Capture group and function body are both required, argument list can be omitted if no argument
+
+Parameter list:
+
+- `auto y = [] (int first, int second){ return first + second; };`:
+- `auto y = [] (auto first, auto second){ return first + second; };`: Using auto makes the function templated, one for each `auto` input
+
+Mutable specifier
+
+- By default, all variables passed in are const-by-value.
+- `[&, n] (int a) mutable { m = ++n + a; }(4);`: This allows the value to be mutated inside the function
+- `[&] (int a) mutable { m = ++n + a; }(4);`: As `n` is passed by reference here instead of by value as above, this will mutate the value outside the function
+
+Exception specifier
+
+- `[]() noexcept { throw 5; }();`: `noexcept` disallows lambda body to throw, here compiler will throw an error
+
+Return type
+
+- `auto x1 = [](int i){ return i; };`: Return type is automatically deduced, here it's an int. You cannot use brace-init-list as return type, like `... return{i, j};`
+- `auto x1 = [](int i) -> int { return i; };`: You can using trailing return type signature to specify the type (e.g., when there are multiple return statements in the lambda
+
+Lambda body, can refer to:
+
+- Captured variables
+- Parameters to function
+- Locally defined variables
+- Class data members, only if `this` is captured
+
+```c++
+[this] () { // blah };  // `this` is a pointer so captured by value
+[&foo = _foo] () { // blah };  // `foo` is a member of the class, pass by reference into the lambda
+```
+
+- Variable with static storage location, e.g., global vars
+
+
+
+
+
+
+
+### Dynamic memory
+
+Some cases memory cannot be determined before program execution, such as in cases where memory depends on user input.
+
+
+
+**New operator: allocate memory**
+
+```c++
+int * foo;
+foo = new int [5];	// Allocate space for 5 integers
+
+int * bar;
+bar = new int;	// Allocates space for an integer
+
+cout << foo[0];
+cout << foo[1];
+cout << *foo;
+cout << *(foo+1);
+// etc.
+```
+
+The biggest difference between allocating memory with `new` and arrays is that for `new`, the size of array does not need to be determined at compile time, ie. it doesn't need to be a constant expression.
+
+Of course, memory allocation will not always be successful. There are 2 ways C++ can deal with this:
+
+- By default, a `bad_alloc` exception is thrown
+- If you declare `foo = new (nothrow) int [5];`, then if memory allocation fails it will return `nullptr`. Using the exception is more efficient, as it avoids null check every time.
+
+
+
+**Delete operator**
+
+```c++
+delete[] foo;
+delete bar;
+```
+
+Deallocates memory for the pointer. If `nullptr` is provided, there will be no effects.
+
+
+
+**new vs. malloc**
+
+- `new` returns a typed pointer, `malloc` does not
+- `new` throws error by default if no allocation, `malloc` returns nullptr
+- `new` have size calculated by compiler based on type, `malloc` you must specify size
+- `new` calls constructor and destructor at `delete`, `malloc` doesn't.  So for `malloc` the uninitialised state can be error-prone
+
+```c++
+int* a = new int;
+int* b = (int*)malloc(sizeof(int));  // As int is a simple type, leaving it uninitialised is OK
+```
+
+Technically `new` is allocated to `free-store` and `malloc` to `heap`, but that's conceptual difference. Almost all implementation they're the same region.
+
+Bottomline: Unless you have to use C, use `new` not `malloc`. And since RAII, don't use `new` unless you have to allocate to stack.
+
+​	`malloc` is basically a C thing, in C++ we use `new`
+
+
+
+
+
+#### Stack vs. Heap memory
+
+- Stack memory is used to store local variables in a function. Deallocation is automatic and fast as often just need to change sp (so 1 instruction instead of what malloc needs)
+- Heap memory is used for large allocations. It needs manual deallocation and generally slower, so more likely to cause memory leaks.
+  - Note, `malloc` does not always trigger a sys call. OS typically only give memory to a process in pages, so C++ process will get a page, then slice it up to each time malloc is called.
+
+Stack memory is allocated for local variables, function parameters, RAII etc. Heap allocation only if using `new` or `malloc`. RAII as in putting a resource manager object like `std::vector` on the stack, that manages memory it uses on the heap. 
+
+Arrays (so fixed size) are placed inside the stack (though too large and it can cause stack overflow during runtime).
+
+Exceptions are
+
+- Global and static variables are stored in data segment or BSS (all zeros, used for zero data or uninitialised data)
+- rvalues could be stored in registers
+- Large return values could be optimised to use return value optimisation to be constructed where it is needed
+  - How RVO works: when a function returns a value normally it'll copy the value again to the memory location of caller after constructing the return value. RVO allows the value to be constructed directly at caller's memory region.
+
+
+
+
+
+#### Memory ownership
+
+When we say a variable, process etc. "owns" memory, we mean they are responsible for the initialisation and destruction of the memory, preventing leaks or double delete etc.
+
+`std::shared_ptr` has share ownership because a group of variables may own the memory, only last one out of scope calls the destructor
+
+
+
+
+
+
+
+### lvalue vs rvalue
+
+lvalue: (locator value), which must have address in memory, can appear on LHS
+rvalue: (right value), does not have address in memory, cannot appear on LHS
+
+```c++
+int y = 10;    // y is an lvalue
+int z = y + 5; // y + 5 is an rvalue
+
+int &ref = y;  // ref is an lvalue reference to x
+ref = 20;      // x is now 20
+
+int &&rref = 10;  // rref is an rvalue reference to the temporary 10 - $$ how does && work?
+rref = 20;        // temporary 10 is now modified to 20
+```
+
+The introduction of rvalue is to avoid compiler from always allocating memory. So values can, say, be stored in a register.
+The introduction of rvalue references which allows resources to be moved rather than copied
+
+```c++
+std::string s1 = "Hello";
+std::string s2 = std::move(s1);  // s1 is an lvalue, but std::move converts it to an rvalue
+
+std::string createString() {
+    return "Hello, World!";
+}
+std::string s = createString(); // s can "steal" the temporary string
+```
 
 
 
@@ -2125,71 +2383,6 @@ ptr = nullptr;
 ```
 
 
-
-
-
-
-
-
-### Dynamic memory
-
-Some cases memory cannot be determined before program execution, such as in cases where memory depends on user input.
-
-
-
-**New operator: allocate memory**
-
-```c++
-int * foo;
-foo = new int [5];	// Allocate space for 5 integers
-
-int * bar;
-bar = new int;	// Allocates space for an integer
-
-cout << foo[0];
-cout << foo[1];
-cout << *foo;
-cout << *(foo+1);
-// etc.
-```
-
-The biggest difference between allocating memory with `new` and arrays is that for `new`, the size of array does not need to be determined at compile time, ie. it doesn't need to be a constant expression.
-
-Of course, memory allocation will not always be successful. There are 2 ways C++ can deal with this:
-
-- By default, a `bad_alloc` exception is thrown
-- If you declare `foo = new (nothrow) int [5];`, then if memory allocation fails it will return `nullptr`. Using the exception is more efficient, as it avoids null check every time.
-
-
-
-**Delete operator**
-
-```c++
-delete[] foo;
-delete bar;
-```
-
-Deallocates memory for the pointer. If `nullptr` is provided, there will be no effects.
-
-
-
-**new vs. malloc**
-
-- `new` returns a typed pointer, `malloc` does not
-- `new` throws error by default if no allocation, `malloc` returns nullptr
-- `new` have size calculated by compiler based on type, `malloc` you must specify size
-- `new` calls constructor and destructor at `delete`, `malloc` doesn't.  So for `malloc` the uninitialised state can be error-prone
-
-```c++
-int* a = new int;
-int* b = (int*)malloc(sizeof(int));  // As int is a simple type, leaving it uninitialised is OK
-```
-
-Technically `new` is allocated to `free-store` and `malloc` to `heap`, but that's conceptual difference. Almost all implementation they're the same region.
-
-Bottomline: Unless you have to use C, use `new` not `malloc`. And since RAII, don't use `new` unless you have to allocate to stack.
-
-​	`malloc` is basically a C thing, in C++ we use `new`
 
 
 
@@ -3929,124 +4122,234 @@ int main () {
 
 ### Templates
 
-Function templates => polymorphic functions
+https://blog.feabhas.com/2014/05/an-introduction-to-c-templates/
+
+Often times we wish to write "generic" programs with generic functions and classes.
+
+Spelling them out for every instance type create code bloat, more erros and harder to read (DRY is violated)
+
+The "C" way to make templates is using macros, but downsides are 1) no type safety, 2) no compiler checking (e.g., deduction, syntax check ...)
+
+Templates improves on use of macros by bringing the templating to the compiler (not preprocessor)
+
+Template programming allow compiler to create new functions based on some "scaffold" code the programmer writes
+
+During compilation, each instance of the templated function/class is created as a separate template/class. But all stored inside the template source, so only 1 compilation unit is compiled
+
+Template thus give the following benefits:
+
+- Type and syntax checking over macros
+- Type deduction over macros, which may improve run-time performance compared to writing every specialization by hand
 
 ```c++
-template <typename T>	// Can also write `template <class T>`, there is no difference
-T sum (T a, T b)
+template<typename T>
+T add(T a, T b)
 {
-    return a+b;
+    return a + b;
 }
+
+...
+    
+int a = 1;
+std::cout << add<int>(a, a);  // using function `int add(int, int)`
+
+...
+
+float b = 2.0;
+std::cout << add<float>(b, b); // using function `float add(float, float)`
 ```
 
-The generic typename can be used anywhere in the function (return type, declaring new variables with that type)
+A template plus a set of template arguments is called an instantiation. Each instantiation is generated during instantiation time, this is usually late in the compilation steps
 
-You can call polymorphic functions by supplying it with the actual type
 
-```c++
-x = sum<int>(10,20);
-```
 
-When the type is defined, the function is equivalent to:
+**Generic programming using templated classes with templated member functions**
 
 ```c++
-int sum (int a, int b)
+// It's quite common for container classes to be type generic
+template<typename T>
+class Vector {
+private:
+    T* elem;
+    int sz;
+public:
+	explicit Vector(int s);
+    ~Vector() { delete[] elem; }
+    
+    // .. copy and move ops
+    
+    T& operator[](int i);				// for non-const vectors
+    const T& operator[](int i) const;	// for const vectors
+    int size() const { return sz; }
+}
+
+// Implementation
+template<typename T>
+Vector<T>::Vector(int s)
 {
-	return a+b;
+    if (s<0)
+        throw Negative_size{};
+    
+    elem = new T[s];
+    sz=s;
+}
+
+template<typename T>
+const T& Vector<T>::operator[](int i) const
+{
+    if (i < 0 || size() <= i)
+        throw out_of_range{"Vector::operator[]"};
+	return elem[i];
+}
+
+// Client can use Vector in a generic way
+Vector<char> vc(200);
+Vector<string> vs(17);
+Vector<list<int>> vli(45);
+
+// Client can also write generic functions for Vector
+template<typename T>
+T* begin(Vector<T>& x)
+{
+	return x.size() ? &x[0] : nullptr; // pointer to first element or nullptr
 }
 ```
 
-Syntax for multiple `typename`s
+We can think of generic programming just as another form of abstraction
 
 ```c++
-// function templates
-#include <iostream>
-using namespace std;
-
-template <class T, class U>
-bool are_equal (T a, U b)
+// a non-generic accumulator
+double sum(const std::vector<int>& v)
 {
-  return (a==b);
+    double res = 0;
+    for (auto x : v) res += x;
+    return res;
 }
 
-int main ()
+// a generic accumulate function
+template<Range R, Number Val> //  Range and Number are concepts that restrict types to be "sensible" for the operations involved
+Val accumulate(const R& r, Val res = 0)
 {
-  if (are_equal<int,double>(10,10.0))
-    cout << "x and y are equal\n";
-  else
-    cout << "x and y are not equal\n";
-  return 0;
+	for (auto p = begin(r); p != end(r); p++)
+        res += p;
+	return res;
 }
+
+// clearly, abstraction encourages code reuse
 ```
 
 
 
-
-
-```C++
-// template arguments
-#include <iostream>
-using namespace std;
-
-template <class T, int N>
-T fixed_multiply (T val)
-{
-  return val * N;
-}
-
-int main() {
-  std::cout << fixed_multiply<int,2>(10) << '\n';
-  std::cout << fixed_multiply<int,3>(10) << '\n';
-}
-```
-
-The types of call to `fixed_multiply` is determined at compile time.
-
-
-
-#### Class templates
-
-Like function templates, class templates allow creation of objects that are polymorphic.
+**Value template arguments**
 
 ```c++
-template <class T>
-class myPair {
-    	T values [2];
-  	public:
-    	myPair (T first, T second)
-        {
-            values[0] = first;
-            values[1] = second;
-        }
-};
-```
+// Template arguments can be a value, not just a typename
+template<typename T, int N>
+struct Buffer {
+    using value_tye = T;
+    constexpr int size() { return N; }
+    T[N];
+    // ...
+}
 
-We use similar syntax to instantiate new objects
-
-```c++
-mypair<int> myobject (115, 36);
-mypair<double> myobject (3.0, 2.18);
+// Client code
+Buffer<char, 1024> glob;
 ```
 
 
 
-If we are defining function members outside the class, we need the template header
+**Template argument deduction**
+
+C++ compiler can use type deduction to remove the need for verbosely defining template arguments each time
 
 ```c++
-// class definition ...
+std::pair p = {1.5, 2} // p is a std::pair<double, int>
 
-template <class T>
-T mypair<T>::getmax ()
+// previously we had to ...
+std::pair<double, int> p = {1.5, 2};  // spell out the types manually
+auto p = make_pair(1.5, 2) // define make_xyz function that explicitly does type deduction
+    
+// however, using deduction can sometimes cause surprises (?)
+Vector v {"Hello", "World"};  // deduces to Vector<const char*>, because "" literal in C++ typing is `const char*`
+Vector v2 {"Hello"s, "World"s}; // deduces to Vector<std::string>
+```
+
+Sometimes we need to help compiler deduce the return type
+
+```c++
+template<typname Iter>
+	Vector(Iter, Iter) -> Vector<typename Iter::value_type>
+
+// compiler does not know directly type of underlying Vector if constructed using iterators
+```
+
+The use of Concepts allow us to give type hints to compilers in a more expressive way
+
+
+
+**Type aliases in templates**
+
+```c++
+// The use of Class::value_type to obtain the underlying type of a container class is useful for writing generic functions
+template<typename T>
+class Vector
 {
-    return a >= b ? a : b;
+public:
+	using value_type = T;
+    // ...
+}
+
+// util
+template<typename C>
+using Value_type = typename C::value_type;
+
+// example generic function
+template<typename Container>
+void algo(Container& c)
+{
+    Vector<Value_type<Container>> vec;  // keep results here
+    // ...
 }
 ```
 
 
 
+**Compile-time if => performance gains**
+
+```c++
+template<typename T>
+void update(T& target)
+{
+    // ...
+    if constexpr(is_pod<T>::value) // for plain-old-data
+        simple_and_fast(target);
+    else
+        slow_and_safe(target);
+    // ...
+}
+```
 
 
-#### Template specialization
+
+**decltype returns the type of an expression via type deduction**
+
+```c++
+template<typename T1, typename T2>
+decltype(a < b ? a : b) min(T1 a, T2 b) // ERROR, a and b used before declaration
+{
+    return a < b ? a : b;
+}
+
+template<typename T1, typename T2>
+auto min(T1 a, T2 b) -> decltype(a < b ? a : b)
+{
+    return a < b ? a : b;
+}
+```
+
+
+
+**Template specialization**
 
 If we want to define additional function members when certain types are used, we can specialize a template
 
@@ -4094,6 +4397,19 @@ template <> class MyContainer <char> { ... };
 
 
 
+Variadic templates
+
+
+
+
+
+Fold expression
+
+
+
+
+
+Forwarding arguments
 
 
 
@@ -4101,8 +4417,7 @@ template <> class MyContainer <char> { ... };
 
 
 
-
-### Concepts
+### Concepts $$
 
 Concepts Terminology
 
@@ -4370,9 +4685,11 @@ C1<7> c2;  // OK
 
 
 
-#### Using concepts for performance
+#### Using concepts for performance $$
 
 https://www.youtube.com/watch?v=qawSiMIXtE4
+
+$$ Also I still don't understand how the BF ITCH trees work, be good to look into this
 
 
 
@@ -5541,40 +5858,356 @@ Parts of STL library that's just not great:
 
 - `unorderd_map`: uses chaining instead of probing (we use boost's alternatives usually)
 
-  
-
-Algo: `copy()`, `find()`, `sort()`
-
-Utils: smart pointers (unique_ptr, shared_ptr, weak_ptr), move and forward
-
-Containers: vector, array, set, multiset, unorderd_map, unorderd_multimap, tuple, pair, queue, list, forward_list
-
-vector: A variable-size vector (§11.2)
-list: A doubly-linked list (§11.3)
-forward_list: A singly-linked list
-deque: A double-ended queue
-set: A set (a map with just a key and no value)
-multiset: A set in which a value can occur many times
-map<K,V>: An associative array (§11.4)
-multimap<K,V>: A map in which a key can occur many times
-unordered_map<K,V>: A map using a hashed lookup (§11.5)
-unordered_multimap<K,V>: A multimap using a hashed lookup
-unordered_set<T>: A set using a hashed lookup
-unordered_multiset<T>: A multiset using a hashed lookup
-
-
-
-<algorithms> header
-
-Algorithms operate across containers using iterator as the common interface across different containers.
-
-$$ page 169
 
 
 
 
 
-### std::span
+
+### Containers
+
+| STL                | Underlying                                   |
+| ------------------ | -------------------------------------------- |
+| vector             | Variable-size array                          |
+| array              | Fixed-size array                             |
+| set                | Set (map with key and no value) using RBTree |
+| multiset           | Bag                                          |
+| queue              | deque, with FIFO access restriction          |
+| list               | doubly-linked list                           |
+| forward_list       | singly-linked list                           |
+| tuple              | lightweight heterogeneous collection         |
+| pair               | ^^                                           |
+| span               | non-owning view of contiguous memory         |
+| map                | key-value pair using RBTree                  |
+| multimap           | ^^ key can appear many times                 |
+| unordered_map      | key-value pair using hash map                |
+| unordered_multimap | ^^ key can appear many times                 |
+| unordered_set      | Set using hash map                           |
+| unordered_multiset | Bag using hash map                           |
+
+
+
+Standard container operations 
+
+These are common interfaces across containers. Uniformity makes the library easier to use and understand. Obviously complexity of these methods are not the same across data structures
+
+| Operation         | Meaning                                                      |
+| ----------------- | ------------------------------------------------------------ |
+| p=c.begin()       | p points to first element of c, algo .cbegin() for an interator to const |
+| p=c.end()         | p points to one-past-the-last elment of c, also cend() for an interator to const |
+| k=c.size()        | k is the number of elements in c                             |
+| c.empty()         | is c empty                                                   |
+| k=c.capacity()    | k is the number of elements that c can hold without a new allocation |
+| c.reserve(k)      | Make the capacity k                                          |
+| c.resize(k)       | Make the number of elements k                                |
+| c[k]              | The kth element of c, no range checking                      |
+| c.at(k)           | The kth element of c, if out of range throw `out_of_range`   |
+| c.push_back(x)    | Add x at the end of c, increasing size of c by 1             |
+| c.emplace_back(a) | Add value_type{a} at the end of c, increase size of c by 1   |
+| q=c.insert(x)     | Add x before p in c                                          |
+| q=c.erase(p)      | Remove element at p from c, returns iterator to the next element (could be the (updated) end() iterator) |
+| c==c2             | Assignment                                                   |
+| b=(c==c2)         | Equality of all elements                                     |
+| x=(c<c2)          | Lexicographic order of c and c2<br />x<0 if less than, x==0 if equal, x>0 if greater than |
+|                   |                                                              |
+
+
+
+#### std::vector
+
+Like a resizable array. Elements stored contiguously. Expands automatically as needed. Because of this extra space is allocated for future expansion (without needing to allocate memory and copy every time).
+
+Expansion implementation depends on the compiler used. For GNU, we do geometric expansion (each time we reallocate, we double in size, so amortized O(1)). Alas, reallocation is expensive, so use `reserve()` if you know the size beforehand.
+
+Total amount of allocated memory queried using `capacity()` function. Extra memory can be freed using `shrink_to_fit()` function.
+
+The vector object always placed on stack. The elements are always allocated in free store (heap)
+
+
+
+Key complexities
+
+- Random access O(1)
+- Insertion and removal from end, amortized O(1)
+- Insertion and removal from anywhere, linear in distance to end of vector O(n)
+
+
+
+Arrays vs Vector:
+
+- Arrays can be statically allocated on the stack (size known at compile time) or dynamically allocated on the heap. Vectors are always allocated on the heap
+- Vectors can be returned from functions, arrays can only be returned by downgrading to pointers (`T*`)
+- Vectors have automatic memory management, dynamically allocated arrays need manual freeing (`delete[] a;`)
+- Vectors have richer features than arrays
+- Vectors can be resized whereas arrays can't
+
+For these reasons, vectors are almost always preferred. Times when arrays are preferred include knowing the size of the array at compile time, coding on constrained devices, and C compatibility.
+
+
+
+**Caveat**: For static constexpr arrays you need `std::array`, as `std::vector` allocates to heap and C arrays can't be declared in-class, which constexpr requires.
+
+
+
+Constructors:
+
+- `std::vector<int> vec;` or `std::vector<int> vec{};` to declare an empty vector
+- If using brackets, initialisation list is preferred `std::vector<int> vec {N, 1};  // initialises vector of 2 elements, N and 1`
+- If want to initialise with size and default value, use brackets `std::vector<int> vec (N, 1);  // initialises vector of size N and default value i`
+
+
+
+Call by reference vs call by value
+
+```c++
+void foo(vector<int>& vec) { ... }  // By reference, modifies the same values in heap
+
+void bar(vector<int> vec) { ... }  // By value, copies the object and copies values in heap, so modification not reflected in caller's vector object
+```
+
+
+
+Methods
+
+- `front()`: First element, will run into errors if vector is empty (if uncaught most likely segmentation fault at runtime)
+- `back()`: Last element
+- `data()`: Return underlying array
+- `reserve(new_cap)`: Reserve additional memory to such that capacity allows for up to `new_cap` elements. if `new_cap` < `.capacity()`, the function does nothing. If `new_cap` > `.max_size()`, throws `std::length_error`
+- `shrink_to_fit()`: Frees unused memory
+- `clear()`: Erases all elements. `size()` returns to zero. `capacity()` is unchanged.
+- `insert()`: 
+  - `insert(pos, count, val)`: Inserts count # of val at index pos, returns iterator pointing to first element inserted or pos if count == 0, O(count + N) where N is the # of elements between pos and end of container
+  - `insert(pos, first, last)`: Inserts from range [first, last) at index pos, returns iterator pointing to first element inserted or pos if first == last, O((last-first) + N) where N is the # of elements between pos and end of container
+  - `insert(pos, ilist)`: Inserts elements from initializer list `ilist` before pos, returns iterator pointing to the first element inserted or pos if ilist is empty, O(ilist.size + N) where N is the # of elements between pos and end of container
+- `insert_range(pos, rg)`: Inserts range `rg` at index pos
+- `pop_back()`: Removes last element, returns nothing, undefined behavior if vector is empty
+- `append_range(rg)`: Inserts range `rg` to the end of the vector, reallocation can happen. Complexity is O(|rg|) or O(|new_size|) if reallocation needed
+
+
+
+Looping through. Using iterators givees you more flexibility, but nothing wrong with using indices.
+
+```c++
+for (size_t i = 0; i < vec.size(); i++)
+{
+    vec[i].doStuff();
+}
+
+for (auto it = vec.begin(); it != vec.end(); it++)
+{
+    it->doStuff();
+}
+
+for (auto& element : vec) {
+    element.doStuff();
+}
+```
+
+
+
+
+
+#### std::array
+
+Interface comparison to std::vector
+
+- No resizing (no .reserve(), .capacity(), .shrink_to_fit())
+- No appending (no .push_back(), .pop_back())
+
+
+
+Other comparison with std::vector
+
+- Size known at compile time and cannot be changed after creation
+- Memory allocated on stack always, providing less overhead, and more optimisation possible
+
+
+
+Initialisation:
+
+```c++
+std::array<int, 5> = {1,2,3};  // last 2 elements are zero-initiated
+```
+
+
+
+Comparison with C arrays[]
+
+- Size information isn't stored in C arrays data structures, functions on them must also get size argument
+- No bound checking for C arrays while std::array throws std::out_of_range exception
+- C arrays can be allocated on heap using `int* heap_arr = new int[5]` but heap allocation no possible with std::array
+- C arrays have no built-in helper functions unlike std::array
+- C arrays aren't objects so don't have copy assignment or comparison, while you can do `int arr2[5]; arr2 = arr; cout << arr == arr2 << endl; // true`
+- C arrays decay to pointers when passed as arguments, losing size information; not for std::array
+- C arrays compatible with C code, std::array is so with `.data()`
+
+
+
+
+
+#### std::set
+
+The set requires the template type to contain `<` comparison (as the underlying impl can use a binary search tree). The guarantee uniqueness, the `==` operation is just taking the function `(!(a < b) && (!(b < a))`.
+
+```c++
+struct Point
+{
+    int x;
+    int y;
+
+    bool operator< (const Point& other) const
+    {
+	return x < other.x || (x == other.x && y < other.y);
+    }
+}
+
+std::set<Point> s {{0,1}, {1,0}};
+```
+
+- 
+
+- 
+
+Modifiers (complexity is log to the size of the set)
+
+- `iterator emplace_hint( const_iterator hint, Args&&... args )`: insert (if correct) element to position right after `hint`
+
+Lookup (complexity is log to the size of the set)
+
+- `size_type count( const Key& key ) const`: returns # of elements equal to `key` (0 or 1)
+- `iterator find( const Key& key )`: finds `key` in the set, returns the iterator, or `set.end()` otherwise. So you check for non-existance using `s.find(elem) == s.end()`
+- `.contains()`: new in C++20
+
+
+
+#### std::queue
+
+This is a "container adaptor", it uses `std::deque` under the hood but exposes a subset of operations.
+
+- `.front()`: Returns reference to first element
+- `.back()`: Returns reference to last element
+- `.push(val)`: Inserts element at the end
+- `.emplace( Args&& args )`: Inserts element by constructing in-place
+- `.pop()`: Removes element from front of queue, returns nothing
+
+
+
+
+
+#### std::list
+
+Doubly linked list
+
+Element access: `front`, `back`
+
+Modifiers: , `erase`, `push_back`, `pop_back`, `push_front`, `pop_front`, `append_range`, `prepend_range`
+
+- `merge(list& other)`: Assume both lists sorted, merges both lists (stable) with no elements copied. The container `other` becomes empty after the operation
+  Does nothing if `other` points to the same list
+  Returns nothing
+  Complexity O(N+M)
+
+- `splice`: Transferring elements, does not modify the elements themselves just change the pointers
+
+  - `splice(iterator pos, list& other)`: Transfers all elements from other into *this. The elements are inserted before the element pointed to by pos. The container other becomes empty after the operation.
+  - `splice(iterator pos, list& other, iterator it)`: Transfers the element pointed to by it from other into *this. The element is inserted before the element pointed to by pos.
+  - `splice(iterator pos, list& other, iterator first, iterator last)`: Transfers the elements in the range `[`first`, `last`)` from other into *this. The elements are inserted before the element pointed to by pos.
+
+- `reverse()`: Reverses order of elements
+
+- `unique()`: Removes all *consecutive* duplicate elements from the container. Only the first element in each group of equal elements is left.
+
+- `sort([Compare comp])`: Sort elements, O(NlogN) e.g. via adapting mergesort
+
+  - Comparison function takes signature: `bool cmp(const Type1& a, const Type2& b);` which returns true if the first argument is *less* than (i.e. is ordered *before*) the second.
+
+  - ```c++
+    list.sort(std::greater<int>());
+    ```
+
+
+
+#### std::forward_list
+
+Singly linked list
+
+Less storage than `std::list`, but doesn't support bidirectional move
+
+
+
+
+
+
+
+#### std::pair
+
+making pairs. This is done in legacy code (before uniform init), benefit is type deduction from arguments, but may be more verbose than uniform init in some cases.
+
+```c++
+template<class T1, class T2>
+std::pair<T1, T2> make_pair( T1 t, T2 u);
+
+auto p1 = std::make_pair(1, 3.14);
+```
+
+If your function returns a pair you can do structural binding
+
+```c++
+auto [a, b] = foo();
+
+// if you want to document return type explicitly, do this
+std::pair<int, double> p = foo();
+auto [a, b] = p;
+
+// DO NOT DO THIS, this isn't allowed
+std::pair<int, double> [a, b] = foo();
+```
+
+
+
+#### std::tuple
+
+Class template std::tuple is a fixed-size collection of heterogeneous values.
+
+Tuples are more lightweight than structs, mainly useful for returning multiple values in functions
+
+Methods
+
+- `std::make_tuple(... values)`
+- `std::tie(... references)`: used mostly for structural assignment
+- `std::get<i>(val)` or `std::get<T>(val)` though type T must be unambiguous 
+
+
+
+```c++
+std::tuple<int, float> get_tup()
+{
+    return {5, 6};
+}
+
+int main()
+{
+    auto tup = std::make_tuple(1, "Hi", false);
+    std::cout << std::get<0>(tup) << std::endl;
+    std::cout << std::get<bool>(tup) << std::endl;
+    
+    // using std::tie
+    int a = 1;
+    float b = 2.0;
+    auto t = std::tie(a, b);
+    std::get<0>(t) = 3;
+    std::cout << a << std::endl; // 3, tie creates tuple of references
+    
+    std::cout << std::tie(a, b) < get_tup() << std::endl; // 1
+    
+    std::tie(a, b) = get_tup(); // structured assignment, note here references are of a and b, not of return value of `get_tup`
+    std::cout << a << ", " << b << std::endl;  // 5, 6
+}
+```
+
+
+
+#### std::span
 
 A view of a contiguous memory, useful when you want to pass some contiguous sequence but not owning the memory.
 
@@ -5588,7 +6221,7 @@ template<
 > class span;
 ```
 
-`Extent` is default equal to `std::dynamic_extent`. If the span has static_extent, the `Extent` equals the size.
+`Extent` is default equal to `std::dynamic_extent`. Extent is just the size of the span. If given as integer that size has static extent
 
 Object size is very small so just copy it when passing through functions. Typically a pointer and a size. If extent is static, just pointer (size is taken care of at compile time)
 
@@ -5617,15 +6250,265 @@ int main()
   std::span<int> span1 (vec1); 
   std::span<int, 4> span2 (vec1, 4);
 
-  print_span(span1);  // dynamic: 1,2 ...
-  print_span(span2);  // static: 1,2 ...
-}
+  print_span(span1);  // dynamic: 1,2,3,4,5
+  print_span(span2);  // static: 1,2,3,4
+}  $$ Run this
 ```
 
 
 
 
-### std::ranges
+
+
+
+
+
+#### std::map
+
+Sorted key-value pair container. Logarithmic complexity for search, insert, and delete. Typically implemented as a Red-Black tree.
+
+```c++
+m.insert({'a', 1});
+```
+
+Lookup: `count(key)`, `find(key)`, `contains(key)`, 
+
+- `lower_bound(key)`: Return an iterator to the first element >= key
+- `upper_bound(key)`: Return an iterator to the first element <= key
+
+Note: `operator[]` insertion will overwrite if key exists. `insert` will do no-op if key exists.
+	=> use `.at(i)` instead if your map is const
+
+`for (auto val : map)` here `val` has type `std::pair<key_type, value_type>`
+
+
+
+
+
+#### std::unordered_map
+
+Like map but uses hash, because bucket_size needs to be O(1) uses chaining for collision
+
+
+
+#### std::unordered_set
+
+Interface very similar to `std::set` but data structure implemented as a hash table using chaining collision detection (because standard requires calculation of bucket size (bucket = elements with same hash value) to be constant time).
+
+`std::unordered_set` iterators `.begin()` and `.end()` does not traverse in any sorted order.
+
+`std::set` has range queries but `std::unordered_set` has bucket operations
+
+
+
+### Special containers
+
+#### std::bitset
+
+Fixed size sequence of N bits. Very memory efficient, good for fixed-sized bitmapping, easy to do bit-wise operations, useful for permission masks or other bitmasks
+
+Constructor
+
+- `std::bitset<8> b;`: 8 bits all to 0
+- `std::bitset<10> b(16);`: 10 bits with right bits set to the bit representation of the number
+- `std::bitset<10> b("ABBABAB", 2, 3, /*0*/'A', /*0*/'B');`: 10 bits with right bits equal to string[2, 2+3) mapped with A->0, B->1. Here it's 0000000101
+
+Element access:
+
+- `.test(pos)`: return whether bit at `pos` is true. `std::bitset<3> b ("100", 0, 3, '0', '1'); b.test(0) // true`
+- `.all()`
+- `.any()`
+- `.none()` => !any()
+- `.count()`: # of bits set to true
+
+Capacity:
+
+- `.size()` Return # of bits the set holds
+
+Modifiers:
+
+- Bitwise: `&=`, `|=`, `^=`, `>>`, `<<`, `>>=`, `<<=`
+- `~` -> returns copy of bitset with bits flipped, e.g., `cout << ~b << " (not b_" << endl;`
+- `.set()`: Set all bits to true. `.set(pos, val)`: set bit at `pos` to `val`
+- `.reset()`: Set all bi to false. `.reset(pos)`: set bit at `pos` to `false`
+- `.flip()`: Flip all bits in-place
+- `.flip(pos)`: Flip bit at `pos`
+
+
+
+#### std::optional
+
+`std::optional` is used for return values of function when the function can fail.
+
+Benefits
+
+- Unified way to represent if value exist or not
+- Safe access, won't dereference a pointer
+- No runtime overhead when value is not present
+- Elegant error handling and functional programming support
+
+Semantics
+
+- Any instance of std::optional<T> at any given time either contains a value or does not contain a value
+- If std::optional<T> contains a value, the value is guaranteed to be nested within the optional object, no dynamic allocation takes place
+- The optional object contains a value if
+  - The object is initialised with/assigned from a value of type T or another optional that contains a value
+- The optional object does not contain a value if
+  - The (std::optional) object is default-initialised
+  - The object is initialised with/assigned from a value of type std::nullopt_t or another optional that contains a value
+  - The member function `reset()` is called
+
+Member functions
+
+- `->`, `*`: Access contained value (even though not stored as pointer internally), undefined behaviour if `*this` does not contain a value
+- `has_value`: Checks whether *this contains value
+- `value`: Return value if *this contains value, otherwise throw exception
+- `value_or(default)`: Returns *this if have value, otherwise returns default
+
+Object structure
+
+
+
+```c++
+template <typename T>
+class optional
+{
+public:
+    // blah
+
+private:
+    bool _has_value;
+    std::aligned_storage_t<sizeof(T), alignof(T)> _storage;
+};
+```
+
+Effectively `std::optional` is a storage container reservered for the object with a boolean.
+
+
+Performance
+
+- Checking if there's value will take 1 branch. This is unavoidable. Unless in extreme case this usually doesn't matter much
+- May be space inefficient if object size small. E.g., for `int` will take 8 bytes because of alignment. May benefit from custom structs that can pack multiple bools together
+
+You cannot do `std::optional<T&>`, you must copy the object.
+
+**Ways of returning optional values**
+
+```c++
+// Returning an nullptr. Issue: possible mishandling of nullptr, e.g. trying to dereference it
+T* foo();
+
+// Returning an optional
+std::optional<T> foo();
+
+// Returning a boolean, mutating the argument. Issue: require object to be in argument
+bool foo(T& t);
+
+// Returning agreed invalid value if fails, e.g., NaN here. Issue: overhead of rememebering the failure value
+double foo();
+
+// Returning a pair, the value and whether it's valid. Better as this can be standardized, but 1) syntax is cumbersome, 2) still have danger of accessing first value when second value is False, and 3) overhead of default constructing T when second value is False, esp when object is expensive to construct
+std::pair<T, bool> foo();
+```
+
+$$ implement the internals
+
+
+
+#### std::variant
+
+std::variant is the standard perferred way to use unions in modern C++, it provides type safety and automatic memory management. Examples
+
+```c++
+union U {
+    int i;
+    float f;
+}
+
+int main()
+{
+	U u;
+	u.f = 3.14f  // note `u = 3.14f` is not allowed as C++ doesn't know which type you are initialising
+	std::cout << u.i << std::endl;
+}
+```
+
+The above code will compile, but behavior is undefined. It may work for your compiled code because how the memory and bit layout lines up to get a valid int back (probably a large integer that is reading from float representation of 3.14), but this is not guaranteed, might break with different compilers, with optimisations, or different architectures.
+
+A union only holds the latest set value. You are not supposed to access it via a different type to the underlying, even if the code compiled the behavior is undefined.
+
+With `std::variant` this is enforced at compile time
+
+```c++
+int main()
+{
+    std::variant<int, float> u;
+    u = 3.14f;  // assigns as float
+    
+    if (std::holds_alternative<int>(u))
+        std::cout << std::get<int>(u) << std::endl;
+   	else
+        std::cout << std::get<float>(u) << std::endl; // std::get<int>(u) here will throw std::variant_bad_access error
+}
+```
+
+Below is an example of automatic memory management
+
+```c++
+union U {
+    int i;
+    float f;
+    std::string s;
+}
+
+int main()
+{
+    U u;
+    new (&u.s) std::string("Hello World");
+    std::cout << u.s << std::endl;
+    u.s.~basic_string(); // must manually destroy s and free memory
+}
+```
+
+First note as `U` have some type variant that's not a trivial type (it contains std::string variant), we cannot default construct it like `U u{}`. Unions doesn't know the current underlying variant, so does not know what destructor to call. When it goes out of scope, only the stack is cleared. If destructor not manually called, we have a memory leak (the string stays in the heap)
+
+In `std::variant` we know the current underlying type, so the right destructor is called
+
+```c++
+int main()
+{
+    std::variant<int, float, std::string> u = "Hello World";
+    std::cout << std::get<std::string>(u) << std::endl;
+}
+
+// destructor for u is called for the contained std::string object when u goes out of scope
+```
+
+
+
+Constructors
+
+- std::variant< ...T> u {}  => default construction, constructs as the variant's first alternative (first type in template)
+- std::variant< ...T> u = v   => assignment, assigns to the unique type that is valid candidate, or the "best" type candidate if multiple are available based on some ranking rules
+
+Note, std::variant<int, int> etc. where same type is repeated is not valid and will not compile
+
+
+
+Members
+
+- `std::monostate`: unit type intended as an empty alternative in `std::variant`, useful as first type alternative in `std::variant` to make it default constructable
+- `std::holds_alternative<T>(u)`: returns if `u` holds the alternative `T`
+- `std::get<T/index>(u)`: return the underlying of `u`, throws error if the type `T` or type index `index` does not match the current type of variant
+- `std::get_if<T/index>(u)`: same as `get` but returns pointer to value, nullptr instead of error-ing
+- `std::index`: Returns the zero-based index of the alternative that is currently held by the variant.
+
+
+
+
+
+
+#### std::ranges $$
 
 https://ericniebler.github.io/std/wg21/D4128.html#motivation-and-scope
 
@@ -5688,227 +6571,14 @@ Range algorithms take range object as input and return iterators, otherwise work
 
 
 
-### std::pair
 
-making pairs. This is done in legacy code (before uniform init), benefit is type deduction from arguments, but may be more verbose than uniform init in some cases.
 
-```c++
-template<class T1, class T2>
-std::pair<T1, T2> make_pair( T1 t, T2 u);
 
-auto p1 = std::make_pair(1, 3.14);
-```
+### Iterators
 
-If your function returns a pair you can do automatic unpacking
-```c++
-auto [a, b] = foo();
+Iterators act as generic access patterns that allow STL algorithms to operate across STL containers
 
-// if you want to document return type explicitly, do this
-std::pair<int, double> p = foo();
-auto [a, b] = p;
 
-// DO NOT DO THIS, this isn't allowed
-std::pair<int, double> [a, b] = foo();
-```
-
-
-
-
-
-
-
-
-
-
-### std::set
-
-The set requires the template type to contain `<` comparison (as the underlying impl can use a binary search tree). The guarantee uniqueness, the `==` operation is just taking the function `(!(a < b) && (!(b < a))`.
-
-```c++
-struct Point
-{
-    int x;
-    int y;
-
-    bool operator< (const Point& other) const
-    {
-	return x < other.x || (x == other.x && y < other.y);
-    }
-}
-
-std::set<Point> s {{0,1}, {1,0}};
-```
-
-Iterators:
-- `.begin()` / `.cbegin()`: iterator to beginning `.cbegin()` returns a constant iterator
-- `.end()` / `.cend()`: iterator to end (after the last element)
-- `.rbegin()` / `.rcbegin()`: iterator from the last element to the first element
-- `.rend()` / `.rcend()`: iterator to the reversed end (before the first element)
-
-Capacity:
-- `.empty()`: 
-- `.size()`: # of elements
-- `.max_size()`: max # of elements the container can hold, due to system or library implementation (i.e., `std::distance(begin(), end())`)
-
-Modifiers (complexity is log to the size of the set)
-- `.clear()`: clears the elements, `size()` returns 0 after
-- `std::pair<iterator, bool> insert( value_type&& value );`: insert element, return reference to the iterator at that element and boolean indicating whether insertion took place
-- `iterator insert( iterator pos, const value_type& value )`: insert element to position just prior to `pos`
-- `.emplace( Args&& ...args )`: insert element by constructing it in-place using `args`
-- `iterator emplace_hint( const_iterator hint, Args&&... args )`: insert (if correct) element to position right after `hint`
-- `iterator erase ( iterator pos )`: removes `pos`, returns next iterator from removed element
-- `iterator erase ( iterator first, iterator last )`: remove [first, last), returns next iterator from removed element
-- `size_type erase( const Key& key )`: remove the element equal to `key`, return # of elements removed (0 or 1)
-
-Lookup (complexity is log to the size of the set)
-- `size_type count( const Key& key ) const`: returns # of elements equal to `key` (0 or 1)
-- `iterator find( const Key& key )`: finds `key` in the set, returns the iterator, or `set.end()` otherwise. So you check for non-existance using `s.find(elem) == s.end()`
-- `.contains()`: new in C++20
-
-- `operator==`: LHS and RHS have same elements and elements all compare equal at same position
-
-
-### std::unordered_set
-
-Interface very similar to `std::set` but data structure implemented as a hash table using chaining collision detection (because standard requires calculation of bucket size (bucket = elements with same hash value) to be constant time).
-
-`std::unordered_set` iterators `.begin()` and `.end()` does not traverse in any sorted order.
-
-`std::set` has range queries but `std::unordered_set` has bucket operations
-
-
-### std::vector
-
-Like a resizable array. Elements stored contiguously. Expands automatically as needed. Because of this extra space is allocated for future expansion (without needing to allocate memory and copy every time).
-
-Expansion implementation depends on the compiler used. For GNU, we do geometric expansion (each time we reallocate, we double in size, so amortized O(1)). Alas, reallocation is expensive, so use `reserve()` if you know the size beforehand.
-
-Total amount of allocated memory queried using `capacity()` function. Extra memory can be freed using `shrink_to_fit()` function.
-
-The vector object always placed on stack. The elements are always allocated in free store (heap)
-
-Time complexity
-
-- Random access O(1)
-- Insertion and removal from end, amortized O(1)
-- Insertion and removal from anywhere, linear in distance to end of vector O(n)
-
-Arrays vs Vector:
-
-- Arrays can be statically allocated on the stack (size known at compile time) or dynamically allocated on the heap. Vectors are always allocated on the heap
-- Vectors can be returned from functions, arrays can only be returned by downgrading to pointers (`T*`)
-- Vectors have automatic memory management, dynamically allocated arrays need manual freeing (`delete[] a;`)
-- Vectors have richer features than arrays
-- Vectors can be resized whereas arrays can't
-
-For these reasons, vectors are almost always preferred. Times when arrays are preferred include knowing the size of the array at compile time, coding on constrained devices, and C compatibility.
-
-**Caveat**: For static constexpr arrays you need `std::array`, as `std::vector` allocates to heap and C arrays can't be declared in-class, which constexpr requires.
-
-Constructors:
-- `std::vector<int> vec;` or `std::vector<int> vec{};` to declare an empty vector
-- If using brackets, initialisation list is preferred `std::vector<int> vec {N, 1};  // initialises vector of 2 elements, N and 1`
-- If want to initialise with size and default value, use brackets `std::vector<int> vec (N, 1);  // initialises vector of size N and default value i`
-
-Call by reference vs call by value
-
-```c++
-void foo(vector<int>& vec) { ... }  // By reference, modifies the same values in heap
-
-void bar(vector<int> vec) { ... }  // By value, copies the object and copies values in heap, so modification not reflected in caller's vector object
-```
-
-Attributes
-
-
-
-Methods
-
-- `front()`: First element, will run into errors if vector is empty (if uncaught most likely segmentation fault at runtime)
-- `back()`: Last element
-- `data()`: Return underlying array
-- `at(idx)`: Return value at `idx`, gives `std::out_of_range` error is idx < 0 or idx >= size
-- `[idx]`: Return value at `idx`
-- `emtpy()`: If container is empty
-- `size()`: # of elements, constant time complexity
-- `max_size()`: Max # of elements possible due to system or library implementation limitations.
-- `reserve(new_cap)`: Reserve additional memory to such that capacity allows for up to `new_cap` elements. if `new_cap` < `.capacity()`, the function does nothing. If `new_cap` > `.max_size()`, throws `std::length_error`
-- `capacity()`: # of elements that can be held in currently allocated storage
-- `shrink_to_fit()`: Frees unused memory
-- `begin()`: Returns iterator to the first element of the vector. Returns `end()` if there are no elements. Return type is `std::vector<T>::iterator` or `std::vector<T>::const_iterator`
-- `end()`: Returns iterator to `end()`
-- `clear()`: Erases all elements. `size()` returns to zero. `capacity()` is unchanged.
-- `insert()`: 
-  - `insert(pos, val)`: Inserts val at index pos, returns iterator pointing to the inserted value, O(N) where N is the # of elements between pos and end of container
-  - `insert(pos, count, val)`: Inserts count # of val at index pos, returns iterator pointing to first element inserted or pos if count == 0, O(count + N) where N is the # of elements between pos and end of container
-  - `insert(pos, first, last)`: Inserts from range [first, last) at index pos, returns iterator pointing to first element inserted or pos if first == last, O((last-first) + N) where N is the # of elements between pos and end of container
-  - `insert(pos, ilist)`: Inserts elements from initializer list `ilist` before pos, returns iterator pointing to the first element inserted or pos if ilist is empty, O(ilist.size + N) where N is the # of elements between pos and end of container
-- `insert_range(pos, rg)`: Inserts range `rg` at index pos
-- `erase()`:
-  - `erase(iterator pos)`: Removes the element at pos
-  - `erase(iterator first, iterator last)`: Removes elements [first, last)
-  - Returns iterator following the last removed element
-- `push_back(val)`: Appends val to the back. If new `size()` > `capacity()` then reallocation takes place (so old iterator references are invalidated). O(1) amortized
-- `pop_back()`: Removes last element, returns nothing, undefined behavior if vector is empty
-- `resize(count, [value])`: Resizes container to remove elements or add `value` or default elements (if `value` not provided). O(|count-size()|) plus time taken for reallocation if needed when adding elements
-- `swap(vector& other)`: Exchanges the contents and capacity of the container with those of other. No move or copy invoked.
-- `append_range(rg)`: Inserts range `rg` to the end of the vector, reallocation can happen. Complexity is O(|rg|) or O(|new_size|) if reallocation needed
-- `operator==`: Returns true is LHS and RHS have same # of elements and every element returns true on `==`
-
-
-Logical operators (>= etc) compares 2 vectors lexicographically
-
-Looping through. Using iterators givees you more flexibility, but nothing wrong with using indices.
-
-```c++
-for (size_t i = 0; i < vec.size(); i++)
-{
-    vec[i].doStuff();
-}
-
-for (auto it = vec.begin(); it != vec.end(); it++)
-{
-    it->doStuff();
-}
-
-for (auto& element : vec) {
-    element.doStuff();
-}
-```
-
-### std::array
-
-Interface comparison to std::vector
-- No resizing (no .reserve(), .capacity(), .shrink_to_fit())
-- No appending (no .push_back(), .pop_back())
-
-Other comparison with std::vector
-- Size known at compile time and cannot be changed after creation
-- Memory allocated on stack always, providing less overhead, and more optimisation possible
-
-Initialisation:
-```c++
-std::array<int, 5> = {1,2,3};  // last 2 elements are zero-initiated
-```
-
-Methods:
-- Element access: `at`, `operator[]`, `front`, `back`, `data` (-> returns pointer to underlying data, if array is empty may or may not return nullptr)
-- Iterators: `begin`, etc.
-- Capacity: `empty`, `size`, `max_size` (-> identical to `size()`)
-- Operations: `swap`, `fill(value)` (-> linear function to assign `value` to all elements in container)
-
-Comparison with C arrays[]
-- Size information isn't stored in C arrays data structures, functions on them must also get size argument
-- No bound checking for C arrays while std::array throws std::out_of_range exception
-- C arrays can be allocated on heap using `int* heap_arr = new int[5]` but heap allocation no possible with std::array
-- C arrays have no built-in helper functions unlike std::array
-- C arrays aren't objects so don't have copy assignment or comparison, while you can do `int arr2[5]; arr2 = arr; cout << arr == arr2 << endl; // true`
-- C arrays decay to pointers when passed as arguments, losing size information; not for std::array
-- C arrays compatible with C code, std::array is so with `.data()`
-
-
-
-### iterators
 
 https://cplusplus.com/reference/iterator/
 
@@ -5947,139 +6617,37 @@ Random access:
 
 
 
-### std::queue
-
-This is a "container adaptor", it uses `std::deque` under the hood but exposes a subset of operations.
-
-- `.front()`: Returns reference to first element
-- `.back()`: Returns reference to last element
-- `.empty()`: Returns whether the queue is empty
-- `.size()`: Returns the # of elements in the queue
-- `.push(val)`: Inserts element at the end
-- `.emplace( Args&& args )`: Inserts element by constructing in-place
-- `.pop()`: Removes element from front of queue, returns nothing
-
-
-
-### std::format
-
-```c++
-std::format("{} {}!", "Hello", "world", "something"); // "Hello world!"
-```
-
-```c++
-char* a = "be";
-char* b = "the question"
-std::cout << std::format("To {0:} or not to {0:}, that is {1:}.\n", a, b);
-// To be or not to be, that is the question.
-```
-
-Formatters: https://en.cppreference.com/w/cpp/utility/format/formatter
 
 
 
 
+### Algorithm $$ 
 
 
 
-### `std::greater<T>`
+The algorithms library defines functions for a variety of purposes (e.g. searching, sorting, counting, manipulating) that operate on ranges of elements. 
+
+- `std::reverse( BidirIt first, BidirIt last );`
+- `std::find( InputIt first, InputIt last, const T& value );`
+- `std::find_if( InputIt first, InputIt last, UnaryPred p );`
+- `std::find_if_not( InputIt first, InputIt last, UnaryPred q );`
+- `std::min( const T& a, const T& b );`
+- `std::min( const T& a, const T& b, Compare comp );`
+- `std::sort( RandomAccessIterator first, RandomAccessIterator last[, Compare comp )`: sorts [first, last) in-place with average NlogN complexity (most libraries use quicksort)
+
+`std::greater<T>`
 
 Function for std::greater ~= bool (val1, val2) { return val1 > val2; }
 
+copy(), find(), sort()
+
+page 169
 
 
 
+### Utility $$
 
-
-
-### std::list
-
-Doubly linked list
-
-Element access: `front`, `back`
-
-Iterators: `begin`, `end`, `rbegin`, `rend`
-
-Capacity: `empty`, `size`, `max_size`
-
-Modifiers: `clear`, `insert`, `insert_range`, `erase`, `push_back`, `pop_back`, `push_front`, `pop_front`, `append_range`, `prepend_range`
-
-These functions behave as expected, identical to other containers like `std::vector`
-
-Additional functions:
-
-- `merge(list& other)`: Assume both lists sorted, merges both lists (stable) with no elements copied. The container `other` becomes empty after the operation
-  Does nothing if `other` points to the same list
-  Returns nothing
-  Complexity O(N+M)
-- `splice`: Transferring elements, does not modify the elements themselves just change the pointers
-  - `splice(iterator pos, list& other)`: Transfers all elements from other into *this. The elements are inserted before the element pointed to by pos. The container other becomes empty after the operation.
-  - `splice(iterator pos, list& other, iterator it)`: Transfers the element pointed to by it from other into *this. The element is inserted before the element pointed to by pos.
-  - `splice(iterator pos, list& other, iterator first, iterator last)`: Transfers the elements in the range `[`first`, `last`)` from other into *this. The elements are inserted before the element pointed to by pos.
-
-- `reverse()`: Reverses order of elements
-
-- `unique()`: Removes all *consecutive* duplicate elements from the container. Only the first element in each group of equal elements is left.
-
-- `sort([Compare comp])`: Sort elements, O(NlogN) e.g. via adapting mergesort
-
-  - Comparison function takes signature: `bool cmp(const Type1& a, const Type2& b);` which returns true if the first argument is *less* than (i.e. is ordered *before*) the second.
-
-  - ```c++
-    list.sort(std::greater<int>());
-    ```
-
-
-
-
-
-### std::forward_list
-
-Singly linked list
-
-Less storage than `std::list`, but doesn't support bidirectional move
-
-
-
-
-
-### std::map
-
-Sorted key-value pair container. Logarithmic complexity for search, insert, and delete. Typically implemented as a Red-Black tree.
-
-Element access: `at`, `operator[]`
-
-Iterators: `begin`, `end`, `rbegin`, `rend`
-
-Capacity: `empty`, `size`, `max_size`
-
-Modifiers: `clear`, `insert`, `insert_range`, `insert_or_assign`, `erase`, `swap`, `extract`, `merge`
-
-```c++
-m.insert({'a', 1});
-```
-
-Lookup: `count(key)`, `find(key)`, `contains(key)`, 
-
-- `lower_bound(key)`: Return an iterator to the first element >= key
-- `upper_bound(key)`: Return an iterator to the first element <= key
-
-Note: `operator[]` insertion will overwrite if key exists. `insert` will do no-op if key exists.
-	=> use `.at(i)` instead if your map is const
-
-`for (auto val : map)` here `val` has type `std::pair<key_type, value_type>`
-
-
-
-
-
-
-
-
-
-
-
-### std::shared_ptr
+#### std::shared_ptr
 
 A smart pointer introduced since C++11 that gives a pointer many owners. A reference count is kept track of by `shared_ptr`, incremented when new `shared_ptr` points to the object, decremented the other way around (a `shared_ptr` goes out of scope or is reset).
 
@@ -6142,7 +6710,7 @@ shared_ptr<T> make_shared (Args&&... args);
 
 
 
-### std::unique_ptr
+#### std::unique_ptr
 
 Like `shared_ptr` but only one object can claim ownership to it. When the `unique_ptr` object goes out of scope, the underlying object is destroyed and memory freed using `delete`. Object also deleted if `reset` is called or managing object is assigned another pointer with `=`
 
@@ -6164,79 +6732,23 @@ Observers:
 
 
 
-
-### std::unordered_map
-
-https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2003/n1456.html
+#### std::weak_ptr
 
 
-### std::optional
-
-`std::optional` is used for return values of function when the function can fail.
-
-Benefits
-- Unified way to represent if value exist or not
-- Safe access, won't dereference a pointer
-- No runtime overhead when value is not present
-- Elegant error handling and functional programming support
-
-Semantics
-- Any instance of std::optional<T> at any given time either contains a value or does not contain a value
-- If std::optional<T> contains a value, the value is guaranteed to be nested within the optional object, no dynamic allocation takes place
-- The optional object contains a value if
-  - The object is initialised with/assigned from a value of type T or another optional that contains a value
-- The optional object does not contain a value if
-  - The (std::optional) object is default-initialised
-  - The object is initialised with/assigned from a value of type std::nullopt_t or another optional that contains a value
-  - The member function `reset()` is called
-
-Member functions
-- `->`, `*`: Access contained value (even though not stored as pointer internally), undefined behaviour if `*this` does not contain a value
-- `has_value`: Checks whether *this contains value
-- `value`: Return value if *this contains value, otherwise throw exception
-- `value_or(default)`: Returns *this if have value, otherwise returns default
-
-Object structure
-```c++
-template <typename T>
-class optional
-{
-public:
-    // blah
-
-private:
-    bool _has_value;
-    std::aligned_storage_t<sizeof(T), alignof(T)> _storage;
-};
-```
-Effectively `std::optional` is a storage container reservered for the object with a boolean.
 
 
-Performance
-- Checking if there's value will take 1 branch. This is unavoidable. Unless in extreme case this usually doesn't matter much
-- May be space inefficient if object size small. E.g., for `int` will take 8 bytes because of alignment. May benefit from custom structs that can pack multiple bools together
-  
 
-You cannot do `std::optional<T&>`, you must copy the object.
+#### std::move
 
-**Ways of returning optional values**
 
-```c++
-// Returning an nullptr. Issue: possible mishandling of nullptr, e.g. trying to dereference it
-T* foo();
 
-// Returning an optional
-std::optional<T> foo();
 
-// Returning a boolean, mutating the argument. Issue: require object to be in argument
-bool foo(T& t);
 
-// Returning agreed invalid value if fails, e.g., NaN here. Issue: overhead of rememebering the failure value
-double foo();
+#### std::forward
 
-// Returning a pair, the value and whether it's valid. Better as this can be standardized, but 1) syntax is cumbersome, 2) still have danger of accessing first value when second value is False, and 3) overhead of default constructing T when second value is False, esp when object is expensive to construct
-std::pair<T, bool> foo();
-```
+
+
+#### std::swap
 
 
 
@@ -6244,56 +6756,7 @@ std::pair<T, bool> foo();
 
 
 
-
-### std::bitset
-
-Fixed size sequence of N bits. Very memory efficient, good for fixed-sized bitmapping, easy to do bit-wise operations, useful for permission masks or other bitmasks
-
-Constructor
-- `std::bitset<8> b;`: 8 bits all to 0
-- `std::bitset<10> b(16);`: 10 bits with right bits set to the bit representation of the number
-- `std::bitset<10> b("ABBABAB", 2, 3, /*0*/'A', /*0*/'B');`: 10 bits with right bits equal to string[2, 2+3) mapped with A->0, B->1. Here it's 0000000101
-
-Element access:
-- `.test(pos)`: return whether bit at `pos` is true. `std::bitset<3> b ("100", 0, 3, '0', '1'); b.test(0) // true`
-- `.all()`
-- `.any()`
-- `.none()` => !any()
-- `.count()`: # of bits set to true
-
-Capacity:
-- `.size()` Return # of bits the set holds
-
-Modifiers:
-- Bitwise: `&=`, `|=`, `^=`, `>>`, `<<`, `>>=`, `<<=`
-- `~` -> returns copy of bitset with bits flipped, e.g., `cout << ~b << " (not b_" << endl;`
-- `.set()`: Set all bits to true. `.set(pos, val)`: set bit at `pos` to `val`
-- `.reset()`: Set all bi to false. `.reset(pos)`: set bit at `pos` to `false`
-- `.flip()`: Flip all bits in-place
-- `.flip(pos)`: Flip bit at `pos`
-
-
-### <algorithm>
-
-The algorithms library defines functions for a variety of purposes (e.g. searching, sorting, counting, manipulating) that operate on ranges of elements. 
-
-- `std::reverse( BidirIt first, BidirIt last );`
-- `std::find( InputIt first, InputIt last, const T& value );`
-- `std::find_if( InputIt first, InputIt last, UnaryPred p );`
-- `std::find_if_not( InputIt first, InputIt last, UnaryPred q );`
-- `std::min( const T& a, const T& b );`
-- `std::min( const T& a, const T& b, Compare comp );`
-- `std::sort( RandomAccessIterator first, RandomAccessIterator last[, Compare comp )`: sorts [first, last) in-place with average NlogN complexity (most libraries use quicksort)
-
-
-### <cctype>
-
-- `int isspace( int ch );`: 
-
-
-
-
-### IO libraries
+## IO libraries
 
 https://en.cppreference.com/w/cpp/io
 
@@ -6318,6 +6781,16 @@ std::cout << absl::FormatTime(t, absl::UTCTimeZone());
 ```
 
 
+
+### Abseil Containers
+
+https://abseil.io/docs/cpp/guides/container
+
+
+
+Interface designed to be very similar to STL containers. Though there are small differences so should not be blindly swapped.
+
+But otherwise generally more efficient than STL container for most use case
 
 
 
@@ -6556,12 +7029,8 @@ for (int i = 0; i < size; i++)
 
 ## To learn
 
-- Inline specifier:
-- https://ryonaldteofilo.medium.com/inline-and-one-definition-rule-in-c-db760ec81fb2
-- https://en.cppreference.com/w/cpp/language/inline
-- Different from what you may think, about saying if multiple definitions of the same function appear in the same namespace (e.g., when you import .h in multiple .cpp files), telling compiler they are indeed the same function (no need to raise error).
+- 
 
-- .cpp vs .h files
 
 
 
@@ -6569,195 +7038,6 @@ for (int i = 0; i < size; i++)
 
 
 
-
-### Lambda Expression
-
-```c++
-#include <algorithm>
-#include <cmath>
-
-void abssort(float* x, unsigned n) {
-    std::sort(x, x + n,
-        // Lambda expression begins
-        [](float a, float b) {
-            return (std::abs(a) < std::abs(b));
-        } // end of lambda expression
-    );
-}
-```
-
-Capture group
-
-Captures variables in scope
-
-- `[&total, factor]`: & means pass by reference, otherwise by value
-- `[]`: No variables are captured
-- `[&]`: Capture all by reference
-- `[=]`: Capture all by value
-- `[&, total]`: Capture all by reference, apart from variable `total`. You can do the same with `=`
-- `[&, &total]`: NOT ALLOWED
-
-Caveats:
-
-- Reference can mutate variables outside, by value can't
-- Reference introduces lifetime dependency, if lambda running async, it may be gone when lambda executes
-- Reference reflects change of variable outside
-- Capture group and function body are both required, argument list can be omitted if no argument
-
-Parameter list:
-
-- `auto y = [] (int first, int second){ return first + second; };`:
-- `auto y = [] (auto first, auto second){ return first + second; };`: Using auto makes the function templated, one for each `auto` input
-
-Mutable specifier
-
-- By default, all variables passed in are const-by-value.
-- `[&, n] (int a) mutable { m = ++n + a; }(4);`: This allows the value to be mutated inside the function
-- `[&] (int a) mutable { m = ++n + a; }(4);`: As `n` is passed by reference here instead of by value as above, this will mutate the value outside the function
-
-Exception specifier
-
-- `[]() noexcept { throw 5; }();`: `noexcept` disallows lambda body to throw, here compiler will throw an error
-
-Return type
-
-- `auto x1 = [](int i){ return i; };`: Return type is automatically deduced, here it's an int. You cannot use brace-init-list as return type, like `... return{i, j};`
-- `auto x1 = [](int i) -> int { return i; };`: You can using trailing return type signature to specify the type (e.g., when there are multiple return statements in the lambda
-
-Lambda body, can refer to:
-
-- Captured variables
-- Parameters to function
-- Locally defined variables
-- Class data members, only if `this` is captured
-```c++
-[this] () { // blah };  // `this` is a pointer so captured by value
-[&foo = _foo] () { // blah };  // `foo` is a member of the class, pass by reference into the lambda
-```
-
-- Variable with static storage location, e.g., global vars
-
-
-
-
-
-
-
-
-### Stack vs. Heap memory
-
-- Stack memory is used to store local variables in a function. Deallocation is automatic and fast as often just need to change sp (so 1 instruction instead of what malloc needs)
-- Heap memory is used for large allocations. It needs manual deallocation and generally slower, so more likely to cause memory leaks.
-  - Note, `malloc` does not always trigger a sys call. OS typically only give memory to a process in pages, so C++ process will get a page, then slice it up to each time malloc is called.
-
-Stack memory is allocated for local variables, function parameters, RAII etc. Heap allocation only if using `new` or `malloc`. RAII as in putting a resource manager object like `std::vector` on the stack, that manages memory it uses on the heap. 
-
-Arrays (so fixed size) are placed inside the stack (though too large and it can cause stack overflow during runtime).
-
-Exceptions are
-
-- Global and static variables are stored in data segment or BSS (all zeros, used for zero data or uninitialised data)
-- rvalues could be stored in registers
-- Large return values could be optimised to use return value optimisation to be constructed where it is needed
-  - How RVO works: when a function returns a value normally it'll copy the value again to the memory location of caller after constructing the return value. RVO allows the value to be constructed directly at caller's memory region.
-
-
-
-
-### pragma once
-
-A non-standard that is implemented in most compiler. If added to a file, it is only included in the first include, all subsequent include on the same file is ignored.
-
-This simplifies file dependencies (e.g., allow circular dependencies, though it's a bad pattern) and can speed up compilation.
-
-ID-ing files usually done by comparing file path.
-
-Example
-File "grandparent.h"
-
-```c++
-#pragma once
-
-struct foo 
-{
-    int member;
-};
-```
-
-File "parent.h"
-
-```c++
-#include "grandparent.h"
-```
-
-File "child.c"
-```c++
-#include "grandparent.h"   // This inclusion is ignored
-#include "parent.h"
-```
-
-Main challenge is it's not trivial to know if the file is the same file (e.g., in the presence of symlinks, same file copied many times). One alternative is to resort to old way of using include guards.
-
-```c++
-#ifndef GRANDPARENT_H
-#define GRANDPARENT_H
-... contents of grandparent.h
-#endif /* !GRANDPARENT_H */
-```
-
-Downside of include guards is overhead of maintaining these constants and code bloat
-
-
-
-### lvalue vs rvalue
-
-lvalue: (locator value), which must have address in memory, can appear on LHS
-rvalue: (right value), does not have address in memory, cannot appear on LHS
-
-```c++
-int y = 10;    // y is an lvalue
-int z = y + 5; // y + 5 is an rvalue
-
-int &ref = y;  // ref is an lvalue reference to x
-ref = 20;      // x is now 20
-
-int &&rref = 10;  // rref is an rvalue reference to the temporary 10
-rref = 20;        // temporary 10 is now modified to 20
-```
-
-The introduction of rvalue is to avoid compiler from always allocating memory. So values can, say, be stored in a register.
-The introdutcion of rvalue references which allows resources to be moved rather than copied
-
-```c++
-std::string s1 = "Hello";
-std::string s2 = std::move(s1);  // s1 is an lvalue, but std::move converts it to an rvalue
-
-std::string createString() {
-    return "Hello, World!";
-}
-std::string s = createString(); // s can "steal" the temporary string
-```
-
-
-
-
-
-### explicit specifier
-
-A specifier that forbids implicit conversion. Example
-
-```c++
-struct A
-{
-    explicit A(int feed_id = 5) { }
-    ...
-}
-
-// A a = 6;  // not allowed as it is an implicit conversion. This code is not readable as struct A is not an integer wrapper
-A a (6); 
-```
-
-A good way to approach this is to use explicit by default, then think about which constructors may have usecases where explicit can be removed (copy constructor usually a good idea here)
 
 
 
