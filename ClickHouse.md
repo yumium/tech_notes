@@ -1863,7 +1863,7 @@ SETTINGS
     query_plan_optimize_lazy_materialization = true;
 ```
 
-Lazy materialisation adds (on by default) optimisation techniques that defer reading granules until it is actually needed in the next immediate computation. Before row are read after all filtering is done by `WHERE` clause. In this query, the old way will read all `(helpful_votes, product_title, review_headline, review_body)` tuples passing the `WHERE` clause, and memory keeps track of the top 3 `helpful_votes`. Now with lazy materialisation, only `helpful_votes` is read, after top 3 is found, remaining columns of belonging to  (granules of) rows of those 3 rows are read. 
+Lazy materialisation adds (on by default) optimisation techniques that defer reading granules until it is actually needed in the next immediate computation. Without lazy materialisation, rows are read after all filtering is done by `WHERE` clause. In this query, the old way will read all `(helpful_votes, product_title, review_headline, review_body)` tuples passing the `WHERE` clause, and memory keeps track of the top 3 `helpful_votes`. Now with lazy materialisation, only `helpful_votes` is read, after top 3 is found, remaining columns of belonging to  (granules of) rows of those 3 rows are read. 
 
 
 
