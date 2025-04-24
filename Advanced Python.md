@@ -581,7 +581,7 @@ def fast_averager():
     return averager
 ```
 
-A closure is a function that retains the binding of free variables, which can be used after the defining scope is no longer available. Here, we need `nonlocal` for `count` and `total` because integers cannot be mutated, so `count` and `total` become local variables when assigned. The `nonlocal` keyword means the nonlocal variable is binded to the new value in the same way as the local variable at each assignment.
+A closure is a function that retains the binding of free variables, which can be used after the defining scope is no longer available. Here, we need `nonlocal` for `count` and `total` because integers cannot be mutated, so `count` and `total` must be assigned to and so becomes local variables. The `nonlocal` keyword means the nonlocal variable is binded to the same new value as the local variable at each assignment.
 
 
 
