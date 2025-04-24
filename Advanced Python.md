@@ -14,7 +14,6 @@ TODO:
 
 - [ ] Read on `inspect` module (used in schema.check_io, check related MR, also good to look at contextmanager used for aggregating schema errors)
 - [ ] Have a read on Python API design
-- [ ] 
 
 
 
@@ -465,6 +464,38 @@ False
 **Copies are shallow by default**
 
 
+
+## Functions as Objects
+
+
+
+### Functions as First-Class objects
+
+`map` and `filter` less used with comprehensions. `reduce` is now demoted to be inside `functools` as for most cases we're happy with `sum`, `max`, `all` etc.
+
+`functools.partial` -> make Python function worked like curried functions
+
+```python
+>>> from operator import mul
+>>> from functools import partial
+>>> triple = partial(mul, 3) 
+>>> triple(7) 
+21
+>>> list(map(triple, range(1, 10))) 
+[3, 6, 9, 12, 15, 18, 21, 24, 27]
+```
+
+9 different callable objects:
+
+1. User-defined functions (`def`, `lambda`)
+2. Built-in functions (`len`, `time.strftime`)
+3. Built-in methods (`dict.get`)
+4. Methods (functions inside class)
+5. Classes (when invoked runs its `__new__` method to create an instance then `__init__` to initialise it)
+6. Class instances (if `__call__` is defined)
+7. Generator functions (`yield` in body) => returns iterators
+8. Native coroutine functions (`async def`)
+9. Asynchronoous generator functions (`async def` with `yield`) => requires an async framework to work (e.g., `asyncio` module)
 
 
 
