@@ -18,6 +18,9 @@ TODO:
 
 - [ ] Read on `inspect` module (used in schema.check_io, check related MR, also good to look at contextmanager used for aggregating schema errors)
 - [ ] Have a read on Python API design
+- [ ] More about imports, how they work, how to resolve circular imports, when importing the whole file is executed?
+- [ ] How does `__name__` == "__main__" even work
+- [ ] More about Python interpretor inner workings, e.g., what is `.pyc` file after imports
 
 
 
