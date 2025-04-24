@@ -23,7 +23,7 @@ TODO:
 - [ ] More about Python interpretor inner workings, e.g., what is `.pyc` file after imports
 - [ ] https://blog.edward-li.com/tech/advanced-python-features/#6-context-managers
 - [ ] Byte code: https://docs.python.org/3/library/dis.html
-- [ ] 
+- [ ] Be good to have some concrete examples of inheritence and ways they can be avoided (e.g., abstract classes, mixins, composition etc.) with examples implemented in Python and C++)
 
 
 
@@ -621,6 +621,8 @@ def inputs(**schema_kwargs: ty.Type[DataFrameSchema]):
 
     return decorator
 ```
+
+$$ Have a look at the 3 example decorators from the book
 
 
 
