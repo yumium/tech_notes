@@ -556,7 +556,32 @@ Generally speaking, Python's strength is flexibility so enforcing too much typin
 
 Decorators are called right after the decorated function is defined, this is usually at import time.
 
+Closures
 
+```python
+def make_averager():
+    series = []
+
+    def averager(v):
+	series.append(v)
+	return sum(series) / len(series)
+
+    return averager
+
+
+def fast_averager():
+    count = total = 0
+
+    def averager(v):
+	nonlocal count, total
+	count += 1
+	total += v
+	return total/count
+
+    return averager
+```
+
+A closure is a function that retains the binding of free variables, which can be used after the defining scope is no longer available. Here, we need `nonlocal` for `count` and `total` because integers cannot be mutated, so `count` and `total` become local variables when assigned. The `nonlocal` keyword means the nonlocal variable is binded to the new value in the same way as the local variable at each assignment.
 
 
 
