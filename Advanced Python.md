@@ -633,7 +633,25 @@ $$ Read more on the Strategy and Command pattern, use sources to learn about mor
 
 
 
+## Classes and Protocols
 
+## A Pythonic object
+
+
+
+
+
+### More about type hints
+
+$$ skipped stuff on overloading and type casting
+
+$$ Have a look at Generics and Variance (would be good to reimplement the covariant & contravariant examples in Python (behavioural subtyping))
+
+
+
+### Operator overloading
+
+$$ Skipped this one as haven't yet used any
 
 
 
