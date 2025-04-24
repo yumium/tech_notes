@@ -1,5 +1,9 @@
 # Advanced Python
 
+Why Python in quant finance?
+- Useful for research, ML is Python heavy
+- Flexible and simple for automations (e.g., data ingestion, backtest, analytics, visualisation)
+
 Resources:
 
 - Fluent Python: this is a massive book, covers a ton of stuff. I've mostly skimmed it, for new stuff that's interesting I've marked with $$. Notes not following original book order
