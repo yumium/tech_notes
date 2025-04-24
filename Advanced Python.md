@@ -503,6 +503,9 @@ False
 ### Type Hints
 
 Gradual typing
+- Is optional: no type hints OK, type checker should assume `Any` type when type not provided
+- Does not enforce type errors are runtime. Type hints used by static type checkers, linters and IDEs to raise warnings, do not prevent inconsistent values to be passed to functions at runtime
+- Types generally not used to improve performance
 
 Some types:
 - `Any`: a magic type sits at both at the top and bottom of the type hierarchy. It is the most general type (so `n: Any` can accept anything) and the most specialised type (so `n: Any` supports any operation on it)
