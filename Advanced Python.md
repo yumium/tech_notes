@@ -529,7 +529,19 @@ Nominal typing: Objects and variables both have types. Type checker only runs at
 
 $$ Read more about this: dynamic vs statically types, strict vs non-strict types
 
+Typing trade offs
 
+A type checker cannot prevent all issues, espeically they have
+- False positives: tools report type errors on code that is correct
+- False negatives: tools don't report type errors on code that is incorrect
+
+Downsides of typing:
+- Param unpacking like `config(**settings)` can't be statically checked
+- Advanced features like properties, descriptors, metaclasses, and metaprogramming are poorly type checked
+- Python releases can be faster without type checking
+- ^^ Have definintely felt these limitations in C++
+
+Generally speaking, Python's strength is flexibility so enforcing too much typing end up giving more downside, stick to basic linters and do proper testing
 
 
 
