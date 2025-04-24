@@ -12,8 +12,6 @@ Resources:
 
 
 
-
-
 TODO:
 
 - [ ] Read on `inspect` module (used in schema.check_io, check related MR, also good to look at contextmanager used for aggregating schema errors)
@@ -473,6 +471,96 @@ False
 
 
 **Copies are shallow by default**
+
+```python
+>>> l1 = [3, [55, 44], (7, 8, 9)]
+>>> l2 = list(l1)
+>>> l2
+[3, [55, 44], (7, 8, 9)]
+>>> l2 == l1
+True
+>>> l2 is l1
+False
+```
+
+The easiest way to create a shallow copy is to use the container constructor. The outer container is new but inner elements are copied by reference. Here you can also do `l2 = l1[:]`
+
+`copy` module has `copy.copy()` and `copy.deepcopy()` that does shallow and deep copy respectively. Deep copy copies the element in the container and does this recursively
+
+
+
+
+
+**Function parameters as references**
+
+Functions in Python have parameters passed by reference.
+
+Default arguments are instantiated at function definition (usually when function is imported) and becomes attribute of the function. So mutable defaults will behave in strange ways (it persists across different calls to the function)
+
+
+
+
+
+**del and garbage collection**
+
+`del` is a statement
+
+```python
+del a  # don't do `del (a)`, this works but because (a) evaluates the same as a
+```
+
+`del` deletes references, not objects.
+
+```python
+>>> a = [1, 2]
+>>> b = 1		# a and b both binds to [1, 2]
+>>> del a		# deletes reference a
+>>> b = 3		# b binds now to 3, [1, 2] is freed by GC
+```
+
+CPython's GC uses reference counting. When `refcount` reaches zero CPython calls the `__del__` method (if there's one) then frees memory of the object
+
+
+
+
+
+**Tricks Python plays on immutables**
+
+Python does "interning" on immutables where different instances of immutables with the same value can actually share the same underlying object.
+
+```python
+>>> t1 = (1, 2, 3)
+>>> t2 = tuple(t1)
+>>> t2 is t1
+True
+>>> t3 = t1[:]
+>>> t3 is t1
+True
+
+>>> t1 = (1, 2, 3)
+>>> t3 = (1, 2, 3)
+>>> t3 is t1
+False
+
+>>> s1 = 'ABC'
+>>> s2 = 'ABC'
+>>> s2 is s1
+True
+```
+
+There's not guaranteed behaviour with interning, so do not rely on `is` equality with immutables, stick to `==` equality
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
