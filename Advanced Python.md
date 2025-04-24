@@ -500,6 +500,28 @@ False
 
 
 
+### Type Hints
+
+Gradual typing
+
+Some types:
+- `Any`: a magic type sits at both at the top and bottom of the type hierarchy. It is the most general type (so `n: Any` can accept anything) and the most specialised type (so `n: Any` supports any operation on it)
+- `Optional[T]`: "using None as a default"
+- `Union[T ...]`: any of the options, nested union type is semantically the same as flattened
+- `Iterable`
+- `Callable`
+
+I haven't written code with strict typing, so don't know too much about types
+
+Duck typing vs nominal typing
+
+Duck typing: Objects have types but variables (incl function params) don't. By definition only enforced at runtime, ie. if I can invoke `birdie.quack()` then `birdie` is a duck. More flexible than nominal typing with the cost of possibly more runtime errors that could've been caught at compile time by type checker
+
+Nominal typing: Objects and variables both have types. Type checker only runs at compile time (not runtime). If `birdie: Bird` then `birdie.quack()` is illegal even if the object at runtime supports this method.
+
+
+$$ Read more about this: dynamic vs statically types, strict vs non-strict types
+
 
 
 
