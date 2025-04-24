@@ -532,6 +532,13 @@ $$ Read more about this: dynamic vs statically types, strict vs non-strict types
 
 
 
+### Design Patterns
+
+$$ Read more on the Strategy and Command pattern, use sources to learn about more patterns
+
+
+
+
 
 
 
