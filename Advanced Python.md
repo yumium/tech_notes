@@ -589,7 +589,37 @@ A closure is a function that retains the binding of free variables, which can be
 Parameterised decorators: decorators are just functions so they can be even higher order too
 
 ```python
-blah
+def inputs(**schema_kwargs: ty.Type[DataFrameSchema]):
+    """
+    This exists because our exiting type annotations don't cooperate nicely with static
+    typecheckers like pyright.
+
+    Example:
+
+        @inputs(a=Schema)
+        def hello(a: pd.DataFrame):
+            return pd.DataFrame(...)
+    """
+
+    def decorator(f):
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            _, _, execution_traceback = sys.exc_info()
+
+            params = inspect.signature(f).bind(*args, **kwargs)
+
+            with aggregated_validation_exception(execution_traceback):
+                for name, frame in params.arguments.items():
+                    if name not in schema_kwargs:
+                        continue
+                    schema_type = schema_kwargs[name]
+                    schema_type().validate(frame, name)
+
+            return f(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
 ```
 
 
