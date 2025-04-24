@@ -21,6 +21,10 @@ TODO:
 - [ ] More about imports, how they work, how to resolve circular imports, when importing the whole file is executed?
 - [ ] How does `__name__` == "__main__" even work
 - [ ] More about Python interpretor inner workings, e.g., what is `.pyc` file after imports
+- [ ] https://blog.edward-li.com/tech/advanced-python-features/#6-context-managers
+- [ ] Byte code: https://docs.python.org/3/library/dis.html
+- [ ] 
+
 
 
 
@@ -548,6 +552,20 @@ Generally speaking, Python's strength is flexibility so enforcing too much typin
 
 
 
+### Decorators and closures
+
+Decorators are called right after the decorated function is defined, this is usually at import time.
+
+
+
+
+
+
+Parameterised decorators: decorators are just functions so they can be even higher order too
+
+```python
+blah
+```
 
 
 
