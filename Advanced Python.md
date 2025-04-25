@@ -764,6 +764,18 @@ Iterables
 - `__iter__`: return an iterator
   - $$ read page 397
 
+Container
+
+- `__contains__`:
+
+Sized
+
+- `__len__`:
+
+Sequence
+
+- `__getitem__`: 
+
 Equality
 
 - `__eq__`: value equality, invoked by `==`
@@ -939,11 +951,42 @@ Because of this looseness we say Python protocols are informal interfaces
 
 
 
+### Goose typing with ABCs
+
+Goose typing comes between duck typing and static typing. It supports some elements of nominal typing (ie. checking the attributes of objects before use) but does this at runtime.
+
+ABCs (abstract base classes) allow goose typing in the following ways:
+
+- Subclassing from ABCs make implementing protocols explicit
+- Runtime type checking via ABC inheriting as well as using ABCs as second operand of `isinstance` (for checking (CardDeck(), abc.MutableSequence)) and `issubclass` (for checking (CardDeck, abc.MutableSequence))
+
+Note, inheriting from ABC isn't checked at class definition time, but on instantiation time. Then Python checks that all abstract methods of the base ABC is implemented in the instance.
+
+ABCs in the standard library: `Iterable`, `Container`, `Sized` ...  $$ Not sure if it's worth learning these, could be useful to know the special methods
+
+Examples:
+
+```python
+from collections import abc
+
+class FrenchDeck(abc.MutableSequence):
+    def __init__(self):
+	...
+
+    def __len__(self):
+	...
+
+    ...
 
 
 
 
+```
 
+
+
+
+$$ You can do some static type checking with `typing.Protocol` but didn't look into it
 
 
 
