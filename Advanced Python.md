@@ -964,6 +964,8 @@ Note, inheriting from ABC isn't checked at class definition time, but on instant
 
 ABCs in the standard library: `Iterable`, `Container`, `Sized` ...  $$ Not sure if it's worth learning these, could be useful to know the special methods
 
+
+
 Examples:
 
 ```python
@@ -978,18 +980,44 @@ class FrenchDeck(abc.MutableSequence):
 
     ...
 
+class Tombola(abc.ABC):
+    # Note, abc.ABC is a util for avoiding `metaclass` usage
+    # What we are doing is Tombola(metaclass=abc.ABCMeta), but abc.ABC already has `metaclass=abc.ABCMeta` so we can just inherit from abc.ABC
 
+    # Note only classes that inherits from `metaclass=abc.ABCMeta` can have abc.abstractmethod decorator
+    @abc.abstractmethod
+    def load(self, iterable):
+	"""Add items from an iterable"""
 
-
+    @classmethod
+    @abc.abstractmethod
+    def from_bytes(cls, bytes):
+	"""Alt constructor from bytes"""
 ```
 
 
-
+$$ `@register` decorator is another way for structural subclasses to pass ABC checks without inheriting interfaces, though I've not found uses for it yet
 
 $$ You can do some static type checking with `typing.Protocol` but didn't look into it
 
 
+### Inheritence
 
+$$ Look at `super()` function
+
+$$ `__mro__` define more details on multiple inheritence resolution order. But never looked closely as complex multiple inheritence is rarely used in production code.
+
+
+$$ Coping with inheritence => read this
+
+=> Put in different file. Generally inheritence is bad because: 1) implementation hard to follow (you have to follow base classes), 2) is-a relationship can change leading to more code change hard to maintain, 3) changes in base class can give surprising results in derived class (e.g., area in shapes)
+
+One good example of horrible inheritence is C++'s std built-in library
+
+- Prefer composition
+- When using as subtyping, use ABCs
+- When using to share functionality, use Mixins  
+  - Realworld example: ThreadingMixin, ForkingMixin
 
 
 
@@ -1008,6 +1036,9 @@ $$ Have a look at Generics and Variance (would be good to reimplement the covari
 
 $$ Skipped this one as haven't yet used any
 
+
+
+## Control Flow
 
 
 
