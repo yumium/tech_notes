@@ -689,6 +689,7 @@ Categories (3, object): [good < medium < bad]
 - `pd.concat(sers/dfs, axis=0/1, join='outer'/'inner', ignore_index=False ...)`: Concatenates series or DFs along `axis`, perform set logic on the other axis depending on `join`, if `ignore_index` resets index on concat axis
 
 - `left.merge(right, how='inner'/'left'/'right'/'outer'/'cross', on=cols, suffixes=('_x', '_y'), indicator=None, validate=None)`: Does a join on both data frames using `how` join type. Suffixes are used when column names are duplicated in non-join columns. Use `left_on`, `right_on` if join column names don't match. Use `left_index` and `right_index` if the join columns are indices. `indicator` adds extra column to indicate where the rows are from (`left_only`, `right_only`, `both`). `validate` checkes relationship in join keys (`one_to_one` mean unique keys etc.)
+	- Note using `merge` with `indicator` can be used to filter df on "isin" for multiple columns, like this: `out.merge(REMOVE, how='left', indicator=True)[lambda x: x['_merge'] == 'left_only'].drop(columns='_merge')`
 
 - `left.join(right)`: Basically syntac sugar on `merge`. By default does left join and joins on indices
 
