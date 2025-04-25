@@ -908,6 +908,13 @@ AttributeError: 'ColorPixel' object has no attribute 'flavor'	# If Derived class
 ```
 
 
+### Special methods for sequences
+
+
+**Protocols**
+
+Python uses duck typing, so when we say an object satisfies the `Sequence` interface, we say it has the sequence protocol which means it has `__len__` and `__getitem__` defined ($$ how do these work with Python natives?)
+
 
 
 
