@@ -930,7 +930,12 @@ AttributeError: 'ColorPixel' object has no attribute 'flavor'	# If Derived class
 
 **Protocols**
 
-Python uses duck typing, so when we say an object satisfies the `Sequence` interface, we say it has the sequence protocol which means it has `__len__` and `__getitem__` defined
+Protocol is an old word for what we nowadays call interfaces.
+
+Because Python uses duck typing, interfaces are enforced by compilers, so when we say an object satisfies the sequence protocol, we mean it has `__len__` and `__getitem__` defined.
+
+Because of this looseness we say Python protocols are informal interfaces
+
 
 
 
