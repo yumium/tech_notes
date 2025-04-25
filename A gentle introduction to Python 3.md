@@ -3374,13 +3374,13 @@ Examples:
 
 ## Miscellaneous
 
-**id**
+### **id**
 
 `id` function return an id that corresponds to the location of the variable
 
 
 
-**Python ternary statements**
+### **Python ternary statements**
 
 ```
 value_if_true if condition else value_if_false
@@ -3407,7 +3407,7 @@ But after experimentation, we can conclude that the expressions associate to the
 
 
 
-**eval and exec**
+### **eval and exec**
 
 One evaluates an expression to give a value and the other executes a statement. Don't use them in production code
 
@@ -3415,7 +3415,7 @@ Note, if you want to execute `exec(loc_var = 1)`, do instead `loc_var = eval('1'
 
 
 
-**with**
+### **with**
 
 https://www.geeksforgeeks.org/with-statement-in-python/
 
@@ -3478,7 +3478,7 @@ When `with` statement is executed, an object is created and immediately after, t
 
 
 
-**python wheels**
+### **python wheels**
 
 https://realpython.com/python-wheels/
 
@@ -3511,7 +3511,7 @@ Developers can use the package `wheel` to build wheels for their packages
 
 
 
-**data model**
+### **data model**
 
 https://docs.python.org/3/reference/datamodel.html#object.__str__
 
@@ -3523,7 +3523,7 @@ https://docs.python.org/3/reference/datamodel.html#object.__str__
 
 
 
-**walrus operator**
+### **walrus operator**
 
 The walrus operator assigns value to variables in-situ, saving result of expensive operations without adding an extra line of code. For example:
 
@@ -3538,7 +3538,7 @@ func(mem)
 
 
 
-**int to float**
+### **int to float**
 
 You can write `255.` to create a floating point integer
 
@@ -3546,7 +3546,7 @@ You can write `255.` to create a floating point integer
 
 
 
-**pip vs conda**
+### **pip vs conda**
 
 Pip is the recommended package manager and installer for Python. It install packages from Python Package Index (PyPI)
 
@@ -3560,6 +3560,24 @@ Key differences:
 - Pip install packages in a recursive, serial loop. This can break under subtle conflicts, such as when earlier packages conflict with later packages.
   Conda makes dependencies safe by, wait for it, a SAT solver! So installation will take a longer time but it avoids these subtle issues.
 
+
+### circular imports
+
+```
+ImportError: cannot import name 'MyClass' from partially initialized module 'related_module' (most likely due to a circular import)  (/path/to/your/related_module.py)
+```
+
+This means there is circular dependency in the imports meaning no module can be defined fully.
+
+Solutions:
+1. Put common functionality into a 3rd module
+2. Deferred import
+```python
+def my_function_the_internet_doesnt_like(self, value):
+    from another_module import AnotherClass
+    value = AnotherClass(whatever=value)
+    return value.to_that_return_type()
+```
 
 
 
