@@ -25,6 +25,16 @@ TODO:
 
 
 
+Remain: $$
+
+- A lot of pattern matching is skipped
+
+
+
+
+
+
+
 
 ## Data Structures
 
@@ -720,10 +730,192 @@ $$ Read more on the Strategy and Command pattern, use sources to learn about mor
 
 
 
-
 ## Classes and Protocols
 
-## A Pythonic object
+
+
+### A Pythonic object
+
+### + Special Methods for Sequences
+
+
+
+**Special methods**
+
+Object representations:
+
+- `__str__`: return string representation of object as user wants to see it, called with `str()`
+- `__repr__`: return string representation of object as developers want to see it, called with `repr()`
+- `__bytes__`: return byte representation, called with `bytes()`
+- `__format__`: return representation by some format spec, called with `format()` and `str.format()`, which invokes `obj.__format__(format_spec)`
+
+```python
+>>> '1 BRL = {rate:0.2f} USD'.format(rate=brl)
+'1 BRL = 0.21 USD'	# can be expressed as syntactic sugar of f"1 BRL = {rate:0.2f} USD", str.format() useful when arguments live elsewhere
+>>> format(datetime.now(), '%H:%M:%S')
+'18:49:05'
+```
+
+Iterables
+
+- `__iter__`: return an iterator
+  - $$ read page 397
+
+Equality
+
+- `__eq__`: value equality, invoked by `==`
+
+Conversion
+
+- `__abs__`: absolute value, invoked by `abs()`
+- `__bool__`: convert to bool, invoked by `bool()`
+
+Hashing
+
+- `__hash__`: invoked by `hash()`
+
+
+
+Don't go overboard with implementing dunder methods for every class. implement the ones that is needed in your program. If you're making a library you may want to implement more if the usecase can be wide.
+
+
+
+
+
+
+
+**Alternative constructors**
+
+Because Python doesn't support overloading, alternative constructors are usually implemented as classmethods
+
+```python
+@classmethod
+def frombytes(cls, octets):	
+	# some processing
+    typecode = chr(octets[0])
+	memv = memoryview(octets[1:]).cast(typecode)
+	
+    # and finally call the constructor
+    return cls(*memv)
+
+# client code
+obj = MyClass.frombytes(bytes)
+```
+
+
+
+**Class decorators**
+
+```python
+class Demo:
+    @classmethod
+    def foo(cls, *args):	# have access to cls but not instance
+        pass
+    
+    @staticmethod
+    def bar(*args):			# no cls access, acts as a bounded helper function, rarely useful
+        pass
+    
+    @property
+    def x(self):			# creates a readonly attribute obj.x with this getter method
+        return self._x
+```
+
+
+
+
+
+**Example Pythonic object**
+
+```python
+class Vector:
+    
+    
+    def __format__(self, fmt_spec=''):
+        if fmt_spec.endswith('p'):
+        	fmt_spec = fmt_spec[:-1]
+        	coords = (abs(self), self.angle())
+        	outer_fmt = '<{}, {}>'
+        else:
+        	coords = self
+        	outer_fmt = '({}, {})'
+        	
+		components = (format(c, fmt_spec) for c in coords)
+        return outer_fmt.format(*components)
+    
+    
+>>> format(Vector2d(1, 1), '0.5fp')
+'<1.41421, 0.78540>
+```
+
+
+
+**Slots - memory saving**
+
+Normally, attributes of an instance is held inside a dictionary under `.__dict__`. $$ how is dict stored?
+
+```python
+class Pixel:
+    __slots__ = ('x', 'y')
+    
+>>> p = Pixel()
+>>> p.__dict__		# __dict__ no longer defined after using __slots__
+Traceback (most recent call last):
+    
+>>> p.x = 10
+>>> p.y = 20
+>>> p.color = 'red'	# can no longer dynamically set attributes
+Traceback (most recent call last):
+```
+
+Slots have the following benefits:
+
+- Memory efficiency: attributes are fixed so values are stored in a list, attributes act as index to that list
+- "Safety": attributes are fixed and cannot be dynamically added (which supports above)
+- Performance improvements
+
+Interaction with inheritence
+
+```python
+>>> class OpenPixel(Pixel):
+... pass
+...
+>>> op = OpenPixel()
+>>> op.__dict__		# Derived class has __dict__
+{}
+>>> op.x = 8
+>>> op.__dict__
+{}
+>>> op.x
+8
+>>> op.color = 'green'	# Derived class can access Base class __slots__ as well as add new attributes to __dict__
+>>> op.__dict__
+{'color': 'green'}
+
+>>> class ColorPixel(Pixel):
+... __slots__ = ('color',)
+>>> cp = ColorPixel()
+>>> cp.__dict__
+Traceback (most recent call last):
+...
+AttributeError: 'ColorPixel' object has no attribute '__dict__'
+>>> cp.x = 2
+>>> cp.color = 'blue'
+>>> cp.flavor = 'banana'
+Traceback (most recent call last):
+...
+AttributeError: 'ColorPixel' object has no attribute 'flavor'	# If Derived class also uses __slots__ then __dict__ is removed
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
