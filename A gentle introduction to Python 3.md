@@ -3563,15 +3563,17 @@ Key differences:
 
 ### circular imports
 
+Note circular imports is not by itself a problem, e.g., mutually recursive functions will need to be defined together. Main issue is how Python creates definitions:
+
 ```
 ImportError: cannot import name 'MyClass' from partially initialized module 'related_module' (most likely due to a circular import)  (/path/to/your/related_module.py)
 ```
 
-This means there is circular dependency in the imports meaning no module can be defined fully.
+Here the circular dependency in the imports meaning no module can be defined fully.
 
 Solutions:
 1. Put common functionality into a 3rd module
-2. Deferred import
+2. Deferred import -> Python function body is stored at definition time, and only executed at runtime. This means import statements inside functions aren't executed at definition time
 ```python
 def my_function_the_internet_doesnt_like(self, value):
     from another_module import AnotherClass
