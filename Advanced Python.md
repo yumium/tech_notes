@@ -22,6 +22,9 @@ TODO:
 - [ ] https://blog.edward-li.com/tech/advanced-python-features/#6-context-managers
 - [ ] Byte code: https://docs.python.org/3/library/dis.html
 - [ ] Be good to have some concrete examples of inheritence and ways they can be avoided (e.g., abstract classes, mixins, composition etc.) with examples implemented in Python and C++)
+- [ ] `super()` for accessing super class dynamically
+- [ ] generator comprehensions => `(hash(x) for x in self._components)`
+- [ ] New versions of `zip`, incl `ziplongest` and optionally checking both iterables have same length
 
 
 
@@ -774,6 +777,14 @@ Hashing
 
 - `__hash__`: invoked by `hash()`
 
+Dynamic attributes
+
+- `__getattr__`
+- `__setattr__`
+- Not sure how these work
+
+  
+
 
 
 Don't go overboard with implementing dunder methods for every class. implement the ones that is needed in your program. If you're making a library you may want to implement more if the usecase can be wide.
@@ -829,7 +840,13 @@ class Demo:
 
 ```python
 class Vector:
-    
+
+    def __hash__(self):
+	hashes = (hash(x) for x in self._components)
+	return reduce(operator.xor, hashes, 0)
+
+    def __eq__(self, other):
+	return len(self) == len(other) and all(a == b for a, b in zip(self, other))
     
     def __format__(self, fmt_spec=''):
         if fmt_spec.endswith('p'):
@@ -913,7 +930,10 @@ AttributeError: 'ColorPixel' object has no attribute 'flavor'	# If Derived class
 
 **Protocols**
 
-Python uses duck typing, so when we say an object satisfies the `Sequence` interface, we say it has the sequence protocol which means it has `__len__` and `__getitem__` defined ($$ how do these work with Python natives?)
+Python uses duck typing, so when we say an object satisfies the `Sequence` interface, we say it has the sequence protocol which means it has `__len__` and `__getitem__` defined
+
+
+
 
 
 
