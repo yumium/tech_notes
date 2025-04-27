@@ -25,6 +25,7 @@ TODO:
 - [ ] `super()` for accessing super class dynamically
 - [ ] generator comprehensions => `(hash(x) for x in self._components)`
 - [ ] New versions of `zip`, incl `ziplongest` and optionally checking both iterables have same length
+- [ ] Style guide! Check PEP8 don't think it's long
 
 
 
@@ -1001,23 +1002,100 @@ $$ `@register` decorator is another way for structural subclasses to pass ABC ch
 $$ You can do some static type checking with `typing.Protocol` but didn't look into it
 
 
-### Inheritence
-
-$$ Look at `super()` function
-
-$$ `__mro__` define more details on multiple inheritence resolution order. But never looked closely as complex multiple inheritence is rarely used in production code.
 
 
-$$ Coping with inheritence => read this
 
-=> Put in different file. Generally inheritence is bad because: 1) implementation hard to follow (you have to follow base classes), 2) is-a relationship can change leading to more code change hard to maintain, 3) changes in base class can give surprising results in derived class (e.g., area in shapes)
+### Inheritance
 
-One good example of horrible inheritence is C++'s std built-in library
 
-- Prefer composition
-- When using as subtyping, use ABCs
-- When using to share functionality, use Mixins  
-  - Realworld example: ThreadingMixin, ForkingMixin
+
+**Look at `super()` function**
+
+```python
+class LastUpdatedOrderedDict(OrderedDict):
+	"""Store items in the order they were last updated"""
+	
+    def __setitem__(self, key, value):
+		super().__setitem__(key, value)  # does the same as super(LastUpdatedOrderedDict, self).__setitem__(key, value)
+		self.move_to_end(key)
+```
+
+It's usually good when overriding functions in the subclass to call the same method in the super class first. `super().foo` is then preferred over `BaseClass.foo` as it's more maintainable. Another use case is for cooperative multiple inheritance in a dynamic execution environment. Though again I've not explored much of these.
+
+The full signature to `super()` is `super(type, object_or_type=None)`
+
+> `super()`: Return a proxy object that delegates method calls to a parent or sibling class of *type*.
+
+`object_or_type` argument if left blank takes self and finds the mro via the `__mro__` attribute. For example, if [`__mro__`](https://docs.python.org/3/reference/datamodel.html#type.__mro__) of *object_or_type* is `D -> B -> C -> A -> object` and the value of *type* is `B`, then [`super()`](https://docs.python.org/3/library/functions.html#super) searches `C -> A -> object`.
+
+
+
+**Method resolution order**
+
+```python
+class Root:
+    def ping(self):
+    	print(f'{self}.ping() in Root')
+    
+    def pong(self):
+    	print(f'{self}.pong() in Root')
+    
+    def __repr__(self):
+        cls_name = type(self).__name__
+    	return f'<instance of {cls_name}>'
+
+class A(Root):
+    def ping(self):
+    	print(f'{self}.ping() in A')
+    	super().ping()
+    
+    def pong(self):
+    	print(f'{self}.pong() in A')
+    	super().pong()
+    
+class B(Root):
+    def ping(self):
+    	print(f'{self}.ping() in B')
+    	super().ping()
+    
+    def pong(self):
+    	print(f'{self}.pong() in B')
+    
+class Leaf(A, B):
+    def ping(self):
+    	print(f'{self}.ping() in Leaf')
+    	super().ping()
+```
+
+```
+In [4]: leaf1.ping()                                                                                                    <instance of Leaf>.ping() in Leaf                                                                                       <instance of Leaf>.ping() in A                                                                                          <instance of Leaf>.ping() in B                                                                                          <instance of Leaf>.ping() in Root
+
+In [6]: leaf1.pong()                                                                                                    <instance of Leaf>.pong() in A                                                                                          <instance of Leaf>.pong() in B
+```
+
+Here MRO seems to behave like a BFS, but that's a special case, it uses the C3 algorithm (https://www.python.org/download/releases/2.3/mro/). Unless you make strong use of multiple inheritance and you have non-trivial hierarchies, you don't need to understand the C3 algorithm, and you can easily skip this paper.
+
+Every class has an attribute called __mro__ holding a tuple of references to the super‐ classes in method resolution order, from the current class all the way to the `object` class.  
+
+```python
+>>> Leaf.__mro__ # doctest:+NORMALIZE_WHITESPACE
+(<class 'diamond1.Leaf'>, <class 'diamond1.A'>, <class 'diamond1.B'>,
+<class 'diamond1.Root'>, <class 'object'>)
+```
+
+`__mro__` only considers activation order (the order in which base classes are searched for a member during lookup), what is called depends on the `super()` calls.
+
+
+
+
+
+
+
+$$ Coping with inheritance
+
+​	=> see different file
+
+
 
 
 
@@ -1039,7 +1117,6 @@ $$ Skipped this one as haven't yet used any
 
 
 ## Control Flow
-
 
 
 

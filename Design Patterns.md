@@ -275,5 +275,159 @@ class IPhoneAdapter(FormatAndroid):
 
 
 
+Pattern name, the common problem, the general approach/solution, the consequences (side effects)
 
+#### Iteration
+
+A unified way to easily iterate element by element through any class that's a "collection"
+
+Use `iterator` method to get an iterator object from the collection, then use `hasNext` and `next` to iterate through the iterator.
+
+The C++ implementation is more flexible (iteration becomes indexing memory location), but harder to use.
+
+
+
+#### Observers
+
+Having update code after every code that refreshes a status is ugly. Let's automate this process
+
+```scala
+trait Observable[T] { this: T =>
+    val observers = new ArrayBuffer[Observable.Observer[T]]
+    
+    def addObserver(observer: Observable.Observer[T]) observers.append(observer)
+   
+    def notifyObserver() {
+        for (o <- observers) o.refresh(this)
+    }
+}
+
+object Observable {
+    trait Observer[T] {
+        def refresh(subject: T)
+    }
+}
+```
+
+To make an object of type T observable, you mix in the Observable[T] trait in the object's class.
+
+The object will then have an internal list of observers to itself, and a function `notifyObserver` that can be called whenever you want the observers to be notified after the object's internal state is updated. This is much better to write than writing out all the refresh procedures for all observers.
+
+All Observer[T] must have a `refresh` function defined that takes in the object as an argument. It's quite neat to have the trait inside a companion object like that.
+
+This introduces loose coupling, so changing the refresh behavior doesn't have ripples, and the observable object doesn't know what the observers will do with `refresh`.
+
+
+
+#### Model View Controller
+
+Model: Internal data
+
+View: A mapping of internal data to display. There can be multiple views from the same model
+
+Controller: Processing input, updating model from input, and refreshing the view
+
+Diagram:
+
+
+
+
+
+
+
+
+
+
+
+##### Aside: Anonymous classes:
+
+```scala
+new MainFrame {
+    contents = new Lable("Hello IP3")
+}
+```
+
+Create a new class with auto-generated name, extending from class MainFrame (you can also extend from trait or abstract class), overriding contents in the {...}, then immediately instantiating an object, which is tagged by the variable name.
+
+
+
+##### More aside:
+
+CRC cards and how to design a GUI see the Programming Good Practice guide
+
+
+
+
+
+#### Command
+
+We don't want to associate each keypress with direct method calls that change the model.
+
+We want to associate each keypress with a command, then encapsulate the method calls that change the model in the command. This has several benefits:
+
+- The commands are more abstract, so easy to understand
+- You can change the method calls easily, without having to worry about keypress
+- You can pass commands around, merge them etc.
+- Commands might fail to execute when the state of the model doesn't allow it to do so. This is simpler as every keypress still generate commands, but not all commands generated are executable.
+
+All in all, this decouples the keypress with immediate effects.
+
+There are 4 players:
+
+1. Concrete commands:
+
+   ```scala
+   class InsertCommand extends Command {
+       override def execute() {...}
+   }
+   ```
+
+2. The client: The one that associate the keypress with the correct command
+
+3. The invoker: The part of code that does `command.execute`
+
+4. The receiver: The object that is affected by the command execution
+
+
+
+#### Change
+
+When you want to undo or redo things, it might be good to encapsulate a change into an object
+
+```scala
+trait Change {
+    def undo()
+    def redo()
+}
+```
+
+
+
+#### Memento
+
+Your "originator" changes relatively continuously. During discrete times it can generate a memento that stores all of its internal state at that time. The memento can be invoked to restore the state of the originator to that time, sort of like git commits.
+
+```scala
+class Memento {
+    ...	//private fields that stores the state
+    
+    def restore() {...}
+}
+```
+
+Usually the memento class lives inside the originator class. This way, extracting the information about the originator is just accessing its internal data.
+
+
+
+#### Decorator
+
+Makes adding a <u>regular</u> change to multiple subtypes of a type easy. You don't need to manually change this for all subtypes.
+
+```scala
+class MyClassDecorator(private val toBeDecorated: MyClass, private val extraInfo: Any) extends MyClass {
+    ...	//regular changes
+}
+```
+
+This class will then do the regular changes to all subtypes of `MyClass`. You can make the changes just by instantiating `MyClassDecorator` with the object you want to decorate passed in as a perimeter.
 
