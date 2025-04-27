@@ -1270,7 +1270,106 @@ $$ Read about coroutines
 
 
 
-$$ Context managers
+**Context managers**
+
+The try/finally methods is useful for managing clean up methods
+
+Example context managers in Python libraries:
+
+- Managing transactions in sqlite3 module
+- Safely handling locks, conditions, and semaphores
+
+
+
+Creating a context manager
+
+```python
+import sys
+
+class LookingGlass:
+    # called before entering a `with` block
+    def __enter__(self):
+    	self.original_write = sys.stdout.write
+    	sys.stdout.write = self.reverse_write
+    	return 'JABBERWOCKY'
+	
+    def reverse_write(self, text):
+    	self.original_write(text[::-1])
+    
+    # always called after a `with` block (e.g., even when exceptions happen)
+    def __exit__(self, exc_type, exc_value, traceback):
+    	sys.stdout.write = self.original_write
+    	if exc_type is ZeroDivisionError:
+    		print('Please DO NOT divide by zero!')
+	    return True
+```
+
+
+
+Since Python 3.10 we can use multiple ContextManagers like this without nesting `with` clauses
+
+```python
+with (
+	CtxManager1() as example1,
+	CtxManager2() as example2,
+	CtxManager3() as example3,
+):
+	...
+```
+
+
+
+`contextlib` provides many utils to help with this, most useful is the `@contextmanager` decorator
+
+```python
+import contextlib
+import sys
+
+@contextlib.contextmanager
+def looking_glass():
+	original_write = sys.stdout.write
+    
+    def reverse_write(text):
+    	original_write(text[::-1])
+    
+    sys.stdout.write = reverse_write
+    yield 'JABBERWOCKY'		# yield clause uses generator to split the function into 2 parts. Statements before `yield` is executed at the start of the `with` block, and the rest at the end
+    sys.stdout.write = original_write
+```
+
+Note, if exception happens during the context, it is raised after the `yield` clause. So unfortunate side effect of using this decorator is we should always put a `try` and `finally` clause
+
+```python
+import contextlib
+import sys
+
+@contextlib.contextmanager
+def looking_glass():
+	original_write = sys.stdout.write
+    
+    def reverse_write(text):
+    	original_write(text[::-1])
+    
+    sys.stdout.write = reverse_write
+    try:
+	    yield 'JABBERWOCKY'
+    	# errors inside with clause will be raised here, crashing the program but `finally` clause is still executed to ensure clean up
+	finally:
+        sys.stdout.write = original_write
+```
+
+Another useful side effect is that it can also be used as a decorator that wraps the inclosing  function, because `contextlib.contextmanager` inherits from `contextlib.ContextDecorator`
+
+```python
+>>> @looking_glass()
+... def verse():
+... print('The time has come')
+...
+>>> verse()
+emoc sah emit ehT
+>>> print('back to normal')
+back to normal
+```
 
 
 
@@ -1322,6 +1421,24 @@ def evaluate(exp: Expression, env: Environment) -> Any:
 
 
 
+
+### Concurrency Models in Python
+
+
+
+
+
+
+
+### Concurrent Executors
+
+
+
+
+
+
+
+### Asynchronous Programming
 
 
 
