@@ -56,10 +56,6 @@ Learn about how cPython interpreter works: https://github.com/python/cpython/blo
 
 
 
-
-
-
-
 pycache (.pyc)
 
 - This is the cached Python bytecode that is compiled from the module
@@ -3580,7 +3576,6 @@ def my_function_the_internet_doesnt_like(self, value):
     value = AnotherClass(whatever=value)
     return value.to_that_return_type()
 ```
-
 
 
 

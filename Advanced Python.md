@@ -1120,7 +1120,204 @@ $$ Skipped this one as haven't yet used any
 
 
 
+### Iterators, Generators, Classic Coroutines
 
+Iterators are created from iterables.
+
+Iterables are classes with either the `__iter__` function or `__getitem__` function. If class has `__iter__` function, it is called to create an iterator. Otherwise an iterator is contructed by callling `__getitem__` from index 0. (This is why all Containers are Iterables)
+
+- Iterable: `__iter__` (or `__getitem__`)
+- Iterator: `__next__`, and `__iter__` that just returns `self` for convenience, so iterators can be used when iterables are expected
+
+```python
+s = 'ABC'
+for c in s:
+    print(c)
+    
+# the above is semantically equivalent to
+it = iter(s)
+while True:
+    try:
+        c = next(s)
+        print(c)
+    except StopIteration:
+		del it
+        break
+        
+# Many constructs (for loops, comprehensions) take Iterables and uses StopIteration exception as signal for end of iteration
+```
+
+Iterators cannot be reset directly, must call `iter` on original Iterable object
+
+
+
+Implementing an Iterable by hand
+
+```python
+import re
+import reprlib
+RE_WORD = re.compile(r'\w+')
+
+class Sentence:
+    def __init__(self, text):
+    	self.text = text
+    	self.words = RE_WORD.findall(text)
+    
+    def __repr__(self):
+    	return f'Sentence({reprlib.repr(self.text)})
+    
+    def __iter__(self):
+    	return SentenceIterator(self.words)
+
+class SentenceIterator:
+    def __init__(self, words):
+    	self.words = words
+    	self.index = 0
+    
+    def __next__(self):
+    	try:
+    		word = self.words[self.index]
+    	except IndexError:
+    		raise StopIteration()
+    	self.index += 1
+    	return word
+    
+    def __iter__(self):
+    	return self
+```
+
+
+
+Implementing an Iterable by using generators
+
+```python
+import re
+import reprlib
+RE_WORD = re.compile(r'\w+')
+
+class Sentence:
+    def __init__(self, text):
+        self.text = text
+        self.words = RE_WORD.findall(text)
+    
+    def __repr__(self):
+    	return 'Sentence(%s)' % reprlib.repr(self.text)
+    
+    # A generator is the return value of calling a function with a `yield` clause
+    # When the function returns, a StopIteration exception is raised by the Iterator mechanism
+    # Note, the function itself is not a generator. The function when called is a generator
+    def __iter__(self):
+        for word in self.words:
+        	yield word
+```
+
+
+
+Generator expressions:
+
+```python
+(word for word in self.words)
+```
+
+Use generator expressions when it's shorter (ie. original for loop spans a few lines)
+
+
+
+Iterators are lazy (compared with Containers)
+
+
+
+Other useful syntactical sugars
+
+```python
+# yield from
+def foo():
+    for _ in range(10):
+        yield 1
+
+def bar():
+    for _ in range(10):
+        yield 2
+	for i in foo():
+        yield i
+        
+# We can avoid the for loop boilerplate with `yield from`
+def baz():
+    for _ in range(10):
+        yield 2
+	yield from foo()
+
+# chain
+# reference impl, chains iterables together into a single iterable
+def chain(its: Container[Iterable]):
+    for it in its:
+        yield from it
+```
+
+
+
+$$ Read about coroutines
+
+
+
+
+
+
+
+
+
+### with, match, and else Blocks
+
+
+
+$$ Context managers
+
+
+
+
+
+$$ Learn more about pattern matching
+
+```python
+# A great example of expressiveness in Python's pattern matching is writing a Lisp interpreter
+def evaluate(exp: Expression, env: Environment) -> Any:
+    "Evaluate an expression in an environment."
+    match exp:
+        case int(x) | float(x):
+        	return x
+        
+        case Symbol(var):
+        	return env[var]
+        
+        case ['quote', x]:
+        	return x
+        
+        case ['if', test, consequence, alternative]:
+            if evaluate(test, env):
+            	return evaluate(consequence, env)
+            else:
+            	return evaluate(alternative, env)
+        
+        case ['lambda', [*parms], *body] if body:
+        	return Procedure(parms, body, env)
+        
+        case ['define', Symbol(name), value_exp]:
+        	env[name] = evaluate(value_exp, env)
+        
+        case ['define', [Symbol(name), *parms], *body] if body:
+        	env[name] = Procedure(parms, body, env)
+        
+        case ['set!', Symbol(name), value_exp]:
+        	env.change(name, evaluate(value_exp, env))
+        
+        case [func_exp, *args] if func_exp not in KEYWORDS:
+        	proc = evaluate(func_exp, env)
+        	values = [evaluate(arg, env) for arg in args]
+        	return proc(*values)
+        
+        case _:
+        	raise SyntaxError(lispstr(exp))
+```
 
 
 
