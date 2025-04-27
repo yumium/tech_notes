@@ -16,16 +16,18 @@ TODO:
 
 - [ ] Read on `inspect` module (used in schema.check_io, check related MR, also good to look at contextmanager used for aggregating schema errors)
 - [ ] Have a read on Python API design
-- [ ] More about imports, how they work, how to resolve circular imports, when importing the whole file is executed?
+- [ ] Slicing with Python "dunder methods"
+- [x] More about imports, how they work, how to resolve circular imports, when importing the whole file is executed?
 - [ ] How does `__name__` == "__main__" even work
 - [ ] More about Python interpretor inner workings, e.g., what is `.pyc` file after imports
 - [ ] https://blog.edward-li.com/tech/advanced-python-features/#6-context-managers
 - [ ] Byte code: https://docs.python.org/3/library/dis.html
-- [ ] Be good to have some concrete examples of inheritence and ways they can be avoided (e.g., abstract classes, mixins, composition etc.) with examples implemented in Python and C++)
-- [ ] `super()` for accessing super class dynamically
-- [ ] generator comprehensions => `(hash(x) for x in self._components)`
+- [x] Be good to have some concrete examples of inheritence and ways they can be avoided (e.g., abstract classes, mixins, composition etc.) with examples implemented in Python and C++)
+- [x] `super()` for accessing super class dynamically
+- [x] generator comprehensions => `(hash(x) for x in self._components)`
 - [ ] New versions of `zip`, incl `ziplongest` and optionally checking both iterables have same length
 - [ ] Style guide! Check PEP8 don't think it's long
+- [ ] Advanced features: https://blog.edward-li.com/tech/advanced-python-features/#14-metaclasses
 
 
 
@@ -1373,8 +1375,6 @@ back to normal
 
 
 
-
-
 $$ Learn more about pattern matching
 
 ```python
@@ -1424,7 +1424,31 @@ def evaluate(exp: Expression, env: Environment) -> Any:
 
 ### Concurrency Models in Python
 
+Python objects passed between processes must be serialised. This is an expensive operation, and not always possible.
 
+Classic coroutines built from generators. Native coroutines from `async def`
+
+
+
+#### The GIL
+
+Note the GIL is an implementation detail, not a language spec
+
+1. Each instance of Python interpreter is a process
+   1. `multiprocessing` and `concurrent.futures` can be used to start additional processes
+   2. `subprocess` can be used to start another process is a different language $$ how does subprocess bash commands work
+2. The Python interpreter uses a single thread to run the user's program and the memory garbage collector
+   1. `threading` and `concurrent.futures` can be used to start new threads
+3. Only one Python thread can hold the GIL at one time
+   1. GIL protects object reference counts and other internal interpreter state
+4. Interpreter pauses the current Python threads every 5ms by default, then it's up to OS to schedule the next runnable thread
+5. GIL can also be released by
+   1. Built-in function, extension or libraries written in C: `numpy`, `scipy`
+   2. When a syscall is made (e.g., disk I/O, network I/O)
+6. Extensions that integrate at the Python/C API level can launch other non-Python threads that are not affected by GIL. They can't change Python state, but can read/write from memory underlying objects that support the buffer protocol (`bytearray`, numpy arrays ...)
+7. To run a Python program on multiple cores you must use multiple processes
+8. Multithreading can be useful if most threads are waiting (e.g., I/O heavy)
+9. Contention over GIL slows down compute-intensive tasks, single-threaded is better there
 
 
 
@@ -1440,9 +1464,27 @@ def evaluate(exp: Expression, env: Environment) -> Any:
 
 ### Asynchronous Programming
 
+$$ We can probably skip coroutines after learning roughly what it does
 
 
 
+
+
+
+
+## Meta Programming
+
+
+
+### Dynamic Attributes and Properties
+
+
+
+### Attribute Descriptors
+
+
+
+### Class Metaprogramming
 
 
 

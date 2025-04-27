@@ -1528,8 +1528,6 @@ Classes partake of the dynamic nature of Python: they are created at runtime, an
 
 
 
-
-
 **Creating a class**
 
 When a class definition is entered, a new namespace is created, and used as the local scope — thus, all assignments to local variables go into this new namespace. In particular, function definitions bind the name of the new function here.
@@ -2026,6 +2024,16 @@ Summary of what modules are good for
 - Ease of maintenance (maintain each file separately)
 - Clear dependencies
 - etc.
+
+
+
+**What happens at import time?**
+
+1. Parses the source code of a .py module in one pass from top to bottom. This is when a SyntaxError may occur.
+2. Compiles the bytecode to be executed.
+3. Executes the top-level code of the compiled module
+
+
 
 
 
