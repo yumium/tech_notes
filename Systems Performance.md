@@ -80,4 +80,17 @@ procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
 31 0 0 6534876 42656 1672088 0 0 0 0 74389 168210 46 3 51 0 0
 ```
 
+Metric: a statistic that has been selected to evaluate or monitor a target.
+
+Alerts: used when metrics go over some limit. 
+
+| Level                                 | Example         |
+|---------------------------------------|-----------------|
+| Alerts - Event Processing             | Prometheus      |
+| Metrics - Performance Monitoring UIs  | Grafana         |
+| Statistics - Performance Tools/Agents | vmstat          |
+| Counters - Applications/Kernel        | /proc           |
+
+
+
 
