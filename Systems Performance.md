@@ -92,5 +92,13 @@ Alerts: used when metrics go over some limit.
 | Counters - Applications/Kernel        | /proc           |
 
 
+Profiling
+
+
+
+Tracing
+
+
+
 
 
