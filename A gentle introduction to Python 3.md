@@ -1420,7 +1420,11 @@ def join(sep=', ', *args):
 
 #### Arbitrary argument lists
 
-Take all remaining arguments given, these arguments will be wrapped up in a tuple.  $$
+```python
+def foo(*args, **kwargs):
+    print(type(args))  # tuple of arguments
+    print(type(kwargs))  # dict mapping argument name to value
+```
 
 Before the variable number of arguments, zero or more normal arguments may occur. After the variable, only keyword arguments can occur.
 
