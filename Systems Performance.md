@@ -35,5 +35,49 @@ Generally as part of a different role (e.g., Network engineers focus on network 
 These days with canary releases (small traffic to prod machine) and blue-green deployment (slowly shift traffic from backup to new machine) mean teams don't always follow all the performance steps. You'll likely do some of these steps in your work.
 
 
+**Perspectives**
+
+Workload perspective => app developers
+
+Resource perspective => sys admins
+
+
+**Why performance is challenging**
+
+Subjectivity: "The average disk I/O response time is 1 ms" is good or bad depends on who is asking
+
+Complexity: 
+- Systems are complex and it's not obvious where to look first => form hypothesis then check and see
+- Performance issues may come from interactions between subsystems that performance well in isolation => cascading failure, 1 failed component causes performance issues in others
+- Bottlenecks can also be complex and related in unexpected ways; fixing one may simply move the bottleneck elsewhere in the system 
+
+Multiple performance issues: there can be a lot, so another task is figuring out which is worth solving
+
+
+**Latency**
+
+Latency is a measure of time spent waiting. Used broadly, it can mean the time for any operation to complete, such as an application request, a database query, a file system operation, and so forth.
+
+As a metric, latency can allow maximum speedup to be estimated -> query time from 100ms to 20ms is 5x speed up
+
+
+**Observability**
+
+Observability refers to understanding a system through observation, and classifies the tools that accomplish this.
+
+Counters, Statistics and Metrics
+ 
+Applications and the kernel typically provide data on their state and activity: operation counts, byte counts, latency measurements, resource utilization, and error rates. They are typically implemented as integer variables called counters that are hard-coded in the software, some of which are cumulative and always increment. These cumulative counters can be read at different times by performance tools for calculating statistics: the rate of change over time, the average, percentiles, etc.
+
+```
+$ vmstat 1 5
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r b swpd free buff cache si so bi bo in cs us sy id wa st
+19 0 0 6531592 42656 1672040 0 0 1 7 21 33 51 4 46 0 0
+26 0 0 6533412 42656 1672064 0 0 0 0 81262 188942 54 4 43 0 0
+62 0 0 6533856 42656 1672088 0 0 0 8 80865 180514 53 4 43 0 0
+34 0 0 6532972 42656 1672088 0 0 0 0 81250 180651 53 4 43 0 0
+31 0 0 6534876 42656 1672088 0 0 0 0 74389 168210 46 3 51 0 0
+```
 
 
