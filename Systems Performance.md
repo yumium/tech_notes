@@ -66,7 +66,7 @@ As a metric, latency can allow maximum speedup to be estimated -> query time fro
 Observability refers to understanding a system through observation, and classifies the tools that accomplish this.
 
 *Counters, Statistics and Metrics*
- 
+
 Applications and the kernel typically provide data on their state and activity: operation counts, byte counts, latency measurements, resource utilization, and error rates. They are typically implemented as integer variables called counters that are hard-coded in the software, some of which are cumulative and always increment. These cumulative counters can be read at different times by performance tools for calculating statistics: the rate of change over time, the average, percentiles, etc.
 
 ```
@@ -171,12 +171,69 @@ covered in this chapter.
 
 
 
-### Terminologies
+### Terminologies & Concepts
 
 - IOPS: I/O operations per second => rate of data transfer (e.g., Disk I/O)
 - Throughput: The rate of work performed. 
-- Response time: 
+- Response time: The time for an operation to complete. This includes any time spent waiting
+- Latency: A measure of time an operation spends waiting to be serviced. If entire operation, equal to response time
+  - Eg., network service request ---> connection establishment ---> data transfer ---> completion
+    Here the operation is to transfer data (e.g., via HTTP GET request)
+    The latency is the connection establishment portion, as it's the wait time before the data transfer can take place
+    The response time is the entire duration (connection establishment + data transfer)
+  - Latency is time-based so performance can be easy to quantify which bottleneck is bigger + an estimate for speed up
 
+- Utilisation: For resources that service requests, how busy the resource is  => % during time interval doing work
+  - Time-based: U=B/T, utilisation = busy time / observed time. When system approach 100% utilisation we tend to see performance degrade
+  - Capacity-based: Think of 100% capacity as system cannot do more work. Proportion of work done over theoretical maximum amount of work done
+
+- Saturation: Degree a resource has queued work it cannot service
+- Bottleneck: The resource that limits performance of overall system
+- Workload: The input to system or load applied
+- Time scales
+
+$$ page 65 table
+
+- Trade offs: good/fast/cheap pick 2
+  - CPU vs memory: caches speed up compute; while compute can help with compression
+  - File system record size: small record size uses file system cache efficiently, large record sizes improve streaming performance
+  - Network buffer size: small buffer scales better, large buffer have higher throughput
+
+- Tuning efforts: Performance tuning is most effective when done closest to where the work is performed. This is usually at application level. This is because it's easier to tune a specialised system (application) than a general one (DBMS)
+- Level of appropriateness: how deep to go and how much to spend on performance engineering depends on business => big tech firms can spend more as cost saving is huge, HFT spend more as profitability enhancement is huge, startups may spend more to improve end user experience 
+- When to stop analysis: generally 1) when you've explained bulk of performance problem, 2) when potential ROI is less than cost of analysis, 3) when there are bigger ROIs elsewhere
+- Scalability: The performance of the system under increasing load
+  - Throughput vs. Load: may observe linear increase in throughput with load until after some point start dropping off
+  - Response time vs load: may observe constant response time with more load until after some point response time slowly or quickly increases with more load
+- Study the resources (IOPS, Throughput, Utilisation, Saturation) vs the workloads (Throughput, Latency)
+
+
+
+
+
+$$ Modelling: page 108, equations
+
+$$ Capacity planning: page 109
+
+
+
+### Useful statistics
+
+
+
+
+
+
+
+### Monitoring
+
+
+
+
+
+
+
+### Visualisations
 
 
 

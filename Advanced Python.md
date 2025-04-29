@@ -28,6 +28,18 @@ TODO:
 - [ ] New versions of `zip`, incl `ziplongest` and optionally checking both iterables have same length
 - [ ] Style guide! Check PEP8 don't think it's long
 - [ ] Advanced features: https://blog.edward-li.com/tech/advanced-python-features/#14-metaclasses
+- [ ] Threading in Python
+  - [ ] https://realpython.com/intro-to-python-threading/
+  - [ ] https://pymotw.com/3/concurrency.html
+
+- [ ] Why it's not easy to remove the GIL
+  - [ ] https://docs.python.org/3/faq/library.html#can-t-we-get-rid-of-the-global-interpreter-lock
+  - [ ] https://www.artima.com/weblogs/viewpost.jsp?thread=214235
+
+
+
+
+
 
 
 
