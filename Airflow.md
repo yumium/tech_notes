@@ -758,7 +758,7 @@ def xcom_pull_with_multiple_outputs(**context):
     data = context["ti"].xcom_pull(task_ids="push_multiple", key="return_value")
 ```
 
-The @task API takes care of pulling XCom values for you, note you must index the XCom argument inside a @task
+The @task API takes care of pulling XCom values for you, note you must subscript the XComArg inside an Operator
 
 ```python
 # incorrect way
