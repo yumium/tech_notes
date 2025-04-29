@@ -162,6 +162,26 @@ how to use them to narrow down an investigation. It was this know-how that was m
 the man pages—it was typically learned by watching over the shoulder of a senior admin or
 engineer.
 
+Another interesting observation
+
+> Of all the chapters in this book, this one has changed the least since the first edition. Software,
+hardware, performance tools, and performance tunables have all changed over the course of
+my career. What have remained the same are the theory and methodologies: the durable skills
+covered in this chapter.
+
+
+
+### Terminologies
+
+- IOPS: I/O operations per second => rate of data transfer (e.g., Disk I/O)
+- Throughput: The rate of work performed. 
+- Response time: 
+
+
+
+
+
+
 
 
 
