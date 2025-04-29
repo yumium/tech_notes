@@ -81,6 +81,6 @@ packed     := varint* | i32* | i64*,
 
 *optional*
 
-As fields are optional by default in protobuf, the `optional` keyword provides the `has_<field>` method. E.g., `optional string` field you can check with `msg.has_string_field()` rather than `msg.string_field().empty()` in original case without `optional` keyword
+As fields are optional implicitly in protobuf, the `optional` keyword provides the `has_<field>` method as it is now explicitly optional. E.g., `optional string` field you can check with `msg.has_string_field()` rather than `msg.string_field().empty()` in original case without `optional` keyword. Implicit optional fields are not serialised on the wire, so you have no way of knowing whether the fields isn't provided or was explicitly set to the default value ("" in the case of string fields).
 
 
