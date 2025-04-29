@@ -113,9 +113,15 @@ Static instrumentation: hard-coded software instrumentation points added to the 
 Dynamic instrumentation: allow tracing for an already running program. Works similar to debugger, modifies in-memory instructions to insert instrumentation routines (except unlike debugger the program continues running and doesn't trigger a trap to handover control to interactive debugger)
 
 
+**Experimentation**
 
+Most experimentation tools are benchmarking tools
 
+Macro-benchmark: simulate higher level real-world workload (racecar lap time)
 
+Micro-benchmark: test specific component (racecar 0-60mph time)
 
+Micro-benchmarks tend to be faster to run, iteratre, debug, and is more stable
 
+Sometimes experimentation can expose problems faster than observability
 
