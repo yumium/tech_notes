@@ -151,4 +151,18 @@ E.g. A simple 60-second debug checklist
 
 
 
+## Methodologies
+
+From Brandon on why learning man-pages of tools isn't enough
+
+> I noticed that, whenever there was a performance issue, the senior system administrators had
+their own mental procedures for moving quickly through tools and metrics to find the root
+cause. They understood which metrics were important and when they pointed to an issue, and
+how to use them to narrow down an investigation. It was this know-how that was missing from
+the man pages—it was typically learned by watching over the shoulder of a senior admin or
+engineer.
+
+
+
+
 
