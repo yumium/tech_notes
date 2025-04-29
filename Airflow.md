@@ -796,7 +796,7 @@ This is still widely used in modern Airflow code
 
 Note, TaskFlow API cannot render Jinja templates (you must use a traditional operator)
 
-```
+```python
 @task
 def foo():
   date = "{{ data_interval_end | ds }}"
