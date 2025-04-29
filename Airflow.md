@@ -794,12 +794,30 @@ Reference: https://airflow.apache.org/docs/apache-airflow/stable/templates-ref.h
 
 This is still widely used in modern Airflow code
 
-Note, TaskFlow API cannot render Jinja templates (you must use a traditional operator), though you can access templated value in arguments
+Note, TaskFlow API cannot render Jinja templates (you must use a traditional operator)
+
+```
+@task
+def foo():
+  date = "{{ data_interval_end | ds }}"
+  do_something(date)  # pass as the literal string "{{ data_interval_end | ds }}"
+
+def bar():
+  date = "{{ data_interval_end | ds }}"
+  return BashOperator(
+    task_id="bar",
+    bash_commend=baz(
+      arg=do_something(date)  # pass as evaluated string at task runtime
+    )
+  )
+  do_something(date)  
+```
+
+Though you can access templated value in arguments
 
 ```python
 from airflow.models.taskinstance import TaskInstance
 from airflow.models.dagrun import DagRun
-
 
 @task
 def print_ti_info(task_instance: TaskInstance, dag_run: DagRun):
