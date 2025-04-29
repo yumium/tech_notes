@@ -137,7 +137,7 @@ Methodologies are a way to document the recommended steps for performing various
 | #  | Tool              | Check                                                                                 | Section |
 |----|-------------------|---------------------------------------------------------------------------------------|---------|
 | 1  | `uptime`          | Load averages to identify if load is increasing or decreasing (compare 1-, 5-, and 15-minute averages). | 6.6.1   |
-| 2  | `dmesg -T | tail` | Kernel errors including OOM events.                                                   | 7.5.11  |
+| 2  | `dmesg -T \| tail` | Kernel errors including OOM events.                                                   | 7.5.11  |
 | 3  | `vmstat -SM 1`    | System-wide statistics: run queue length, swapping, overall CPU usage.                | 7.5.1   |
 | 4  | `mpstat -P ALL 1` | Per-CPU balance: a single busy CPU can indicate poor thread scaling.                  | 6.6.3   |
 | 5  | `pidstat 1`       | Per-process CPU usage: identify unexpected CPU consumers, and user/system CPU time for each process. | 6.6.7   |
