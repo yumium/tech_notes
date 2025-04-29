@@ -133,6 +133,7 @@ Sometimes experimentation can expose problems faster than observability
 
 Methodologies are a way to document the recommended steps for performing various tasks in systems performance. Without a methodology, a performance investigation can turn into a fishing expedition: trying random things in the hope of catching a win.
 
+E.g. A simple 60-second debug checklist
 
 | #  | Tool              | Check                                                                                 | Section |
 |----|-------------------|---------------------------------------------------------------------------------------|---------|
