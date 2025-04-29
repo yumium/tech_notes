@@ -720,8 +720,6 @@ with mock.patch.dict("os.environ", AIRFLOW_CONN_MY_CONN=conn_uri):
 
 
 
-
-
 ### XComs
 
 Short for "cross-communications", a mechanism that let Tasks talk to each other, as by default Tasks are entirely isolated and may be running on entirely different machines.
@@ -790,12 +788,29 @@ bar(data)  # correct
 
 
 
-
-
-
-
 ## Templates
 
 Reference: https://airflow.apache.org/docs/apache-airflow/stable/templates-ref.html#variables
+
+This is still widely used in modern Airflow code
+
+Note, TaskFlow API cannot render Jinja templates (you must use a traditional operator), though you can access templated value in arguments
+
+```python
+from airflow.models.taskinstance import TaskInstance
+from airflow.models.dagrun import DagRun
+
+
+@task
+def print_ti_info(task_instance: TaskInstance, dag_run: DagRun):
+    print(f"Run ID: {task_instance.run_id}")  # Run ID: scheduled__2023-08-09T00:00:00+00:00
+    print(f"Duration: {task_instance.duration}")  # Duration: 0.972019
+    print(f"DAG Run queued at: {dag_run.queued_at}")  # 2023-08-10 00:00:01+02:20
+```
+
+
+
+
+
 
 
