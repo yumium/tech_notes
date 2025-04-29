@@ -713,5 +713,21 @@ with mock.patch.dict("os.environ", AIRFLOW_CONN_MY_CONN=conn_uri):
 ```
 
 
+## Core Concepts
+
+
+### TaskFlow
+
+
+
+
+
+### XComs
+
+
+
+## Templates
+
+Reference: https://airflow.apache.org/docs/apache-airflow/stable/templates-ref.html#variables
 
 
