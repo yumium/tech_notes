@@ -65,7 +65,7 @@ As a metric, latency can allow maximum speedup to be estimated -> query time fro
 
 Observability refers to understanding a system through observation, and classifies the tools that accomplish this.
 
-Counters, Statistics and Metrics
+*Counters, Statistics and Metrics*
  
 Applications and the kernel typically provide data on their state and activity: operation counts, byte counts, latency measurements, resource utilization, and error rates. They are typically implemented as integer variables called counters that are hard-coded in the software, some of which are cumulative and always increment. These cumulative counters can be read at different times by performance tools for calculating statistics: the rate of change over time, the average, percentiles, etc.
 
@@ -92,11 +92,17 @@ Alerts: used when metrics go over some limit.
 | Counters - Applications/Kernel        | /proc           |
 
 
-Profiling
+*Profiling*
+
+In systems performance, the term profiling usually refers to the use of tools that perform sampling: taking a subset (a sample) of measurements to paint a coarse picture of the target.
+
+An effective visualization of CPU profiles is flame graphs.
+
+We can check other issues by focusing flamegraph on specific paths: CPU time in spin paths => lock contention, CPU time in memory allocation functions (e.g. malloc) => memory issues
 
 
 
-Tracing
+*Tracing*
 
 
 
