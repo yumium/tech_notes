@@ -83,4 +83,8 @@ packed     := varint* | i32* | i64*,
 
 As fields are optional implicitly in protobuf, the `optional` keyword provides the `has_<field>` method as it is now explicitly optional. E.g., `optional string` field you can check with `msg.has_string_field()` rather than `msg.string_field().empty()` in original case without `optional` keyword. Implicit optional fields are not serialised on the wire, so you have no way of knowing whether the fields isn't provided or was explicitly set to the default value ("" in the case of string fields).
 
+*oneof*
+
+If you have a message with many singular fields and where at most one field will be set at the same time, you can enforce this behavior and save memory by using the oneof feature. Oneof fields are like optional fields except all the fields in a oneof share memory, and at most one field can be set at the same time. If `oneof` is not set you can check it with `msg.field().empty()`
+
 
