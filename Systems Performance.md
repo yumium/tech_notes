@@ -104,6 +104,17 @@ We can check other issues by focusing flamegraph on specific paths: CPU time in 
 
 *Tracing*
 
+Tracing is event-based recording, where event data is captured and saved for later analysis or consumed on-the-fly for custom summaries and other actions.
+
+Example trace tools: `strace` for Linux sys calls, `tcpdump` for Linux network packets, `Ftrace`, `BCC`, `bpftrace` etc. more general purpose
+
+Static instrumentation: hard-coded software instrumentation points added to the source code. Linux has many (use `tracepoints`)
+
+Dynamic instrumentation: allow tracing for an already running program. Works similar to debugger, modifies in-memory instructions to insert instrumentation routines (except unlike debugger the program continues running and doesn't trigger a trap to handover control to interactive debugger)
+
+
+
+
 
 
 
