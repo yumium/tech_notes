@@ -740,21 +740,21 @@ task_instance.xcom_push(key="identifier as a string", value=any_serializable_val
 value = task_instance.xcom_pull(task_ids='pushing_task')
 ```
 
-`@task` default pushes its return value under key `return_values`
+`@task` default pushes its return value under key `return_values` (as `do_xcom_push` is True by default)
 
 ```python
 # A task returning a dictionary
-@task(do_xcom_push=True, multiple_outputs=True)
+@task(multiple_outputs=True)
 def push_multiple(**context):
     return {"key1": "value1", "key2": "value2"}
 
 @task
 def xcom_pull_with_multiple_outputs(**context):
     # Pulling a specific key from the multiple outputs
-    key1 = context["ti"].xcom_pull(task_ids="push_multiple", key="key1")  # to pull key1
-    key2 = context["ti"].xcom_pull(task_ids="push_multiple", key="key2")  # to pull key2
+    value1 = context["ti"].xcom_pull(task_ids="push_multiple", key="key1")  # to pull key1
+    value2 = context["ti"].xcom_pull(task_ids="push_multiple", key="key2")  # to pull key2
 
-    # Pulling entire xcom data from push_multiple task
+    # Pulling entire xcom data from push_multiple task, data is a dictionary
     data = context["ti"].xcom_pull(task_ids="push_multiple", key="return_value")
 ```
 
