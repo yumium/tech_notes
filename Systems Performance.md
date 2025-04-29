@@ -112,6 +112,8 @@ Static instrumentation: hard-coded software instrumentation points added to the 
 
 Dynamic instrumentation: allow tracing for an already running program. Works similar to debugger, modifies in-memory instructions to insert instrumentation routines (except unlike debugger the program continues running and doesn't trigger a trap to handover control to interactive debugger)
 
+Dynamic instrumentation is amazing because it's hard to know where to look before running the program. Dynamic insturmentation allow engineers to locate the performance problem faster, without needing to keep restarting the program
+
 
 **Experimentation**
 
@@ -124,4 +126,16 @@ Micro-benchmark: test specific component (racecar 0-60mph time)
 Micro-benchmarks tend to be faster to run, iteratre, debug, and is more stable
 
 Sometimes experimentation can expose problems faster than observability
+
+
+
+**Methodologies**
+
+Methodologies are a way to document the recommended steps for performing various tasks in systems performance. Without a methodology, a performance investigation can turn into a fishing expedition: trying random things in the hope of catching a win.
+
+
+
+
+
+
 
