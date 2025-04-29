@@ -42,7 +42,7 @@ message Person {
 }
 ```
 
-Encoding
+**Encoding**
 
 Protobuf uses a tag-value encoding for messages sent across wire and persisted on disk. This means (optional) fields that are not set take no overhead in the message. So you can have many optional fields inside your message.
 
@@ -76,5 +76,11 @@ packed     := varint* | i32* | i64*,
                 consecutive values of the type specified in `.proto`
 ```
 
+
+**Field types**
+
+*optional*
+
+As fields are optional by default in protobuf, the `optional` keyword provides the `has_<field>` method. E.g., `optional string` field you can check with `msg.has_string_field()` rather than `msg.string_field().empty()` in original case without `optional` keyword
 
 
