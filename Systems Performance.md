@@ -17,7 +17,6 @@ Typical motivations: 1) improve end-user experience by reducing latency, 2) save
 
 Generally as part of a different role (e.g., Network engineers focus on network performance, HFT quant devs focus on performance in the trading hot path). Performance engineers work in big firms that solely focus on performance work (e.g., helping teams speed up stuff, build performance tools etc.)
 
-
 **Activities**
 
 1. Setting performance objectives and performance modelling for a future product
@@ -369,51 +368,248 @@ Even when some resources can't be checked right now, performance engineers can a
 
 
 
+Hardware components
+
+$$ page 89 -> metrics
+
+Measure as averages per interval or counts. Measure combination of metrics to these, save commands to execute fast.
+
+Some metrics are hard to measure or impossible, save them to known unknowns.
+
+Luckily most problems can be solved using simple metrics.
+
+$$ Appendix A => USE method checklist for Linux systems
+
+
+
+Software components
+
+Mutex locks: Utilisation = time the lock is held, saturation = threads queued waiting on the lock
+
+Thread pools: Utilisation = time threads busy processing work, saturation = # of requests waiting to be serviced by the thread pool
+
+Process/thread capacity: Utilisation = usage of limited # of processes or threads, saturation = waiting on allocation, errors = when allocation failed (e.g., "cannot fork")
+
+File descriptor capacity: similar to process/thread capacity, but for file descriptors
+
+
+
+Suggested interpretations:
+
+Utilisation: Utilisation at 100% is usually a sign of bottleneck (check saturation and its effect to confirm). Some resources can't be easily interrupted (e.g., hard disks) so queueing delays become more frequent as utilisation increases
+
+Saturation: Any degree of saturation (non-zero) can be a problem. It may be measured as the length of a wait queue, or as time spent waiting on the queue
+
+Errors: Non-zero error counters are worth investigating, especially if they are increasing while performance is poor
+
+
+
+$$ USE method on Microservices
 
 
 
 
-The RED method
+
+**The RED method $$**
 
 
 
-Workload characterisation method
+
+
+**Workload characterisation method**
+
+Focus on input to the system
+
+Answer following questions:
+
+- Who is causing the load? Process ID, user ID, remote IP address?
+- Why is the load being called? Code path, stack trace?
+- What are the load characteristics? IOPS, throughput, direction (read/write), type? Include
+  variance (standard deviation) where appropriate.
+- How is the load changing over time? Is there a daily pattern?
 
 
 
-Drill-down analysis method
+
+
+**Drill-down analysis method**
+
+Drill-down analysis starts with examining an issue at a high level, then narrowing the focusbased on the previous findings, discarding areas that seem uninteresting, and digging deeperinto the interesting ones. 
+
+This can be deeper level of software or hardware stack
+
+3 stage drill-down analysis:
+
+1. Monitoring: This is used for continually recording high-level statistics over time, and
+   identifying or alerting if a problem may be present.
+
+2. Identification: Given a suspected problem, this narrows the investigation to particular
+  resources or areas of interest, identifying possible bottlenecks.
+3. Analysis: Further examination of particular system areas is done to attempt to root-cause
+  and quantify the issue
 
 
 
-Latency analysis method
+Example
+
+1. Monitoring: Netflix Atlas: an open-source cloud-wide monitoring platform [Harrington 14].
+
+2. Identification: Netflix perfdash (formally Netflix Vector): a GUI for analyzing a single
+instance with dashboards, including USE method metrics.
+3. Analysis: Netflix FlameCommander, for generating different types of flame graphs; and
+command-line tools over an SSH session, including Ftrace-based tools, BCC tools, and
+bpftrace.
 
 
 
-Method R
+The "Why" loop, another perspective
+
+1. A database has begun to perform poorly for many queries. Why?
+2. It is delayed by disk I/O due to memory paging. Why?
+3. Database memory usage has grown too large. Why?
+4. The allocator is consuming more memory than it should. Why?
+5. The allocator has a memory fragmentation issue
+6. etc.
 
 
 
-Event tracing method
+
+
+**Latency analysis method**
+
+Latency analysis examines the time taken to complete an operation and then breaks it intosmaller components, continuing to subdivide the components with the highest latency so thatthe root cause can be identified and quantified.
+
+Of course, many times in HFT systems there can be no particular part that is slow.
+
+You can do this in a binary search fashion, dividing system into parts A and B, drilling down to the slower part recursively.
+
+Example:
+
+1. Is there a query latency issue? (yes)
+2. Is the query time largely spent on-CPU or waiting off-CPU? (off-CPU)
+3. What is the off-CPU time spent waiting for? (file system I/O)
+4. Is the file system I/O time due to disk I/O or lock contention? (disk I/O)
+5. Is the disk I/O time mostly spent queueing or servicing the I/O? (servicing)
+6. Is the disk service time mostly I/O initialization or data transfer? (data transfer)
 
 
 
-Baseline stats method
+
+
+**Method R $$**
 
 
 
-Static performance tuning method
+
+
+**Event tracing method**
+
+Sometimes summary statistics don't tell the real story and can't pinpoint the problem. So we need to drill down individual sequence of events
+
+Look for following information: 
+
+- Input: All attributes of an event request: type, direction, size, and so on
+- Times: Start time, end time, latency (difference)
+- Result: Error status, result of event (e.g., successful transfer size)
 
 
 
-Cache tuning method
+
+
+**Baseline stats method**
+
+Record and save baseline performance stats. Usually this is done automatically at regular intervals (e.g., daily), usually with profilers and tracers built in.
+
+The data can be saved to a file or a database.
+
+Then after change the same metrics can be measured again, then overlay on top of "normal" baseline to see any differences
 
 
 
-Micro-benchmarking method
+
+
+**Static performance tuning method**
+
+Performance measurement when system is at rest and no load is applied
+
+- Does the component make sense? (outdated, underpowered, etc.)
+- Does the configuration make sense for the intended workload?
+- Was the component autoconfigured in the best state for the intended workload?
+- Has the component experienced an error such that it is now in a degraded state?
 
 
 
-Performance mantras method
+Examples of issues that can be found using performance debugging under zero load
+
+- Network interface negotiation: selecting 1 Gbits/s instead of 10 Gbit/s
+- Failed disk in a RAID pool
+- Older version of the operating system, applications, or firmware used
+- File system nearly full (can cause performance issues)
+- Mismatched file system record size compared to workload I/O size
+- Application running with a costly debug mode accidentally left enabled
+- Server accidentally configured as a network router (IP forwarding enabled)
+- Server configured to use resources, such as authentication, from a remote data center
+  instead of locally
+
+
+
+
+
+**Cache tuning method**
+
+1. Aim to cache as high in the stack as possible, closer to where the work is performed, reducing the operational overhead of cache hits. This location should also have more metadata available, which can be used to improve the cache retention policy.
+2. Check that the cache is enabled and working.
+3. Check the cache hit/miss ratios and miss rate.
+4. If the cache size is dynamic, check its current size.
+5. Tune the cache for the workload. This task depends on available cache tunable parameters.
+6. Tune the workload for the cache. Doing this includes reducing unnecessary consumers of the cache, which frees up more space for the target workload.
+
+Look out for double caching: 2 caches caching same data
+
+Also performance gain from improving lower level cache misses may give more improvement than improving misses for cache closer to the CPU
+
+
+
+
+
+**Micro-benchmarking method**
+
+Typically performed using some load generator tool that simulates a certain load, with some other observability tool for measuring performance. Though these can also be the same tool chain.
+
+Some example targets for micro-benchmarks are: 
+
+- Syscall time: For fork(2), execve(2), open(2), read(2), close(2)
+- File system reads: From a cached file, varying the read size from one byte to one Mbyte
+- Network throughput: Transferring data between TCP endpoints, for varying socket
+  buffer sizes
+
+
+
+
+
+**Performance mantras method**
+
+This is a tuning methodology that shows how best to improve performance, listing actionable items in order from most to least effective
+
+1. Don’t do it.
+2. Do it, but don’t do it again.
+3. Do it less.
+4. Do it later.
+5. Do it when they’re not looking.
+6. Do it concurrently.
+7. Do it more cheaply.
+
+
+
+Example:
+
+1. Don’t do it: Eliminate unnecessary work.
+2. Do it, but don’t do it again: Caching.
+3. Do it less: Tune refreshes, polling, or updates to be less frequent.
+4. Do it later: Write-back caching.
+5. Do it when they’re not looking: Schedule work to run during off-peak hours.
+6. Do it concurrently: Switch from single-threaded to multi-threaded.
+7. Do it more cheaply: Buy faster hardware
 
 
 
@@ -463,10 +659,6 @@ Outliers: best to use a histogram
 
 
 
-
-
-
-
 ### Monitoring
 
 Time based: time is on x axis, other metrics (e.g., utilisation) on y axis. This is useful to see patterns over "normal" usage
@@ -492,6 +684,215 @@ Timeline charts: useful for frontend (waterfall of tasks) and backend apps (thre
 Surface plots: additional dimension is for different CPUs
 
 $$ See page 122 or examples
+
+
+
+
+
+## Operating Systems $$
+
+
+
+Use this to supplement OS knowledge
+
+
+
+
+
+## Observability tools
+
+
+
+Observability tools today are more diverse than before, eliminating may dark corners. Linux tracing ability have significantly improved thanks to dynamic instrumentation tools.
+
+
+
+$$ All tools
+
+Most tools target a specific resource. Some tools (perf, Ftrace, BCC) target many resources.
+
+
+
+$$ Static performance tools
+
+Analysis of system at rest (zero load)
+
+
+
+$$ Crisis tools
+
+Make sure these tools are installed so no need to install them when a crisis is happening
+
+
+
+$$ By tool type
+
+**Fixed counters**
+
+Usually implemented as unsigned integers incremented when events occur (network packets, disk I/O etc.)
+
+A common kernel approach is storing a pair of cumulative counters: (count events, total time in event). This gives you average latency directly. And as the number is cumulative, you can take per-second slices and calculate the stats in that second
+
+These metrics are usually "for free" as kernel is already recording them by default, and using them is a matter of reading them in user space (which has negligable cost)
+
+
+
+*system wide*
+
+- vmstat: virtual and physical memory statistics, system-wide
+- mpstat: per-CPU usage
+- iostat: per-disk I/O usage, reported from the block device interface
+- nstat: TCP/IP stack statistics
+- sar: various statistics
+
+
+
+*per-process*
+
+- ps: process status, various process stats, incl. memory and CPU usage
+- top: top processes, sorted by CPU usage and other stats
+- pmap: lists process memory segments with usage stats
+
+
+
+**Profiling**
+
+Usually collected at fixed rate (99Hz) and for a small duration (1 min). 99Hz is used instead of 100Hz to prevent sampling in lockstep, which can lead to under/over counting.
+
+Has time and memory overhead to update counters and store them.
+
+
+
+*system wide*
+
+- **perf**: standard linux profiler
+- profile: A BPF-based CPu profiler
+- Intel VTune Amplifier XE: Linux and Windows profiling
+
+
+
+*per-process*
+
+- **gprof**: the GNU profiling tool
+- **cachegrind**: from valgrind toolkit
+- Java Flight Recorder: Java's special purpose profiler
+
+
+
+**Tracing**
+
+Tracing instruments every occurence of an event, so has much higher overhead than profiling. This needs to be taken into account as the final numbers can be misleading.
+
+
+
+*system wide*
+
+- tcpdump: network packet tracing (uses libpcap)
+- biosnoop: block I/O tracing (uses BCC or bpftrace)
+- execsnoop: new processes tracing (uses BCC or bpftrace)
+- perf: the standard Linux profiler, can also trace events
+- Ftrace: the linux built-in tracer
+- BCC: a BPF-based tracing library
+- bpftrace: another BPF-based tracer
+
+
+
+*per-process*
+
+- strace: system call tracing
+- gdb: a source-level debugger
+
+
+
+
+
+**Monitoring**
+
+Monitoring software and agents for Linux:
+
+- Performance Co-Pilot (PCP): supports dozens of different agents (called Performance Metric Domain Agents: PMDAs)
+- **Prometheus**: dozens of different exporters for databases, hardware, messaging, storage, HTTP, APIs, and logging
+- collectd: supports dozens different plugins
+
+
+
+$$ Monitoring architecture
+
+
+
+
+
+
+
+### Observability sources
+
+$$ big table and picture
+
+
+
+#### /proc
+
+
+
+#### /sys
+
+
+
+
+
+#### delay accounting
+
+
+
+#### netlink
+
+
+
+#### Tracepoints
+
+
+
+#### kprobes
+
+
+
+#### uprobes
+
+
+
+#### USDT
+
+
+
+#### Hardware Counters (PMCs)
+
+
+
+
+
+#### Other sources
+
+
+
+
+
+
+
+### sar
+
+$$ monitoring, we use Prometheus
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
