@@ -211,6 +211,214 @@ $$ page 65 table
 
 
 
+### Methodology
+
+$$ Fill in rest of methodology as I learn, and understand different analysis patterns (observational, experimental ...)
+
+
+
+**Streetlight anti-method**
+
+User tries to debug a performance problem using a set of tools not because they're appropriate, but because those are the ones the user is familiar with.
+
+> One night a police officer sees a drunk searching the ground beneath a streetlight and asks what he is looking for. The drunk says he has lost his keys. The police officer can’t find them either and asks: “Are you sure you lost them here, under the streetlight?” The drunk replies: “No, but this is where the light is best.”  
+
+
+
+**Random Change Anti-method**
+
+User propose a random guess on what the problem might be, tries to make the change, and observe some metrics if they improve or not.
+
+This can eventually lead to the solution, but is very time consuming
+
+
+
+**Blame someone else anti method**
+
+This wastes other people's resources and eventually drags the problem on.
+
+> “Maybe it’s the network. Can you check with the network team if they’ve had dropped packets or something?”  
+
+To counter someone like this, ask them for a screenshot of evidence on why our team is responsible
+
+
+
+**Ad hoc checklist method**
+
+Useful for support professionals looking at a particular system, developing checklist based on recent experience for that product
+
+> Example: Run iostat –x 1 and check the r_await column. If this is consistently over 10 (ms) during load, then either disk reads are slow or the disk is overloaded.  
+
+
+
+**Problem statement method**
+
+A checklist of questions support staff can ask customers, sometimes can resolve issue straight away using these questions without needing to run a single line of codee
+
+1. What makes you think there is a performance problem?
+
+2. Has this system ever performed well?
+
+3. What changed recently? Software? Hardware? Load?
+
+4. Can the problem be expressed in terms of latency or runtime?
+
+5. Does the problem affect other people or applications (or is it just you)?
+
+6. What is the environment? What software and hardware are used? Versions? Configuration?
+
+
+
+**Scientific method**
+
+1. Question: the performance problem statement
+2. Hypothesis: what you think cause of poor performance is
+3. Test: run observational or experimental test
+4. Analysis: analyze result
+
+Example: 
+
+Observational
+
+1. What is causing slow database queries?
+
+2. Hypothesis: Noisy neighbors (other cloud computing tenants) are performing disk I/O, contending with database disk I/O (via the file system).
+
+3. Prediction: If file system I/O latency is measured during a query, it will show that the file system is responsible for the slow queries.
+
+4. Test: Tracing of database file system latency as a ratio of query latency shows that less than 5% of the time is spent waiting for the file system.
+
+5. Analysis: The file system and disks are not responsible for slow queries.
+
+
+
+Experimental
+
+1. Why do HTTP requests take longer from host A to host C than from host B to host C?
+2. Hypothesis: Host A and host B are in different data centers.
+
+3. Prediction: Moving host A to the same data center as host B will fix the problem.
+
+4. Test: Move host A and measure performance.
+
+5. Analysis: Performance has been fixed—consistent with the hypothesis
+
+
+
+You can also do a negative test => deliberately trying to hurt performance 
+
+
+
+
+
+**Diagnosis cycle method**
+
+Hypothesis -> instrumentation -> data -> hypothesis
+
+Like doctors making a series of small examinations
+
+You want to move from hypothesis to data as quickly as possible so bad hypothesis can be eliminated quickly
+
+
+
+
+
+**Tools method**
+
+1. List available performance tools (optionally, install or purchase more).
+
+2. For each tool, list useful metrics it provides.
+
+3. For each metric, list possible ways to interpret it
+
+Though it again is limited to what tools the user knows. Sometimes this list can get long
+
+
+
+
+
+**The USE method**
+
+For every resource, check utilization, saturation, and errors.  
+
+
+
+Resources: All physical server functional components (CPUs, buses, . . .). Some software  resources can also be examined, provided that the metrics make sense.
+
+Utilization: For a set time interval, the percentage of time that the resource was busy servicing work. While busy, the resource may still be able to accept more work; the degree to which it cannot do so is identified by saturation.
+
+Saturation: The degree to which the resource has extra work that it can’t service, often waiting on a queue. Another term for this is pressure
+
+Errors: The count of error events.
+
+
+
+The USE method metrics are usually expressed as follows:
+
+Utilization : As a percent over a time interval (e.g., “One CPU is running at 90% utilization”)
+
+Saturation: As a wait-queue length (e.g., “The CPUs have an average run-queue length of four”)
+
+Errors: Number of errors reported (e.g., “This disk drive has had 50 errors”)
+
+
+
+Like Tools method but iterate over resources.
+
+Even when some resources can't be checked right now, performance engineers can add it to the list of "known unknowns"
+
+
+
+
+
+
+
+The RED method
+
+
+
+Workload characterisation method
+
+
+
+Drill-down analysis method
+
+
+
+Latency analysis method
+
+
+
+Method R
+
+
+
+Event tracing method
+
+
+
+Baseline stats method
+
+
+
+Static performance tuning method
+
+
+
+Cache tuning method
+
+
+
+Micro-benchmarking method
+
+
+
+Performance mantras method
+
+
+
+
+
 $$ Modelling: page 108, equations
 
 $$ Capacity planning: page 109
@@ -218,6 +426,40 @@ $$ Capacity planning: page 109
 
 
 ### Useful statistics
+
+Averages: we want to combine related latency statistics together into a single statistsic
+
+Arithmetic mean
+
+Geometric mean: useful for measuring layers of latencies that has a multiplicative effect
+
+​	a network layer working on the same packet, each layer has a latency, calculate the geometric mean of latency across layers to compare before and after fix ($$)
+
+Harmonic mean: $$ page 113
+
+Averages over time: try averages over time for different time intervals
+
+​	E.g. CPU utilisation can peak at 100% for small intervals. Could be useful to take second, minute, hour averages
+
+Decayed average: $$ ??
+
+Limitations: it hides details work with other metrics together
+
+
+
+Standard deviations => useful for spread of data
+
+​	Coefficient of Variation = std/mean, or std as % of mean
+
+Percentiles => 99-th percentile etc. useful for capturing slowest group, also good for forming SLAs
+
+
+
+Also good to check distributions => bimodal distribution cannot be captured well using average
+
+
+
+Outliers: best to use a histogram
 
 
 
@@ -227,7 +469,9 @@ $$ Capacity planning: page 109
 
 ### Monitoring
 
+Time based: time is on x axis, other metrics (e.g., utilisation) on y axis. This is useful to see patterns over "normal" usage
 
+For large scale systems (e.g., compute spanning hundreds of thousands of instances), you need a central monitoring tool
 
 
 
@@ -235,9 +479,19 @@ $$ Capacity planning: page 109
 
 ### Visualisations
 
+Line chart: useful for seeing distribution or trend
 
+​	Can also do indexed line chart on percentile
 
+Scatter plots: useful for seeing outliers, but of course more data points than line charts
 
+Heat maps: like scatter plots but with some aggregation
+
+Timeline charts: useful for frontend (waterfall of tasks) and backend apps (threads on CPUs)
+
+Surface plots: additional dimension is for different CPUs
+
+$$ See page 122 or examples
 
 
 
