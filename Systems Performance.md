@@ -444,9 +444,9 @@ This can be deeper level of software or hardware stack
    identifying or alerting if a problem may be present.
 
 2. Identification: Given a suspected problem, this narrows the investigation to particular
-  resources or areas of interest, identifying possible bottlenecks.
+    resources or areas of interest, identifying possible bottlenecks.
 3. Analysis: Further examination of particular system areas is done to attempt to root-cause
-  and quantify the issue
+    and quantify the issue
 
 
 
@@ -832,9 +832,69 @@ $$ big table and picture
 
 #### /proc
 
+Each process has a directory named by its PID
+
+Inside the directory contains various files about that process
+
+/proc is dynamically created by kernel and not backed by storage devices (the file exists in memory)
+
+The file interface allows users to access kernel statistics using tools that can deal with files (POSIX file system calls open(), read(), close(); cd, cat, grep, awk and other shell tools)
+
+Overhead of reading /proc files is negligable, though displaying kernel stats as text will add some overhead
+
+`top` basically reads the /stats file of every process, which can actually be resource intensive if large # of processes or refreshing on every screen refresh. (in those cases top will display itself as the highest resource intensive process)
+
+
+
+Per-process statistics
+
+```shell
+$ ls -F /proc/18733
+...
+```
+
+- limits: In-effect resource limits
+- maps: Mapped memory regions
+- sched: Various CPU scheduler statistics
+- schedstat: CPU runtime, latency, and time slices
+- smaps: Mapped memory regions with usage statistics
+- stat: Process status and statistics, incl. total CPU and memory usage
+- statm: Memory usage summary in units of pages
+- status: stat and statm information, labeled
+- fd: Directory of file descriptor symlinks (also see fdinfo)
+- cgroup: Cgroup membership information
+- task: Directory of per-task (thread) statistics
+
+
+
+System-wide statistics
+
+```shell
+$ cd /proc; ls -Fd [a-z]*
+```
+
+- cpuinfo: Physical processor information, including every virtual CPU, model name, clock speed, and cache sizes.
+- diskstats: Disk I/O statistics for all disk devices
+- interrupts: Interrupt counters per CPU
+- loadavg: Load averages
+- meminfo: System memory usage breakdowns
+- net/dev: Network interface statistics
+- net/netstat: System-wide networking statistics
+- net/tcp: Active TCP socket information
+- pressure/: Pressure stall information (PSI) files
+- schedstat: System-wide CPU scheduler statistics
+- self: A symlink to the current process ID directory, for convenience
+- slabinfo: Kernel slab allocator cache statistics
+- stat: A summary of kernel and system resource statistics: CPUs, disks, paging, swap, processes
+- zoneinfo: Memory zone information
+
+
+
 
 
 #### /sys
+
+Originally provide device driver statistics but has been extended to include any statistic type
 
 
 
@@ -842,13 +902,137 @@ $$ big table and picture
 
 #### delay accounting
 
+Linux systems with the CONFIG_TASK_DELAY_ACCT option track time per task in the followingstates:
+
+- Scheduler latency: Waiting for a turn on-CPU
+- Block I/O: Waiting for a block I/O to complete
+- Swapping: Waiting for paging (memory pressure)
+- Memory reclaim: Waiting for the memory reclaim routine
+
+
+
+Technically these stats are sourced from schedstats and combined with other delay accounting states.
+
+
+
+Where to read
+
+- Documentation/accounting/delay-accounting.txt: the documentation
+- tools/accounting/getdelays.c: an example consumer
+
+
+
 
 
 #### netlink
 
+netlink is a special socket address family (AF_NETLINK) for fetching kernel information.
+
+$$ Didn't look into much
+
+
+
 
 
 #### Tracepoints
+
+Tracepoints are a Linux kernel event source based on static instrumentation
+
+Tracepoints are hardcoded into various parts of the kernel (e.g., startand end of system calls, scheduler events, file system operations, and disk I/O)
+
+
+
+Example tracepoints
+
+```shell
+$ perf list tracepoint
+List of pre-defined events (to be used in -e):
+[...]
+	block:block_rq_complete [Tracepoint event]
+	block:block_rq_insert [Tracepoint event]
+	block:block_rq_issue [Tracepoint event]
+[...]
+	sched:sched_wakeup [Tracepoint event]
+	sched:sched_wakeup_new [Tracepoint event]
+	sched:sched_waking [Tracepoint event]
+	scsi:scsi_dispatch_cmd_done [Tracepoint event]
+	scsi:scsi_dispatch_cmd_error [Tracepoint event]
+	scsi:scsi_dispatch_cmd_start [Tracepoint event]
+	scsi:scsi_dispatch_cmd_timeout [Tracepoint event]
+[...]
+	skb:consume_skb [Tracepoint event]
+	skb:kfree_skb [Tracepoint event]
+[...]
+```
+
+
+
+Now let's look into 1 specific trace point
+
+```shell
+$ perf trace -e block:block_rq_issue
+[...]
+	0.000 kworker/u4:1-e/20962 block:block_rq_issue:259,0 W 8192 () 875216 + 16
+[kworker/u4:1]
+	255.945 :22696/22696 block:block_rq_issue:259,0 RA 4096 () 4459152 + 8 [bash]
+	256.957 :22705/22705 block:block_rq_issue:259,0 RA 16384 () 367936 + 32 [bash]
+[...]
+
+	# ts(in seconds), process details(name/threadID), event description, arguments; arguments provide additional context info about the trace event
+```
+
+
+
+Note, tracepoints are technically the trace functions placed at the event position in the kernel. E.g., `trace_sched_wakeup()`. This function sits inside `kernel/sched/core.c`
+
+TRACE_EVENT macro defines and formats the event arguments, auto-generates the `trace_sched_wakeup()` code
+
+We can see the format string for each traceevent like this
+
+```shell
+# cat /sys/kernel/debug/tracing/events/block/block_rq_issue/format
+name: block_rq_issue
+ID: 1080
+format:
+    field:unsigned short common_type; offset:0; size:2; signed:0;
+    field:unsigned char common_flags; offset:2; size:1; signed:0;
+    field:unsigned char common_preempt_count; offset:3; size:1; signed:0;
+    field:int common_pid; offset:4; size:4; signed:1;
+    field:dev_t dev; offset:8; size:4; signed:0;
+    field:sector_t sector; offset:16; size:8; signed:0;
+    field:unsigned int nr_sector; offset:24; size:4; signed:0;
+    field:unsigned int bytes; offset:28; size:4; signed:0;
+    field:char rwbs[8]; offset:32; size:8; signed:1;
+    field:char comm[16]; offset:40; size:16; signed:1;
+    field:__data_loc char[] cmd; offset:56; size:4; signed:1;
+    
+print fmt: "%d,%d %s %u (%s) %llu + %u [%s]", ((unsigned int) ((REC->dev) >> 20)),
+((unsigned int) ((REC->dev) & ((1U << 20) - 1))), REC->rwbs, REC->bytes,
+__get_str(cmd), (unsigned long long)REC->sector, REC->nr_sector, REC->comm
+```
+
+The final string defines the formatting used
+
+Tracers can typically access arguments by their names
+
+```shell
+# perf trace -e block:block_rq_issue --filter 'bytes > 65536'
+	0.000 jbd2/nvme0n1p1/174 block:block_rq_issue:259,0 WS 77824 () 2192856 + 152
+[jbd2/nvme0n1p1-]
+	5.784 jbd2/nvme0n1p1/174 block:block_rq_issue:259,0 WS 94208 () 2193152 + 184
+[jbd2/nvme0n1p1-]
+[...]
+```
+
+
+
+Tracepoint overhead
+
+There is overhead in creating the tracevents, having the tracer post-process the events, and file system overhead in recording them.
+
+Whether that overhead can pertubate your recording depend on your task. In modern computers, 10k events per second won't have noticeable different (e.g., disk events) while 100k+ events per second can (e.g., scheduler events)
+
+
 
 
 
@@ -856,11 +1040,17 @@ $$ big table and picture
 
 
 
+
+
 #### uprobes
 
 
 
+
+
 #### USDT
+
+
 
 
 
