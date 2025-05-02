@@ -1038,11 +1038,75 @@ Whether that overhead can pertubate your recording depend on your task. In moder
 
 #### kprobes
 
-Testing
+Short for kernel probes. This is for dynamic instrumentation in the kernel where functions can be called at start and return of kernel functions
+
+```shell
+$ bpftrace -e 'kprobe:do_nanosleep { printf("sleep by: %s\n", comm); }'
+Attaching 1 probe...
+sleep by: mysqld
+sleep by: mysqld
+sleep by: sleep
+^C
+```
+
+We can add argument to the functions as part of the context
+
+```shell
+$ bpftrace -e 'kprobe:do_nanosleep { printf("mode: %d\n", arg1); }'
+Attaching 1 probe...
+mode: 1
+mode: 1
+mode: 1
+[...]
+```
+
+With return function probing we can sample the function runtime
+
+```shell
+$ bpftrace -e 'kprobe:do_nanosleep { @ts[tid] = nsecs; }
+kretprobe:do_nanosleep /@ts[tid]/ {
+@sleep_ms = hist((nsecs - @ts[tid]) / 1000000); delete(@ts[tid]); }
+END { clear(@ts); }'
+Attaching 3 probes...
+@sleep_ms:
+[0] 1280 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|
+[1] 1 | [2, 4) 1 | [4, 8) 0 | [8, 16) 0 | [16, 32) 0 | [32, 64) 0 | [64, 128) 0 | [128, 256) 0 | [256, 512) 0 | [512, 1K) 2 | |
+|
+|
+|
+|
+|
+|
+|
+|
+|
+```
+
+^^ Formatting didn't work, but basically shows histogram of 1280 times in 0 ms (rounded down), 1 time in 1ms, 1 time in [2, 4) ms
+
+$$ Have a look and gain deeper understanding of overhead
 
 
 
 #### uprobes
+
+Probes for user-space programs, interface similar to kprobes
+
+```shell
+$ bpftrace -l 'uprobe:/bin/bash:*'
+uprobe:/bin/bash:rl_old_menu_complete
+uprobe:/bin/bash:maybe_make_export_env
+uprobe:/bin/bash:initialize_shell_builtins
+uprobe:/bin/bash:extglob_pattern_p
+uprobe:/bin/bash:dispose_cond_node
+uprobe:/bin/bash:decode_prompt_string
+[..]
+```
+
+^^ Points to insert tracepoints inside program `/bin/bash`
+
+
+
 
 
 
@@ -1050,11 +1114,53 @@ Testing
 
 #### USDT
 
+$$ static tracepoints in user-space programs
+
+
 
 
 
 
 #### Hardware Counters (PMCs)
+
+PMCs = performance monitoring counters
+
+These are specific counters in the hardware, you can observe them using `perf stat` without specifying events with `-e`, below is the PMC results for running `gzip`
+
+```shell
+$ perf stat gzip words
+    Performance counter stats for 'gzip words':
+    156.927428      task-clock (msec)   # 0.987 CPUs utilized
+    1               context-switches    # 0.006 K/sec
+    0               cpu-migrations      # 0.000 K/sec
+    131             page-faults         # 0.835 K/sec
+    209,911,358     cycles              # 1.338 GHz
+    288,321,441     instructions        # 1.37 insn per cycle
+    66,240,624      branches            # 422.110 M/sec
+    1,382,627       branch-misses       # 2.09% of all branches
+    0.159065542     seconds time elapsed
+```
+
+The statistics after the hash is interesting
+
+On Linux PMCs are accessed via the perf_event_open(2) syscall and are consumed by tools including perf(1)
+
+In many CPUs, there can be hundreds of PMCs available, but usually only a few registers available for tracking, so you need to pick which PMCs to track.
+
+PMCs usually tracked in 2 modes:
+
+- counter: Just counts the # of events
+- overflow sampling: Every specified number of events raise an interrupt so state can be captured
+
+Counter is useful for quantifying problems and overflow sampling can then be used to show the code responsible.
+
+Some challenges with PMCs:
+
+- Overflow sampling may not record the correct instruction pointer that triggered the event, due to interrupt latency (often called “skid”) or out-of-order instruction execution. Some chips include supports for *precise events* that capture them more accurately
+- Cloud providers usually have PMCs disabled on hosts
+
+PMC documentation is available per chip manufacturer (Intel, AMD, Arm)
+
 
 
 
