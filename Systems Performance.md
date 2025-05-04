@@ -1239,10 +1239,82 @@ $$
 
 **Benchmarking types**
 
+Ordered in workload closeness to production from artificial to actual:
+
+- Micro-benchmark
+- Simulation
+- Replay
+- Production
+
+
+<u>Micro-benchmark</u>
+
+Micro-benchmarking uses artificial workloads that test a particular type of operation, for example, performing a single type of file system I/O, database query, CPU instruction, or system call.
+
+These are simpler to run, simple to repeat.
+
+Example micro-benchmark tools:
+
+- CPU: SysBench
+- Memory I/O: lmbench (in Chapter 6, CPUs)
+- File system: fio
+- Disk: hdparm, dd or fio with direct I/O
+- Network: 
+
+Again, most benchmarking tools have some flaws, you can also create your own for your workload but keep it as simple as possible.
+
+A common way to write performance tests is similar to writing application tests => think about the system load at production and effectively "map out" the area. This usually means taking several ares of workload and testing a cross-production of scenarios from them.
+
+Example:
+
+Dimensions: sequential or random I/O, I/O size, and direction (read or write)
+
+$$ table
+
+Other possible dimensions:
+
+- Working set size: The size of the data being accessed (e.g., total file size):
+    - Much smaller than main memory: So that the data caches entirely in the file system cache, and the performance of the file system software can be investigated.
+    - Much larger than main memory: To minimize the effect of the file system cache and drive the benchmark toward testing disk I/O.
+- Thread count: Assuming a small working set size:
+    - Single-threaded: To test file system performance based on the current CPU clock speed.
+    - Multithreaded sufficient to saturate all CPUs: To test the maximum performance of the system, file system, and CPUs.
+
+Another view:
+
+- sunny day performance: focus on top speeds
+- cloudy/rainy day performance: testing non-ideal situations, including contention, perturbations, and workload variance.
 
 
 
+<u>Simulation</u>
+
+This is a kind of macro-benchmarking
+
+Measures complex inter-process performance that is hard to cumbersome to track using micro-benchmarking. Also good to simulate "peak" workload (e.g., holiday sale  season for an online market place)
+
+Eg. "Production NFS workload is composed of the following operation types and
+probabilities: reads, 40%; writes, 7%; getattr, 19%; readdir, 1%; and so on"
+
+Simulation can be stateless or stateful (where next event depends on some previous event), e.g., NFS R/W workload tend to follow in groups, so P(write|write) > P(read|write), these cases we can train a Markov model to simulate on
+
+A drawback of simulation is if user behaviour changes, need to change the simulation, otherwise result inaccurate
 
 
+
+<u>Replay</u>
+
+Replay log traces of events.
+
+The difficulty is to capture and replay these events at the right level. Example of what could go wrong:
+
+> A customer is considering upgrading storage infrastructure. The current production workload is traced and replayed on the new hardware. Unfortunately, performance is worse, and the sale is lost. The problem: the trace/replay operated at the disk I/O level. The old system housed 10 K rpm disks, and the new system houses slower 7,200 rpm disks. However, the new system provides 16 times the amount of file system cache and faster processors. The actual production workload would have shown improved performance, as it would have returned largely from cache—which was not simulated by replaying disk events.
+
+So sometimes no better than simulation. Need to really understand what is going on and what you're measuring
+
+
+<u>Industry standards</u>
+
+Some standardised benchmarks and workloads (e.g., for DBMS performance)
 
 
