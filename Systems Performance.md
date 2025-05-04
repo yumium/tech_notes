@@ -118,7 +118,7 @@ Dynamic instrumentation is amazing because it's hard to know where to look befor
 
 Most experimentation tools are benchmarking tools
 
-Macro-benchmark: simulate higher level real-world workload (racecar lap time)
+Macro-benchmark: simulate higher level real-world workload (racecar lap time), can be done simulating client workload eg via trace replaying
 
 Micro-benchmark: test specific component (racecar 0-60mph time)
 
@@ -1183,9 +1183,61 @@ $$ monitoring, we use Prometheus
 
 
 
+## Benchmarking
+
+Benchmarking tests performance in a controlled manner, allowing choices to be compared, regressions to be identified, and performance limits to be understood.
+
+Reasons for doing benchmarking:
+- System design: Comparing different systems, system components, or applications. Industry benchmarks can be used
+- Proofs of concept: To test the performance of software or hardware under load, before purchasing or committing to production deployment -> we did this with visualisation tools to test feasibility of generating metrics online
+- Tuning: Testing tunable parameters and configuration options, to identify those that are worth further investigation with the production workload.
+- Development: For both non-regression testing and limit investigations during product development. 
+    - Non-regression testing may be an automated battery of performance tests that run regularly, so that any performance regression can be discovered early -> eg. daily training tests backtest runtime
+    - For limit investigations, benchmarking can be used to drive products to their limit during development, in order to identify where engineering effort is best spent to improve product performance -> eg. testing how much market date the feed architecture can take
+- Capacity planning: Determining system and application limits for capacity planning, either to provide data for modeling performance, or to find capacity limits directly.
+- Troubleshooting: To verify that components can still operate at maximum performance. For example: testing maximum network throughput between hosts to check whether there may be a network issue.
+- Marketing: Determining maximum product performance for use by marketing (also called benchmarketing).
+
+Note: gradual rollouts make benchmarking less necessary --- new instances can be tested on some production traffic directly. But there benchmarking can still be useful to explain performance.
+
+
+**Effective benchmarking**
+
+Benchmarks are surprisingly difficult to get right. 
+
+> In this article we survey 415 file system and storage benchmarks from 106 recent papers. We found that most popular benchmarks are flawed and many research papers do not provide a clear indication of true performance.
+
+From: “A Nine Year Study of File System and Storage Benchmarking” [Traeger 08]
+
+Key characteristic of good benchmarks:
+
+- Repeatable: To facilitate comparisons
+- Observable: So that performance can be analyzed and understood
+- Portable: To allow benchmarking on competitors and across different product releases
+- Easily presented: So that everyone can understand the results
+- Realistic: So that measurements reflect customer-experienced realities
+- Runnable: So that developers can quickly test changes
+
+Also good to calculate price/performance ratio, price can be 5-year cost of hardware ($$ why)
+
+What to be aware of when performing benchmarking
+
+- What is being tested
+- What the limiting factor or factors are
+- Any perturbations that might affect the results
+- What conclusions may be drawn from the results
+
+Many times people get performance experts involved after running the benchmark. But it's actually better to get them involved while the benchmark is running so they can directly analyse the live system.
+
+
+**Common benchmarking pitfalls**
+
+$$
 
 
 
+
+**Benchmarking types**
 
 
 
