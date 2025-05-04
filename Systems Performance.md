@@ -1201,7 +1201,7 @@ Reasons for doing benchmarking:
 Note: gradual rollouts make benchmarking less necessary --- new instances can be tested on some production traffic directly. But there benchmarking can still be useful to explain performance.
 
 
-**Effective benchmarking**
+### Effective benchmarking
 
 Benchmarks are surprisingly difficult to get right. 
 
@@ -1230,14 +1230,61 @@ What to be aware of when performing benchmarking
 Many times people get performance experts involved after running the benchmark. But it's actually better to get them involved while the benchmark is running so they can directly analyse the live system.
 
 
-**Common benchmarking pitfalls**
-
-$$
 
 
 
+### Common benchmarking pitfalls
 
-**Benchmarking types**
+**Casual benchmarking**
+
+> you benchmark A, but actually measure B, and conclude you’ve
+measured C.
+
+> For example, many tools claim or imply that they measure disk performance, but actually test file system performance. The difference can be orders of magnitude, as file systems employ cach- ing and buffering to substitute disk I/O with memory I/O. Even though the benchmark tool may be functioning correctly and testing the file system, your conclusions about the disks will be wildly incorrect.
+
+Benchmarking is hard for beginners, you really need to drill down and understand what is happening.
+
+
+
+
+**Blind faith**
+
+Don't trust a common benchmarking tool just because it is popular
+
+
+
+**Numbers without analysis**
+
+> If you’ve spent less than a week studying a benchmark result, it’s probably wrong.
+
+A simple verification checklist
+
+- Assuming the benchmark tool isn’t buggy
+- Assuming the disk I/O test actually measures disk I/O
+- Assuming the benchmark tool drove disk I/O to its limit, as intended
+- Assuming this type of disk I/O is relevant for this application
+
+
+
+
+**Complex benchmark tools**
+
+Benchmark tools should be simple so its own effects can be understood
+
+
+
+
+**Ignoring pertubations**
+
+Example pertubations: device interrupts (pinning the thread while performing interrupt service routines), kernel CPU scheduling decisions (waiting before migrating queued threads to preserve CPU affinity), and CPU cache warmth effects
+
+A simple way to counter pertubations is to make your benchmarks run longer (pertubations matter less). Also good to do many benchmark runs, the std shouldn't be high.
+
+
+$$ A few more shortfalls, mostly for business-related cases, it's quite interesting
+
+
+### Benchmarking types
 
 Ordered in workload closeness to production from artificial to actual:
 
@@ -1318,3 +1365,111 @@ So sometimes no better than simulation. Need to really understand what is going 
 Some standardised benchmarks and workloads (e.g., for DBMS performance)
 
 
+
+### Methodology
+
+**Passive benchmarking**
+
+Use it once and forget strategy.
+
+Typical steps:
+
+1. Pick a benchmark tool.
+2. Run it with a variety of options.
+3. Make a slide deck of the results.
+4. Hand the slides to management.
+
+
+Potential issues:
+
+- Invalid due to benchmark software bugs
+- Limited by the benchmark software (e.g., single-threaded)
+- Limited by a component that is unrelated to the benchmark target (e.g., a congested network)
+- Limited by configuration (performance features not enabled, not a maximum configuration)
+- Subject to perturbations (and not repeatable)
+- Benchmarking the wrong thing entirely
+
+
+
+**Active benchmarking**
+
+Trace performance while the benchmarking program is running, makes sure you know more deeply what is actually happening and what you're measuring.
+
+
+
+**Ramping load**
+
+Adding load in small increments and measuring the delivered throughput until a limit is reached.
+
+$$ Add picture
+
+
+
+**Sanity check**
+
+When you get a benchmark sanity check that it makes sense. Example:
+
+> An NFS server is benchmarked with 8 Kbyte reads and is reported to deliver 50,000 IOPS. It is connected to the network using a single 1 Gbit/s Ethernet port. The network throughput required to drive 50,000 IOPS × 8 Kbytes = 400,000 Kbytes/s, plus protocol headers. This is over 3.2 Gbits/s—well in excess of the 1 Gbit/s known limit. Something is wrong!
+
+
+
+
+
+
+### Benchmark questions checklist
+
+Basic questions to check when given a benchmark result to verify its accuracy:
+
+- Why not double? Why was the operation rate not double the benchmark result? This is really asking what the limiter is. Answering this can solve many benchmarking problems, when you discover that the limiter is not the intended target of the test.
+- Did it break limits? This is a sanity check (Section 12.3.8, Sanity Check).
+- Did it error? Errors perform differently than normal operations, and a high error rate will skew the benchmark results.
+- Does it reproduce? How consistent are the results?
+- Does it matter? The workload that a particular benchmark tests may not be relevant to your production needs. Some micro-benchmarks test individual syscalls and library calls, but your application may not even be using them.
+- Did it even happen? The earlier Ignoring Errors heading in Section 12.1.3, Benchmarking Failures, described a case where a firewall blocked a benchmark from reaching the target, and reported timeout-based latency as its result.
+
+
+More questions:
+
+In general:
+- Does the benchmark relate to my production workload?
+- What was the configuration of the system under test?
+- Was a single system tested, or is this the result of a cluster of systems?
+- What is the cost of the system under test?
+- What was the configuration of the benchmark clients?
+- What was the duration of the test? How many results were collected?
+- Is the result an average or a peak? What is the average?
+- What are other distribution details (standard deviation, percentiles, or full distribution details)?
+- What was the limiting factor of the benchmark?
+- What was the operation success/fail ratio?
+- What were the operation attributes?
+- Were the operation attributes chosen to simulate a workload? How were they selected?
+- Does the benchmark simulate variance, or an average workload?
+- Was the benchmark result confirmed using other analysis tools? (Provide screenshots.)
+- Can an error margin be expressed with the benchmark result?
+- Is the benchmark result reproducible?
+
+
+For CPU/memory-related benchmarks:
+- What processors were used?
+- Were processors overclocked? Was custom cooling used (e.g., water cooling)?
+- How many memory modules (e.g., DIMMs) were used? How are they attached to sockets?
+- Were any CPUs disabled?
+- What was the system-wide CPU utilization? (Lightly loaded systems can perform faster due to higher levels of turbo boosting.)
+- Were the tested CPUs cores or hyperthreads?
+- How much main memory was installed? Of what type?
+- Were any custom BIOS settings used?
+
+For storage-related benchmarks:
+- What is the storage device configuration (how many were used, their type, storage
+protocol, RAID configuration, cache size, write-back or write-through, etc.)?
+- What is the file system configuration (what types, how many were used, their
+configuration such as the use of journaling, and their tuning)?
+- What is the working set size?
+- To what degree did the working set cache? Where did it cache?
+- How many files were accessed?
+
+For network-related benchmarks:
+- What was the network configuration (how many interfaces were used, their type and configuration)?
+- What was the network topology?
+- What protocols were used? Socket options?
+- What network stack settings were tuned? TCP/UDP tunables?
