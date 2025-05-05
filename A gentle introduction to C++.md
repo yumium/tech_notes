@@ -175,7 +175,7 @@ Different machines that can run C++ then write implementation that satisfies the
 
 Interfaces are represented in cpp via declarations
 
-```c++
+```cpp
 double sqrt(double); 
 
 class Vector
@@ -193,7 +193,7 @@ private:
 
 Typically we separate interface and implementation into separate files. Interface in the .h file, which can then be included in other files that depend on that interface/declaration. And a separate implementation file (which includes that .h file for consistency of signatures)
 
-```c++
+```cpp
 // user.cpp
 #include <Vector.h>
 #include <smath>
@@ -210,7 +210,7 @@ double sqrt_num(Vector& v)
 }
 ```
 
-```c++
+```cpp
 // Vector.cpp
 #include <Vector.h>
 
@@ -285,7 +285,7 @@ Note, an executable program is created for a specific hardware. The executable c
 
 When the preprocessor encounters this directive, it replaces any occurrence of `identifier` in the rest of the code by `replacement`. Downside is no type or syntax checking
 
-```c++
+```cpp
 #define TABLE_SIZE 100
 int table1[TABLE_SIZE];
 int table2[TABLE_SIZE];
@@ -293,7 +293,7 @@ int table2[TABLE_SIZE];
 
 becomes
 
-```c++
+```cpp
 int table1[100];
 int table2[100];
 ```
@@ -302,7 +302,7 @@ int table2[100];
 
 You can also define functional macros, which replaces function name with expression on the right, alongside the correct arguments
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -320,7 +320,7 @@ int main()
 
 becomes
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -338,7 +338,7 @@ int main()
 
 Defined macros are not affected by block structure. A macro lasts until it is undefined with the `#undef` preprocessor directive
 
-```c++
+```cpp
 #define TABLE_SIZE 100
 int table1[TABLE_SIZE];
 #undef TABLE_SIZE
@@ -348,7 +348,7 @@ int table2[TABLE_SIZE];
 
 becomes
 
-```c++
+```cpp
 int table1[100];
 int table2[200];
 ```
@@ -357,14 +357,14 @@ int table2[200];
 
 `#` in the RHS replaces the argument with a string literal
 
-```c++
+```cpp
 #define str(x) #x
 cout << str(test);
 ```
 
 becomes
 
-```c++
+```cpp
 cout << "test";
 ```
 
@@ -372,14 +372,14 @@ cout << "test";
 
 `##` on the RHS simply concatenates two arguments
 
-```c++
+```cpp
 #define glue(a,b) a ## b
 glue(c,out) << "test";
 ```
 
 becomes
 
-```c++
+```cpp
 cout << "test";
 ```
 
@@ -390,7 +390,7 @@ Because preprocessor replacements happen before C++ syntax check, complex prepro
 
 Multiple statements in a macro should use the do-while loop like so
 
-```c++
+```cpp
 #define FOO(a, b)
   do {
     if (a != b) {
@@ -402,7 +402,7 @@ Multiple statements in a macro should use the do-while loop like so
 
 This is safer because simply using braces won't work in the following scenario
 
-```c++
+```cpp
 if (pred)
    FOO(a,b);  // macro here
 else
@@ -419,7 +419,7 @@ This is because using only braces we'll have an empty else statement before the 
 
 These directives allow to include or discard part of the code of a program if a certain condition is met.
 
-```c++
+```cpp
 // If defined
 #ifdef TABLE_SIZE
 int table[TABLE_SIZE];
@@ -451,7 +451,7 @@ int table[TABLE_SIZE];
 
 The behavior of `#ifdef` and `#ifndef` can also be achieved by using the special operators `defined` and `!defined` respectively in any `#if` or `#elif` directive:
 
-```c++
+```cpp
 #if defined ARRAY_SIZE
 #define TABLE_SIZE ARRAY_SIZE
 #elif !defined BUFFER_SIZE
@@ -469,13 +469,13 @@ The behavior of `#ifdef` and `#ifndef` can also be achieved by using the special
 
 Basically let us specify the line number and file name (e.g., when exceptions are thrown)
 
-```c++
+```cpp
 #line number "filename"
 ```
 
 Example:
 
-```c++
+```cpp
 #line 20 "assigning variable"
 int a?;
 ```
@@ -492,7 +492,7 @@ The following lines will increase line number by 1 incrementally.
 
 This directive aborts the compilation process when it is found, generating a compilation error that can be specified as its parameter
 
-```c++
+```cpp
 #ifndef __cplusplus
 #error A C++ compiler is required!
 #endif 
@@ -506,14 +506,14 @@ This directive aborts the compilation process when it is found, generating a com
 
 When the preprocessor finds an `#include` directive it replaces it by the entire content of the specified header or file.
 
-```c++
+```cpp
 #include <header>
 #include "file" 
 ```
 
 There are 2 slightly different syntax for #include files
 
-```c++
+```cpp
 #include <iostream>  // usually for library files
 #include "person.h"  // usually for user source files
 ```
@@ -583,7 +583,7 @@ The following macros are optionally defined, generally depending on whether a fe
 
 Example
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -613,7 +613,7 @@ ID-ing files usually done by comparing file path.
 Example
 File "grandparent.h"
 
-```c++
+```cpp
 #pragma once
 
 struct foo 
@@ -624,20 +624,20 @@ struct foo
 
 File "parent.h"
 
-```c++
+```cpp
 #include "grandparent.h"
 ```
 
 File "child.c"
 
-```c++
+```cpp
 #include "grandparent.h"
 #include "parent.h"  // The second time `grandparent` (inside parent.h) is included is ignored
 ```
 
 Main challenge is it's not trivial to know if the file is the same file (e.g., in the presence of symlinks, same file copied many times). One alternative is to resort to old way of using include guards.
 
-```c++
+```cpp
 #ifndef GRANDPARENT_H
 #define GRANDPARENT_H
 ... contents of grandparent.h
@@ -654,7 +654,7 @@ Downside of include guards is overhead of maintaining these constants, additiona
 
 ### Program structure
 
-```c++
+```cpp
 #include <iostream>	// instructors preprocessor to include a section of standard C++ code, known as `header iostream`
 
 /* This functions prints `Hello World` to the standard output */
@@ -668,7 +668,7 @@ int main()
 
 C++ does not care about indentation or new lines (apart from preprocessor directives which must be in their own lines). The above program could have equally been written as
 
-```c++
+```cpp
 #include <iostream>
 
 int main() { std::cout << "Hello World!"; }
@@ -719,7 +719,7 @@ Unless we need a type to be of exact length, preferred `signed` over `int32_t`, 
 .`size_t`: Type to store the maximum size of a theoretically possible object of any type in C++. The actual definition is hardware dependent (usually a `uint64_t`). Used for array indexing and loops. Always use `size_t` for this purpose as otherwise you can have overflow. `size_t` allows programmers to write portable code
 
 
-```c++
+```cpp
 for (size_t i = 0; i < N; i++) {
     // ...
 }
@@ -752,7 +752,7 @@ for (int i = 0; i < arr.size(); i++)
 
 #### **Variable declarations**
 
-```c++
+```cpp
 int a;
 float mynumber;
 ```
@@ -761,13 +761,13 @@ C++ is strongly typed, every variable must have its type explicitly defined befo
 
 If variables have the same type, they can be declared on the same line
 
-```c++
+```cpp
 int a, b, c;
 ```
 
 Note the below common mistake
 
-```c++
+```cpp
 int* a, b;  // `a` is of type int*, `b` is of type int
 b = 0;
 a = &b;
@@ -779,7 +779,7 @@ int *a, *b; // Both are of type int*
 
 We can initialize variables in several (equivalent) ways
 
-```c++
+```cpp
 int a = 3;  // c-like, assignment initialisation
 int a (3);  // constructor initialisation
 int a {3};  // uniform initialisation
@@ -787,7 +787,7 @@ int a {3};  // uniform initialisation
 
 Simultaneous assignment is done like this
 
-```c++
+```cpp
 int a = 0, b = 0;  // assign a and b to 0
 int a = 0, b;      // assign a to 0, b unassigned
 ```
@@ -796,7 +796,7 @@ After C++11, we always prefer uniform initialisation, as it'll work for almost a
 
 You can let the compiler deduce the type for you using `auto` and `decltype` keywords (use the same type as something else), though this probably reduces readability and hence should not be used extensively. These are called "placeholder" types where type information is filled out at compile time
 
-```c++
+```cpp
 int foo = 0;
 auto bar = foo;  // the same as: int bar = foo;
 deltype(foo) baz;  // the same as: int baz;
@@ -819,7 +819,7 @@ Caveat:
 
 - Abusing `auto`, e.g., for simple types can actually reduce readability. Compare the following 
 
-```c++
+```cpp
 double limit_of(Account acc) { /* ... */ };
 
 // Not obvious what type of `limit_a` is 
@@ -831,7 +831,7 @@ double limit_b = limit_of(acc_b);
 
 Using `auto` for cases where return type is obvious is fine
 
-```c++
+```cpp
 auto stratagem = std::make_shared<ems::Stratagem>(install_gem(config));
 
 auto nor = test::order_request({.symbol = "AAPL", .quantity = 100});
@@ -846,7 +846,7 @@ auto nor = test::order_request({.symbol = "AAPL", .quantity = 100});
 
 #### **Literals**
 
-```c++
+```cpp
 // Integer Numerals
 a = 75;
 a = -273
@@ -907,7 +907,7 @@ int* p = nullptr;
 
 Sometimes it's convenient to give a constant a name, instead of writing out that constant everywhere
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -937,7 +937,7 @@ int main ()
 
 Assignment `=`
 
-```c++
+```cpp
 int a = 10;
 int y = 2 + (x = 5); // Assignment is an expression that returns the value assigned. Here we assign 5 to x, then 2+5=7 to y
 x = y = z = 5;  // Multiple assignment
@@ -952,7 +952,7 @@ Compound assignment: +=, -=, *=, /=, %=, and more ...
 
 Increment and decrement: ++, --
 
-```c++
+```cpp
 x = 3;
 y = ++x; // Incremented before evaluation, y is set to 4
 
@@ -968,7 +968,7 @@ Logical: !, &&, ||
 
 Ternary
 
-```c++
+```cpp
 string s = 7 > 5 ? "larger" : "smaller";
 ```
 
@@ -978,7 +978,7 @@ Comma operator
 
 Expressions are evaluated from left to right, but only right most is considered for output
 
-```c++
+```cpp
 int res = (b = 3, b += 1, ++b); // res = 5
 ```
 
@@ -999,7 +999,7 @@ Bitwise operator: &, |, ^, ~, <<, >>
 
 Return size in bytes of variable or type
 
-```c++
+```cpp
 x = sizeof (char); // 1
 y = sizeof (x);	   // depends on the type of x
 ```
@@ -1056,7 +1056,7 @@ C++ *stream* provides abstraction for input and output operations on sequential 
 
 **cout**
 
-```c++
+```cpp
 cout << 120;  // Implicit conversation is done
 cout << "Hello" << " World!"; // Chaining allowed
 cout << "The number is " << x << ".";  // This can be used like Python's f-string
@@ -1066,7 +1066,7 @@ cout << "The number is " << x << ".";  // This can be used like Python's f-strin
 
 `endl`
 
-```c++
+```cpp
 cout << "First sentence." << endl;
 cout << "Second sentence." << endl;
 ```
@@ -1077,7 +1077,7 @@ cout << "Second sentence." << endl;
 
 **cin**
 
-```c++
+```cpp
 int age;
 cout << "What is your age?" << endl;
 cin >> age;
@@ -1095,7 +1095,7 @@ cin also checks for whitespace, new-line ... so it usually doesn't take in entir
 
 Converts a string into a stream, which exposes the data to be used using stream operators.
 
-```c++
+```cpp
 #include <sstream>
 using namespace std;
 
@@ -1112,7 +1112,7 @@ stringstream(mystr) >> myint;  // myint = 1204
 
 `const` used to mark variable as immutable. Mainly used for const correctness when passing references/pointers as function arguments
 
-```c++
+```cpp
 const int a = 3; // cannot modify a
 
 const T* t;			// cannot modify object		can reassign t to diff pointer
@@ -1147,7 +1147,7 @@ RAII can be summarized as follows:
 
 The standard library classes follow RAII (e.g., std::string, std::vector ...)
 
-```c++
+```cpp
 std::mutex m;
  
 void bad() 
@@ -1174,7 +1174,7 @@ RAII wasn't possible in C because C isn't OOP (there are no destructors)
 
 ### Lambda Expression
 
-```c++
+```cpp
 #include <algorithm>
 #include <cmath>
 
@@ -1233,7 +1233,7 @@ Lambda body, can refer to:
 - Locally defined variables
 - Class data members, only if `this` is captured
 
-```c++
+```cpp
 [this] () { // blah };  // `this` is a pointer so captured by value
 [&foo = _foo] () { // blah };  // `foo` is a member of the class, pass by reference into the lambda
 ```
@@ -1254,7 +1254,7 @@ Some cases memory cannot be determined before program execution, such as in case
 
 **New operator: allocate memory**
 
-```c++
+```cpp
 int * foo;
 foo = new int [5];	// Allocate space for 5 integers
 
@@ -1279,7 +1279,7 @@ Of course, memory allocation will not always be successful. There are 2 ways C++
 
 **Delete operator**
 
-```c++
+```cpp
 delete[] foo;
 delete bar;
 ```
@@ -1295,7 +1295,7 @@ Deallocates memory for the pointer. If `nullptr` is provided, there will be no e
 - `new` have size calculated by compiler based on type, `malloc` you must specify size
 - `new` calls constructor and destructor at `delete`, `malloc` doesn't.  So for `malloc` the uninitialised state can be error-prone
 
-```c++
+```cpp
 int* a = new int;
 int* b = (int*)malloc(sizeof(int));  // As int is a simple type, leaving it uninitialised is OK
 ```
@@ -1348,7 +1348,7 @@ When we say a variable, process etc. "owns" memory, we mean they are responsible
 lvalue: (locator value), which must have address in memory, can appear on LHS
 rvalue: (right value), does not have address in memory, cannot appear on LHS
 
-```c++
+```cpp
 int y = 10;    // y is an lvalue
 int z = y + 5; // y + 5 is an rvalue
 
@@ -1362,7 +1362,7 @@ rref = 20;        // temporary 10 is now modified to 20
 The introduction of rvalue is to avoid compiler from always allocating memory. So values can, say, be stored in a register.
 The introduction of rvalue references which allows resources to be moved rather than copied
 
-```c++
+```cpp
 std::string s1 = "Hello";
 std::string s2 = std::move(s1);  // s1 is an lvalue, but std::move converts it to an rvalue
 
@@ -1388,7 +1388,7 @@ std::string s = createString(); // s can "steal" the temporary string
 
 **if and else**
 
-```c++
+```cpp
 // single line statement in `if`
 if (x == 100)
     cout << "x correct";
@@ -1421,7 +1421,7 @@ else
 
 **while**
 
-```c++
+```cpp
 while (true) {
     if (x < 10)
         x++
@@ -1436,7 +1436,7 @@ while (true) {
 
 **do-while**
 
-```c++
+```cpp
 do {
     x++
 } while (x < 10);
@@ -1450,7 +1450,7 @@ Statement is executed before first evaluation of guard. Useful when statement ne
 
 **for**
 
-```c++
+```cpp
 // initiaited, then repeat (check, execute body, execute increment)
 for (int i = 0; i < N; i++)
 {
@@ -1462,25 +1462,25 @@ Note, the 3 parts (initialization, condition, statement) are all optional
 
 - No initialization and no increase acts like a while loop
 
-```c++
+```cpp
 for (;n<10;)
 ```
 
 - No initialization only can be used when initialization is taken care of elsewhere
 
-```c++
+```cpp
 for (;n<10;n++)
 ```
 
 - No condition is equivalent to `while (true) {}`
 
-```c++
+```cpp
 for (n=0;;n++)
 ```
 
 You may want to execute multiple statements in each part. We can separate out the expressions with `,` to make up the simple expression 
 
-```c++
+```cpp
 for ( n=0, i=100 ; n!=i; n++, i-- )
 {
     // blah (this is executed 50 times, if values of n and i are not altered in the loop)
@@ -1491,14 +1491,14 @@ for ( n=0, i=100 ; n!=i; n++, i-- )
 
 Range
 
-```c++
+```cpp
 // for ( declaration : range) statement;
 for (char c : str)
 ```
 
 Range commonly use the `auto` type declaration to declare the type
 
-```c++
+```cpp
 for (auto c : str)
 ```
 
@@ -1512,7 +1512,7 @@ break: break out of enclosing loop
 
 continue: skip to next iteration
 
-```c++
+```cpp
 int main ()
 {
     for (int n=10; n>=0; n--)
@@ -1535,7 +1535,7 @@ int main ()
 
 goto: jumps to label. Used only in very low programming, not in high-level. This statement ignores loops and does no stack unwinding, so is recommended to only be used in the same block, especially in the presence of local variables.
 
-```c++
+```cpp
 int main ()
 {
     int n=10;
@@ -1555,7 +1555,7 @@ Labels are created with the label name followed by colon
 
 **Switch**
 
-```c++\
+```cpp\
 switch (x) {
 	case 1:
 	case 2:
@@ -1584,7 +1584,7 @@ When to use switch:
 
 ### Functions
 
-```c++
+```cpp
 int add (int a, int b)
 {
     int r;
@@ -1635,13 +1635,13 @@ Note, for default values can only be in .h files (not .cpp source files). So you
 
 `MyClass.h` file
 
-```c++
+```cpp
 std::string to_string(bool compact=false) const;
 ```
 
 `MyClass.cpp` file
 
-```c++
+```cpp
 std::string to_string(bool compact) const
 {
     // Your code
@@ -1650,7 +1650,7 @@ std::string to_string(bool compact) const
 
 In addition, you can only define arguments with default values from left to right. You cannot skip like you do in Python. This makes default values in C++ rather limited.
 
-```c++
+```cpp
 void do_stuff(int a = 1; int b = 2; int c = 3) { //blah }
 
 do_stuff(4, 5);  // this specifies a and b. There's no way in the language to specify only a and c
@@ -1659,7 +1659,7 @@ do_stuff(4, 5);  // this specifies a and b. There's no way in the language to sp
 Return types
 - You can use `auto` as return type to have compiler do type deduction
 - If there are multiple return statements, they must all deduce to the same type
-```c++
+```cpp
 auto f(bool val)
 {
     if (val) return 123; // deduces return type int
@@ -1675,7 +1675,7 @@ Functions must be declared textually before they are used. However, it's possibl
 
 Protofunctions are necessary for functions which are mutually recursive, as you cannot define one without the other
 
-```c++
+```cpp
 int odd(int);
 
 int even(int x)
@@ -1721,7 +1721,7 @@ Reason: Using “unusual and clever” techniques causes surprises, slows unders
 
 Generally speaking, we can use structured binding for `std::tuple`, `std::array`, and `struct`/`class` with public members
 
-```c++
+```cpp
 // many times a function may want to return more than 1 value, struct is an easy way to return multiple values
 struct Entry {
     string name;
@@ -1743,7 +1743,7 @@ auto [n, a] = read_entry(names, ages, 5);
 
 ### Overloads
 
-```c++
+```cpp
 // overloading functions
 #include <iostream>
 using namespace std;
@@ -1794,7 +1794,7 @@ Namespaces can be used when your name clashes with that of `std`, say
 
 You can define namespaces
 
-```c++
+```cpp
 namespace foo
 {
 	int value() { return 5; }
@@ -1809,7 +1809,7 @@ namespace bar
 
 You access variables inside namespaces by qualifying the variable with the namespace name and `::`
 
-```c++
+```cpp
 int main()
 {
     cout << foo::value() << "\n";  // 5
@@ -1821,7 +1821,7 @@ int main()
 
 You can define the same namespace in different parts of the code
 
-```c++
+```cpp
 namespace foo { int a; }
 namespace bar { int b; }
 namespace foo { int c; }
@@ -1829,7 +1829,7 @@ namespace foo { int c; }
 
 You can have nested namespaces. The child namespace can refer to parent without qualifiers. Parent namespace can refer to child with qualifiers. When C++ searches in nested namespaces, it does backward search. Say if the current namespace is `foo::bar`, and C++ cannot find the variable `baz` inside `foo::bar`, it'll try to find `baz` in namespace `foo`
 
-```c++
+```cpp
 namespace A
 {
     int i = 1;
@@ -1846,7 +1846,7 @@ namespace A
 
 You cannot forward declare for namespaces
 
-```c++
+```cpp
 namespace Q
 {
     namespace V
@@ -1868,7 +1868,7 @@ Unnamed namespaces
 
 Visible in unqualified form within the same file, but not outside file (internal linkage). Useful if you want to declare variables for the file but not to any namespace.
 
-```c++
+```cpp
 namespace {
     int i = 1;
 }
@@ -1876,7 +1876,7 @@ namespace {
 
 With `using` keyword, all names inside the namespace can be used in the scope the `using` statement is declared, without qualifiers. If there is name ambiguity on used names, a compilation error will fire.
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -1905,7 +1905,7 @@ int main () {
 
 Ambiguous name example:
 
-```c++
+```cpp
 namespace B
 {
     void f(int);
@@ -1933,7 +1933,7 @@ Namespace aliasing
 
 As namespaces must be unique globally, they tend to be long. Use namespace aliases to abbreviate the long name for use in the current file.
 
-```c++
+```cpp
 namespace a_very_long_namespace_name { class Foo {}; }
 namespace AVLNN = a_very_long_namespace_name;
 void Bar(AVLNN::Foo foo){ }
@@ -1960,7 +1960,7 @@ void Bar(AVLNN::Foo foo){ }
 
 Old, C string representation
 
-```c++
+```cpp
 char *myString = "Hello";
 char myString[6] = {'H', 'e', 'l', 'l', 'o', 0};
 ```
@@ -2040,7 +2040,7 @@ A note on performance of `+` concat operator:
 More utility functions around strings inside header `<string>`
 - `std::istringstream& getline( std::istringstream& input, std::string& str, char delim = '\n');` Used to separate stringstream into lines using delimiter. Usage is usually
 
-```c++
+```cpp
 std::string line;  // placeholder object for getline to write into
 while (std::getline(input, line)) {
     // do stuff
@@ -2060,7 +2060,7 @@ More implementation details in libc++: https://joellaity.com/2020/01/31/string.h
 
 Source code difficult to read directly, as it's highly optimized, general (`std::string` = `std::basic_string<char8>`), portable (`#ifdef` everywhere), resilient (private identifiers are preceeded with `_`), and undocumented.
 
-```c++
+```cpp
 templace <class _CharT, class _Traits, class _Allocator>
 class _LIBCPP_TEMPLACE_VIS basic_string : private __basic_string_common<true> {
   // code omittted
@@ -2143,7 +2143,7 @@ Strings cannot be `constexpr` as it cannot be constructed during compile time. F
 
 `string_view` is like strings but does not own the underlying object. If the string_view is deleted, the underlying data is kept in place. It's basically a pointer with length information
 
-```c++
+```cpp
 // string_view
 struct {
     int len;
@@ -2153,7 +2153,7 @@ struct {
 
 Because of this, `string_view` can be a constexpr, as the compiler just needs to store the data in `.rodata` vector at compile time and make the pointer point to it.
 
-```c++
+```cpp
 constexpr std::string_view my_string = "Hello World";
 ```
 
@@ -2169,7 +2169,7 @@ Out-of-bound behaviour is not defined (compared to str.at() or std::span)
 
 String views don't own the pointer
 
-```c++
+```cpp
 string_view bad()
 {
     string s = "ABC";
@@ -2179,7 +2179,7 @@ string_view bad()
 
 Constructors
 
-```c++
+```cpp
 int main()
 {
     std::string cppstr = "foo";
@@ -2219,7 +2219,7 @@ std::cout << get_len("ABC") << std::endl; $$ check this works
 
 Arrays are stored in the stack (see stack vs. heap)
 
-```c++
+```cpp
 // Declaring an array
 int foo [5];
 
@@ -2284,7 +2284,7 @@ In C++, you cannot pass array by value, so all array variables are pointer to th
 
 ### Pointers & References
 
-```c++
+```cpp
 // Address-of operator
 foo = &myvar;
 // Mnemonic: And is the Address
@@ -2362,7 +2362,7 @@ int operation (int x, int y, int (*functocall)(int,int))
 
 A reference is roughly a const pointer. It holds the address of another variable, but it must be declared (so cannot be nullptr) on creation and cannot be changed. Referencing and dereferencing is automatic (no need to specify explicitly). Arithmetic on pointers cannot be performed on references.
 
-```c++
+```cpp
 int& ref;  // Not allowed, must initialise on declaration
 
 int x = 3;
@@ -2392,7 +2392,7 @@ ptr = nullptr;
 
 A data structure is a group of data element together under one name.
 
-```c++
+```cpp
 struct product {
     // members of the struct
     int weight;
@@ -2417,7 +2417,7 @@ Note the exact dimensions of `struct` is machine dependent (from padding).
 
 You can create pointer to `struct`
 
-```c++
+```cpp
 product * pprod;
 pprod = &apple;
 cout << pprod->price;	// This dereferences the struct then returns the member. This operation is used as it's one cycle in machine language
@@ -2433,7 +2433,7 @@ cout << pprod->price;	// This dereferences the struct then returns the member. T
 
 `struct` can be nested, and members referenced by chaining `.`
 
-```c++
+```cpp
 struct movies_t {
     string title;
     int year;
@@ -2452,7 +2452,7 @@ cout << charlie.favorite_movie.year;
 
 We can also initialize structs using curly brackets, nesting if members are also structs/arrays etc. Members not specified are empty initialised (ptr => nullptr, int => 0, float => +0)
 
-```c++
+```cpp
 struct example {
     struct addr_t {
        uint32_t port;
@@ -2473,7 +2473,7 @@ struct example ex = { // start of initializer list for struct example
 
 For designated initialiser list (since c++20), the order of arguments must follow that of struct declaration. A good rule of thumb is to declare struct fields to be in alphabetical order, this way the caller will know the order of declaration (without needing to check at the definition each time).
 
-```c++
+```cpp
 struct Point
 {
     int a;
@@ -2492,7 +2492,7 @@ Structs vs. Class: The two constructs are identical in C++ except that in struct
 
 ### **Type aliases**
 
-```c++
+```cpp
 // typedef existing_type new_type_name
 typedef char C;
 typedef unsigned int WORD;
@@ -2508,7 +2508,7 @@ This simply gives another name for the type.
 
 Another semantically equivalent syntax is to use the `using` keyword
 
-```c++
+```cpp
 using C = char;
 using WORD = unsigned int;
 using pChar = char *;
@@ -2525,7 +2525,7 @@ One use of type aliases is to have a easy way to switch, say between `int` and `
 
 Syntactically like `struct`, but all members occupy the same space. So a union's size is that of its largest variant
 
-```c++
+```cpp
 union mytypes_t {
     char c;
     int i;
@@ -2539,7 +2539,7 @@ The language does not track what underlying type is actually under the union obj
 
 
 
-```c++
+```cpp
 // A slightly more interesting example
 union mix_t {
     int l;	// 4 bytes
@@ -2565,7 +2565,7 @@ In modern C++, prefer `std::variant` over `union` for more safety
 
 You can define union inside a `struct` and not giving it a name, which omits the union name during use.
 
-```C++
+```cpp
 struct book1_t {
     char title[50];
     char author[50];
@@ -2598,7 +2598,7 @@ cout << book2.dollars;
 
 A list of values what can be passed around and compared. These values are implicitly converted to `int` underlying. Enums make your code more readable and less error prone by giving it names, during compilation only ints are passed.
 
-```c++
+```cpp
 enum colors_t { black, blue, green, cyan, red, purple, yellow, white };
 
 colors_t mycolor = blue;
@@ -2608,7 +2608,7 @@ if (mycolor != green)
 
 By default, members are assigned integers from 0, then 1, 2, and so on ... But you can specify the actual value some of the member take. If a member is not specified a value, it's taken as the value of the previous member + 1
 
-```c++
+```cpp
 enum months_t { january=1, february, march, april,
                 may, june, july, august,
                 september, october, november, december} y2k;
@@ -2616,7 +2616,7 @@ enum months_t { january=1, february, march, april,
 
 Conversion to and from int
 
-```c++
+```cpp
 colors_t mycolor = blue;
 int i = mycolor; // implicit conversion used
 bool eq = i == mycolor;  // true
@@ -2629,7 +2629,7 @@ colors_t thecolor = i;
 
 You can create enum types that have more type safety (there is no implicit conversion to/from integers, you have to use `static_cast`, comparison can only be done between enum values of same class).
 
-```c++
+```cpp
 enum class Colors { blue, green }
 
 mycolor = Colors::blue;
@@ -2641,7 +2641,7 @@ enum class EyeColor : char { blue, green, brown };	// Specify the underlying rep
 
 Can also create using constructor, just put enum integer as arg
 
-```c++
+```cpp
 auto blue = Colors{0};
 auto green = Colors{1};
 ```
@@ -2661,7 +2661,7 @@ Enum class is the modern way to do enums in C++, though plain enums are still co
 
 Structure of class
 
-```c++
+```cpp
 class class_name {
     access_specifier_1:
     	member1;
@@ -2687,7 +2687,7 @@ Semantically class and struct are basically identical, except default access and
 
 An example class
 
-```c++
+```cpp
 class Rectangle {
     	int width, height;  // first methods without access specifier are set to `private` by default
     
@@ -2709,7 +2709,7 @@ cout << rect.area(); 	// 12
 
 You can also define class methods outside of class using the scope operator (::)
 
-```c++
+```cpp
 class Rectangle {
     	int width, height;  // first methods without access specifier are set to `private` by default
     public:
@@ -2731,7 +2731,7 @@ Functions defined directly inside the class are automatically marked as inline f
 
 ### Constructor function
 
-```c++
+```cpp
 class Rectangle {
     int width, height;
     
@@ -2759,7 +2759,7 @@ int main () {
 
 Overloading constructors
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -2797,7 +2797,7 @@ int main () {
 
 These are semantically equivalent ways to instantiate an object
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -2819,7 +2819,7 @@ int main () {
 
 One possible advantage of the uniform initialization syntax is that they make the call to constructors explicit:
 
-```c++
+```cpp
 Rectangle rect;		// default constructor called, but not obvious
 Rectangle rectb();	// function declaration (a function that returns a Rectangle)
 Rectangle rectc{};	// default constructor called
@@ -2833,7 +2833,7 @@ Member initialization in constructors
 
 We can abbreviate the member initialization part of the constructor. This effectively calls the constructor with the arguments given (usually we invoke the Copy constructor here).
 
-```c++
+```cpp
 class Rectangle {
     	int width, height;
     
@@ -2849,7 +2849,7 @@ For class members that are not initiated in the constructor, if they are fundame
 
 Note, if instead of using member initialisation, you assign it in the constructor. The member will be initialised to default first (see above) then assigned the new value. This can cause performance overhead.
 
-```c++ 
+```cpp 
 #include <iostream>
 using namespace std;
 
@@ -2882,13 +2882,13 @@ Pointer to class
 
 Of course, you can create a pointer to an object of a class
 
-```c++
+```cpp
 Rectangle * prect;
 ```
 
 Then, to access members of that object, use the `->` operator
 
-```c++
+```cpp
 cout << prect->area() << '\n';
 ```
 
@@ -2908,7 +2908,7 @@ type operator symbol (prameters) { /* ... body ... */ }
 
 Example:
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -2940,7 +2940,7 @@ int main () {
 
 The below two are equivalent
 
-```c++
+```cpp
 c = a + b;
 c = a.operator+ (b);
 ```
@@ -2949,7 +2949,7 @@ c = a.operator+ (b);
 
 Note, some overloaded operators can be defined as non-member function (a regular function that doesn't belong to a class)
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -3000,7 +3000,7 @@ The `this` keyword inside the member function returns a reference to the object 
 
 One use can be for checking whether a parameter is the object itself
 
-```c++
+```cpp
 class Dummy {
     public:
     	bool isitme (&Dummy param) {
@@ -3024,7 +3024,7 @@ int main () {
 
 Another use is for a binary operator to return a reference to one of its objects
 
-```c++
+```cpp
 CVector& CVector::operator= (CVector other)
 {
    	x = other.x;
@@ -3042,7 +3042,7 @@ CVector& CVector::operator= (CVector other)
 
 Static variables are like non-member variables but require qualifying by class (or object)
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -3074,7 +3074,7 @@ Static members have "static storage duration". They are always created before pr
 
 Initialisation of static members can be static or dynamic. Static initialisation happens at compile time and doesn't need to be run during runtime. Compiler prefers static initialisation whenever it is possible. Example:
 
-```c++
+```cpp
 //a.h
 struct MyStruct
 {
@@ -3089,7 +3089,7 @@ Here, the value `67` is a constant expression, so the compiler knows that it can
 
 Static members inside functions is a different concept. Semantics ensure it's only initialised once at the first call (lazy initialisation), and thread safe. They live until end of application. So additional protection logic is in-place for the variable, making it slower. In most cases you don't need static, example case where you do
 
-```c++
+```cpp
 // Meyer's Singleton
 struct singleton_t
 {
@@ -3119,7 +3119,7 @@ In C++20, we have `constinit`, which acts like `constexpr` (compiler can evaluat
 
 Sometimes we have to use dynamic initialisation, such as initialising strings (due to how memory is managed for strings)
 
-```c++
+```cpp
 const auto VERSION = "3.4.1";
 ```
 
@@ -3127,7 +3127,7 @@ This string will be evaluated during each run of the program.
 
 Try to avoid SIOF (static initialisation order fiasco), where there is dependency between initialisation of static members. Initialisation within the same compilation unit is done in order of definition in the source file. But initialisation across compilation units is random.
 
-```c++
+```cpp
 // a.cpp
 int duplicate(int n)
 {
@@ -3148,7 +3148,7 @@ int main()
 
 One way to avoid SIOF is to have initialisation done when the value is accessed for the first time.
 
-```c++
+```cpp
 // a.cpp
 int duplicate(int n)
 {
@@ -3184,7 +3184,7 @@ Const function members => no modifications to nonstatic data members, or call no
 
 Const return type => function will not modify the returned data
 
-```c++
+```cpp
 int get() const { return x; }	// const member function
 const int& get() { return x; }	// member function returning a const&
 const int& get() const { return x; }	// const function returning a const&
@@ -3204,7 +3204,7 @@ Const objects =>
 
 One use of const objects is when using an object as a parameter to a function
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -3240,7 +3240,7 @@ Used for members that can be modified in a const method inside a class. It's use
 
 `mutable` can only be used on non-static class members of non-reference non-const type (obviously, otherwise these can't be mutated anyway):
 
-```c++
+```cpp
 class X
 {
     mutable const int* p;  // OK, the `const` here specifies the underlying data p points to cannot change, but p can change, so can be used together with `mutable`
@@ -3251,7 +3251,7 @@ class X
 
 example
 
-```c++
+```cpp
 #include <iostream>
 #include <string>
 
@@ -3309,7 +3309,7 @@ If at least 1 constructor is defined, then the default constructor must be defin
 
 For releasing resources and clean up after the object is destroyed.
 
-```c++
+```cpp
 #include <iostream>
 #include <string>
 using namespace std;
@@ -3345,14 +3345,14 @@ int main ()
 
 When an object is instantiated with another object (of same type) as argument, copying is done.
 
-```c++
+```cpp
 MyClass foo ("Example");
 MyClass bar = foo;	// Copying `foo` to `bar`, this is same as MyClass bar (foo);
 ```
 
 The copy constructor is defined with following signature
 
-```c++
+```cpp
 MyClass::MyClass (const MyClass&);
 ```
 
@@ -3362,7 +3362,7 @@ If no copy constructor is defined, the compiler creates a default one, which doe
 
 Instead we can define a copy constructor, perhaps performing deep copy.
 
-```c++
+```cpp
 #include <iostream>
 #include <string>
 using namespace std;
@@ -3396,7 +3396,7 @@ int main ()
 
 When an object is assigned another object, the copy assignment constructor is called
 
-```c++
+```cpp
 MyClass foo ("Example");
 MyClass bar;
 bar = foo;
@@ -3404,13 +3404,13 @@ bar = foo;
 
 The copy assignment simply overloads `=` with argment `MyClass&`
 
-```c++
+```cpp
 MyClass& operator= (const MyClass&);
 ```
 
 The default definition by compiler does shallow copy, but this doesn't always work. Say for the class in the previous example, if we shallow copy the new string address, the old string is not deleted, leading to a memory leak.
 
-```c++
+```cpp
 StringWrapper operator= (const StringWrapper& x)
 {
 	delete ptr;	// Free memory of previously defined string
@@ -3421,7 +3421,7 @@ StringWrapper operator= (const StringWrapper& x)
 
 Or even better, just re-utilize the same string object
 
-```c++
+```cpp
 StringWrapper& operator= (const StringWrapper& x)
 {
 	*ptr = x.content();
@@ -3439,7 +3439,7 @@ Move is like a copy, but the original reference is destroyed. So there is rarely
 
 Move happens when data is assigned to a new variable from an unnamed object, examples of unnamed objects include return values of class constructor, return values of functions etc.
 
-```c++
+```cpp
 MyClass (MyClass&&);             // move-constructor
 MyClass& operator= (MyClass&&);  // move-assignment
 ```
@@ -3475,7 +3475,7 @@ We can declare certain functions to have access to private and protected members
 
 We give this access using the keyword `friend` in the class, preceding the function name
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -3519,7 +3519,7 @@ Friend functions are commonly used when the function needs access to private and
 
 A friend class of another class can access its private and protected members.
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -3567,7 +3567,7 @@ Note, friend relationship is no symmetric nor transitive.
 
 ### Inheritance
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -3620,13 +3620,13 @@ All members of base class apart from:
 
 Base class constructors are used by default in derived class unless specified otherwise.
 
-```c++
+```cpp
 derived_constructor_name (parameters) : base_constructor_name (parameters) {...}
 ```
 
 Example:
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -3671,7 +3671,7 @@ Son: int parameter
 
 If the derived class contains members with same name as base class, the member in derived class is used. To use the member in the base class, qualify the variable with `Base::member`
 
-```c++
+```cpp
 class A
 {
     public:
@@ -3705,7 +3705,7 @@ int main ()
 
 Multiple inheritance (just put classes in comma separated list)
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -3774,7 +3774,7 @@ B    C
 
 Virtual inheritance:
 - Avoids duplicated instantiation of common base class
-```c++
+```cpp
 class A { };
 class B : virtual public A { };
 class C : virtual public A { };
@@ -3784,7 +3784,7 @@ class D : public A { };
 class E : public B, public C, public D { };
 ```
 - Virtual inheritence solves the last issue in ambiguity. When all inheritence in base-list are virtual, there's only 1 ancestor base class, so ambiguity is solved. It also arguably has better performance as only 1 object of A is created for D
-```c++
+```cpp
 class A
 {
     public:
@@ -3812,7 +3812,7 @@ int main()
 
 One key feature of class inheritance is that pointer to the derived class is type compatible to the pointer to the base class.
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -3859,7 +3859,7 @@ Pointer to class of type `Polygon` can only access members of the base class `Po
 
 Virtual members allow certain functions in the base class to be overriden in the derived class. Unlike simply defining a function with the same name in the derived class, overriden functions can be accessed in pointer class when type casted to base class.
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -3910,7 +3910,7 @@ The **override** keyword
 
 This keyword is purely for compilation time check, it specifies that this function must override a virtual function. This can help make your code more readable and avoid function signature typos etc.
 
-```c++
+```cpp
 struct A
 {
     virtual void foo();
@@ -3940,7 +3940,7 @@ Note, `override` is not a reserved word in C++, it only has special meaning when
 - Default arguments in base method are not overriden in derived method
 - Which default argument is used is decided by the static type of the object, reference or pointer
 
-```c++
+```cpp
 using std::stringstream;
 using std::string;
 using std::cout;
@@ -4003,7 +4003,7 @@ Dynamic type: known at runtime
 
 As C++ is a statically typed language, the only ever case for dynamic typing is when doing pointer redirection to base classes with virtual functions. This can happen, say in factory methods
 
-```c++
+```cpp
 struct Animal {...}
 
 struct Dog : Animal {...}
@@ -4031,7 +4031,7 @@ Abstract base classes contain at least one pure virtual function (a virtual func
 
 Abstract base classes can only be used as a base class to inherit from. It cannot be instantiated directly. All derivations must implement all pure virtual functions.
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -4074,7 +4074,7 @@ int main () {
 
 Apart from providing polymorphic information in OOP use cases, abstract base classes can also define functions that make use of future derived class implementations, with the `this` keyword.
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -4141,7 +4141,7 @@ Template thus give the following benefits:
 - Type and syntax checking over macros
 - Type deduction over macros, which may improve run-time performance compared to writing every specialization by hand
 
-```c++
+```cpp
 template<typename T>
 T add(T a, T b)
 {
@@ -4165,7 +4165,7 @@ A template plus a set of template arguments is called an instantiation. Each ins
 
 **Generic programming using templated classes with templated member functions**
 
-```c++
+```cpp
 // It's quite common for container classes to be type generic
 template<typename T>
 class Vector {
@@ -4217,7 +4217,7 @@ T* begin(Vector<T>& x)
 
 We can think of generic programming just as another form of abstraction
 
-```c++
+```cpp
 // a non-generic accumulator
 double sum(const std::vector<int>& v)
 {
@@ -4242,7 +4242,7 @@ Val accumulate(const R& r, Val res = 0)
 
 **Value template arguments**
 
-```c++
+```cpp
 // Template arguments can be a value, not just a typename
 template<typename T, int N>
 struct Buffer {
@@ -4262,7 +4262,7 @@ Buffer<char, 1024> glob;
 
 C++ compiler can use type deduction to remove the need for verbosely defining template arguments each time
 
-```c++
+```cpp
 std::pair p = {1.5, 2} // p is a std::pair<double, int>
 
 // previously we had to ...
@@ -4276,7 +4276,7 @@ Vector v2 {"Hello"s, "World"s}; // deduces to Vector<std::string>
 
 Sometimes we need to help compiler deduce the return type
 
-```c++
+```cpp
 template<typname Iter>
 	Vector(Iter, Iter) -> Vector<typename Iter::value_type>
 
@@ -4289,7 +4289,7 @@ The use of Concepts allow us to give type hints to compilers in a more expressiv
 
 **Type aliases in templates**
 
-```c++
+```cpp
 // The use of Class::value_type to obtain the underlying type of a container class is useful for writing generic functions
 template<typename T>
 class Vector
@@ -4316,7 +4316,7 @@ void algo(Container& c)
 
 **Compile-time if => performance gains**
 
-```c++
+```cpp
 template<typename T>
 void update(T& target)
 {
@@ -4333,7 +4333,7 @@ void update(T& target)
 
 **decltype returns the type of an expression via type deduction**
 
-```c++
+```cpp
 template<typename T1, typename T2>
 decltype(a < b ? a : b) min(T1 a, T2 b) // ERROR, a and b used before declaration
 {
@@ -4353,7 +4353,7 @@ auto min(T1 a, T2 b) -> decltype(a < b ? a : b)
 
 If we want to define additional function members when certain types are used, we can specialize a template
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -4390,7 +4390,7 @@ int main () {
 
 Again, compare the class signature syntax between template class and template specialization
 
-```c++
+```cpp
 template <class T> class MyContainer { ... };
 template <> class MyContainer <char> { ... };
 ```
@@ -4401,7 +4401,7 @@ template <> class MyContainer <char> { ... };
 
 Templates with an arbitrary argument size, these are very expressive and is used extensively in STL
 
-```c++
+```cpp
 template<typename T, typename.... Tail>
 void print(T head, Tail... tail)
 {
@@ -4417,7 +4417,7 @@ print("Hello"s, 1, "World", 3.14);
 
 **Fold expression**
 
-```c++
+```cpp
 template<typename ... T>
 void print(T&& ... args)
 {
@@ -4452,7 +4452,7 @@ foldl (\xs x -> xs ++ [x]) [] = id
 
 Examples
 
-```c++
+```cpp
 template<typename... Args>
 bool all(Args... args) { return (... && args); }
 
@@ -4472,7 +4472,7 @@ void print(T&& ... args) { (std::cout << ... << args) << std::endl; }
 
 It's common to pass argument through an interface unchanged
 
-```c++
+```cpp
 template<typename Transpor t>
 requires concepts::InputTranspor t<Transpor t>
 class InputChannel {
@@ -4510,7 +4510,7 @@ $$ page 158 for concepts defined in the standard
 
 Overloading templated functions
 
-```c++
+```cpp
 template<typename CollT>
 concept HasPushBack = requires (CollT c, CollT::value_type v) {
     c.push_back(v);  // requires this to be valid code
@@ -4539,7 +4539,7 @@ add(coll2, 42); // only second definition is valid, OK
 
 You can also use `auto` types in arguments, 
 
-```c++
+```cpp
 // syntactic sugar to templated version
 void add(HasPushBack auto& coll, const auto& val)
 {
@@ -4562,7 +4562,7 @@ add(coll2, 42); // OK
 
 We can also constraint for multiple params
 
-```c++
+```cpp
 template<typename CollT, typename T>
 concept HasPushBack = requires (CollT c, T v) {
     c.push_back(v);
@@ -4590,7 +4590,7 @@ add(coll2, 42); // OK
 
 Generally concepts are coarse-grained
 
-```c++
+```cpp
 template<typename CollT>
 concept SequenceCont = std::ranges::range<CollT> &&
 					   requires (std::remove_cvref_t<CollT> c, std::ranges::range_value_t<CollT> v) {
@@ -4619,7 +4619,7 @@ Not all requirements can be checked at compile time. Sometimes we use concepts f
 
 
 
-```c++
+```cpp
 void add(auto& coll, const auto& val)
 {
     if constexpr (requires { coll.push_back(val); }) { // inline concept for compile-time branching
@@ -4635,7 +4635,7 @@ void add(auto& coll, const auto& val)
 
 Different constraints can cause ambiguities (when there's no clear hierarchy)
 
-```c++
+```cpp
 template<typename CollT>
 concept HasSize = requires (CollT c) {
     { c.size() } -> std::convertible_to<int>;
@@ -4662,7 +4662,7 @@ foo(vec); // ambiguous
 
 Note, hierarchy must be defined explicitly, not automatically
 
-```c++
+```cpp
 template<typename T>
 concept GeoObject = requires(T obj) { obj.draw(); };
 
@@ -4680,7 +4680,7 @@ Circle(c);
 print(c); // ambiguous, compiler only looks at explicit subsumption
 ```
 
-```c++
+```cpp
 template<typename T>
 concept BIgType = sizeof(T) > 8;
 
@@ -4715,7 +4715,7 @@ Where concepts can be used:
 
 Constraints for member functions
 
-```c++
+```cpp
 template<typename T>
 class MyType {
    	T value;
@@ -4736,7 +4736,7 @@ public:
 
 Constraints for non-type template parameters
 
-```c++
+```cpp
 constexpr bool isPrime(int val)
 {
     for (int i = 2; i <= val/2; i++)
@@ -4799,7 +4799,7 @@ We want to write a program where `tick_tock` sends `Tick` messages down the tree
 
 
 
-```c++
+```cpp
 struct component_base {
     virtual void handle(const message_base &m) = 0;
     
@@ -4848,7 +4848,7 @@ The compiled assembly code will at runtime iterate through the vector of childre
 
 
 
-```c++
+```cpp
 template<typename ... Children_> // specify 
 struct component_base {
     virtual void handle(const message_base &m) = 0;
@@ -4886,7 +4886,7 @@ https://github.com/saarraz/slides/blob/master/cppcon2019-concepts-a-day-in-the-l
 
 
 
-```c++
+```cpp
 #include <cstdio>
 #include <type_traits>
 #include <tuple>
@@ -5097,7 +5097,7 @@ int main() {
 
 concept as code means you can test it
 
-```c++
+```cpp
 // tests
 static_assert(Tree<tree<int>>);
 static_assert(Tree<)
@@ -5127,7 +5127,7 @@ Read more also on static_cast etc. from standard
 
 Standard conversion (conversion between compatible types without explicit operator)
 
-```c++
+```cpp
 short a=2000;
 int b;
 b=a;
@@ -5164,7 +5164,7 @@ Some conversion rules for other types
 
 
 
-```c++
+```cpp
 // implicit conversion of classes:
 #include <iostream>
 using namespace std;
@@ -5224,7 +5224,7 @@ Normally, when a variable of type `A` is used as the argument for a function tha
 
 We use the `explicit` keyword to make implicit conversion of argument parameters invalid.
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -5269,7 +5269,7 @@ Basically, `explicit` keyword makes sure the arguments need to be explicitly con
 
 *Explicit* type conversion (as alluded earlier) have 2 syntaxes that can be used:
 
-```c++
+```cpp
 double x = 10.3;
 int y;
 y = int (x);    // functional notation
@@ -5280,7 +5280,7 @@ y = (int) x;    // c-like cast notation
 
 Note, the default behavior for explicit conversion between pointer types is simply swapping the pointer. 
 
-```c++
+```cpp
 // class type-casting
 #include <iostream>
 using namespace std;
@@ -5319,7 +5319,7 @@ The following four specific casting operators control this behaviour.
 
 But `dynamic_cast` only allows pointer **downcast** (convert from pointer-to-base to pointer-to-derived) iff the pointed object is a valid, complete object of the target type. If the object is not a valid, complete object of the target type, a **null-pointer** is returned instead.
 
-```C++
+```cpp
 #include <iostream>
 #include <exception>
 using namespace std;
@@ -5370,7 +5370,7 @@ For casting pointers to or from integer types, this is platform specific (not po
 
 
 
-```c++
+```cpp
 class A { /* ... */ };
 class B { /* ... */ };
 A * a = new A;
@@ -5389,7 +5389,7 @@ Manipulate const-ness of the object to the other status (ie. either to be set, o
 
 Example, passing const object to function that doesn't expect a const argument
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -5415,7 +5415,7 @@ The example above is guaranteed to work because function `print` does not write 
 
 Return the type of an expression
 
-```c++
+```cpp
 typeid (expression)
 ```
 
@@ -5425,7 +5425,7 @@ You can compare the result with `==`
 
 
 
-```c++
+```cpp
 #include <iostream>
 #include <typeinfo>
 using namespace std;
@@ -5453,7 +5453,7 @@ b is: int
 
 When `typeid` is applied to an expression whose type is a polymorphic class, the result is the type of the most derived complete object.
 
-```c++
+```cpp
 #include <iostream>
 #include <typeinfo>
 #include <exception>
@@ -5500,7 +5500,7 @@ Each `catch` block can take a different argument type, and only if the exception
 
 We can write `catch (...)` to indicate a catch all.
 
-```c++
+```cpp
 #include <iostream>
 using namespace std;
 
@@ -5519,7 +5519,7 @@ int main () {
 
 
 
-```c++
+```cpp
 catch (int param) { cout << "int exception"; }
 catch (char param) { cout << "char exception"; }
 catch (...) { cout << "default exception"; }
@@ -5529,7 +5529,7 @@ catch (...) { cout << "default exception"; }
 
 If we nest `try` blocks, we can actually forward an exception to the outer block's exception handler by using the `throw` keyword without arguments.
 
-```c++
+```cpp
 try {
   try {
 	  throw 20;
@@ -5555,7 +5555,7 @@ Exception occurred: 20
 
 `std::exception` base class defined in the `<exception>` header. We can inherit from it and define a virtual function `what()` that have some description on the exception
 
-```c++
+```cpp
 #include <iostream>
 #include <exception>
 using namespace std;
@@ -5605,7 +5605,7 @@ Some other exceptions defined in the `<exception>` header
 
 A typical example of checking for successful memory allocation.
 
-```c++
+```cpp
 #include <iostream>
 #include <exception>
 using namespace std;
@@ -5691,7 +5691,7 @@ These classes are all derived from `istream` and `ostream`.
 
 A opened file is represented within a program by a *stream*. Then all operations will be done on the physical file via the stream.
 
-```c++
+```cpp
 open (filename, mode);
 ```
 
@@ -5717,7 +5717,7 @@ You can merge modes together with bitwise OR `|`
 
 
 
-```c++
+```cpp
 if (file.is_open()) { /* ok, proceed with output */ }
 ```
 
@@ -5727,7 +5727,7 @@ if (file.is_open()) { /* ok, proceed with output */ }
 
 **Closing a file**
 
-```c++
+```cpp
 file.close();
 ```
 
@@ -5743,7 +5743,7 @@ Once this member function is called, the stream object can be re-used to open an
 
 Text file streams are when `ios::binary` flag is not included. Values of I/O go through some formatting transformations before going to the binary raw file.
 
-```c++
+```cpp
 // writing on a text file
 #include <iostream>
 #include <fstream>
@@ -5762,7 +5762,7 @@ int main () {
 }
 ```
 
-```c++
+```cpp
 // reading a text file
 #include <iostream>
 #include <fstream>
@@ -5825,7 +5825,7 @@ These state flags are set after each operations done on the stream. `clear()` ca
 
 `seekg()` and `seekp()` sets the get and put position. The functions are overloaded:
 
-```c++
+```cpp
 // Absolute position (# of bytes from beginning of file)
 seekg ( position );
 seekp ( position );
@@ -5848,7 +5848,7 @@ offset is # of bytes.
 
 Example
 
-```c++
+```cpp
 // obtaining file size
 #include <iostream>
 #include <fstream>
@@ -5874,7 +5874,7 @@ int main () {
 
 When doing I/O on binary files, we don't need `<<`, `>>`, or `getline`, as they are not as efficient. We use `write` and `read` instead
 
-```c++
+```cpp
 write ( memory_block, size );
 read ( memory_block, size );
 ```
@@ -5883,7 +5883,7 @@ read ( memory_block, size );
 
 
 
-```c++
+```cpp
 // reading an entire binary file
 #include <iostream>
 #include <fstream>
@@ -6036,7 +6036,7 @@ Constructors:
 
 Call by reference vs call by value
 
-```c++
+```cpp
 void foo(vector<int>& vec) { ... }  // By reference, modifies the same values in heap
 
 void bar(vector<int> vec) { ... }  // By value, copies the object and copies values in heap, so modification not reflected in caller's vector object
@@ -6064,7 +6064,7 @@ Methods
 
 Looping through. Using iterators givees you more flexibility, but nothing wrong with using indices.
 
-```c++
+```cpp
 for (size_t i = 0; i < vec.size(); i++)
 {
     vec[i].doStuff();
@@ -6102,7 +6102,7 @@ Other comparison with std::vector
 
 Initialisation:
 
-```c++
+```cpp
 std::array<int, 5> = {1,2,3};  // last 2 elements are zero-initiated
 ```
 
@@ -6126,7 +6126,7 @@ Comparison with C arrays[]
 
 The set requires the template type to contain `<` comparison (as the underlying impl can use a binary search tree). The guarantee uniqueness, the `==` operation is just taking the function `(!(a < b) && (!(b < a))`.
 
-```c++
+```cpp
 struct Point
 {
     int x;
@@ -6198,7 +6198,7 @@ Modifiers: , `erase`, `push_back`, `pop_back`, `push_front`, `pop_front`, `appen
 
   - Comparison function takes signature: `bool cmp(const Type1& a, const Type2& b);` which returns true if the first argument is *less* than (i.e. is ordered *before*) the second.
 
-  - ```c++
+  - ```cpp
     list.sort(std::greater<int>());
     ```
 
@@ -6220,7 +6220,7 @@ Less storage than `std::list`, but doesn't support bidirectional move
 
 making pairs. This is done in legacy code (before uniform init), benefit is type deduction from arguments, but may be more verbose than uniform init in some cases.
 
-```c++
+```cpp
 template<class T1, class T2>
 std::pair<T1, T2> make_pair( T1 t, T2 u);
 
@@ -6229,7 +6229,7 @@ auto p1 = std::make_pair(1, 3.14);
 
 If your function returns a pair you can do structural binding
 
-```c++
+```cpp
 auto [a, b] = foo();
 
 // if you want to document return type explicitly, do this
@@ -6256,7 +6256,7 @@ Methods
 
 
 
-```c++
+```cpp
 std::tuple<int, float> get_tup()
 {
     return {5, 6};
@@ -6291,7 +6291,7 @@ A view of a contiguous memory, useful when you want to pass some contiguous sequ
 It only supports contiguous memory because internals do pointer arithmetic. For general iterators (e.g., for `std::list`), use `std::ranges::subrange`
 
 Type signature
-```c++
+```cpp
 template<
   class T,
   std::size_t Extent = std::dynamic_extent
@@ -6308,7 +6308,7 @@ Constructors:
 - `span( It first, End last );`
 - etc.
 
-```c++
+```cpp
 void print_span(const std::span<int> span)
 {
   if (span.extent == std::dynamic_extent)
@@ -6344,7 +6344,7 @@ int main()
 
 Sorted key-value pair container. Logarithmic complexity for search, insert, and delete. Typically implemented as a Red-Black tree.
 
-```c++
+```cpp
 m.insert({'a', 1});
 ```
 
@@ -6446,7 +6446,7 @@ Object structure
 
 
 
-```c++
+```cpp
 template <typename T>
 class optional
 {
@@ -6471,7 +6471,7 @@ You cannot do `std::optional<T&>`, you must copy the object.
 
 **Ways of returning optional values**
 
-```c++
+```cpp
 // Returning an nullptr. Issue: possible mishandling of nullptr, e.g. trying to dereference it
 T* foo();
 
@@ -6496,7 +6496,7 @@ $$ implement the internals
 
 std::variant is the standard perferred way to use unions in modern C++, it provides type safety and automatic memory management. Examples
 
-```c++
+```cpp
 union U {
     int i;
     float f;
@@ -6516,7 +6516,7 @@ A union only holds the latest set value. You are not supposed to access it via a
 
 With `std::variant` this is enforced at compile time
 
-```c++
+```cpp
 int main()
 {
     std::variant<int, float> u;
@@ -6531,7 +6531,7 @@ int main()
 
 Below is an example of automatic memory management
 
-```c++
+```cpp
 union U {
     int i;
     float f;
@@ -6551,7 +6551,7 @@ First note as `U` have some type variant that's not a trivial type (it contains 
 
 In `std::variant` we know the current underlying type, so the right destructor is called
 
-```c++
+```cpp
 int main()
 {
     std::variant<int, float, std::string> u = "Hello World";
@@ -6593,7 +6593,7 @@ Motivation:
 - Eliminate the need to provide iterator and sentinel pair for common case (ie. `std::sort(v.begin(), v.end())` -> `std::sort(v)`). This makes code cleaner and avoids issues with specified iterator
 - Range adaptors to transform ranges lazily and allow chaining, probably more powerful
 
-```c++
+```cpp
 // Old way. Intermediate results must be stored somehow
 std::vector<int> input = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 std::vector<int> intermediate, output;
@@ -6618,7 +6618,7 @@ View objects are lightweight ranges:
 - Views represent future computation
 - View object itself can be moved, copied etc. in O(1) time, regardless of size of container it points to
 - Views don't own the underlying container, so if container changes so does the view
-```c++
+```cpp
 #include <algorithm>
 #include <iostream>
 #include <ranges>
@@ -6740,7 +6740,7 @@ When reference count reaches 0, memory for that object is freed (or when last ow
 
 Though watch out for more overhead and potential for cycles (in this case, the reference count will never reach 0 even though the object is out of scope)
 
-```c++
+```cpp
 struct Knot {
     int val = 0;
     std::shared_ptr<Knot> next;
@@ -6758,7 +6758,7 @@ int main() {
 
 Whether or not a function should return `shared_ptr` or the underlying pointer depends on ownership semantics. If the function share ownership to caller, then `shared_ptr` is returned. If caller doesn't need ownership, return the underlying object, and callee must keep object alive. Returning underlying object also reduces overhead of pointer unpacking and not needing to change the reference count.
 
-```c++
+```cpp
 int main()
 {
     std::shared_ptr<Base> p = std::make_shared<Derived>();
@@ -6780,7 +6780,7 @@ int main()
 
 Interface for `make_shared`
 
-```c++
+```cpp
 template <class T, class... Args>
 shared_ptr<T> make_shared (Args&&... args);
 ```
@@ -6795,7 +6795,7 @@ shared_ptr<T> make_shared (Args&&... args);
 
 Like `shared_ptr` but only one object can claim ownership to it. When the `unique_ptr` object goes out of scope, the underlying object is destroyed and memory freed using `delete`. Object also deleted if `reset` is called or managing object is assigned another pointer with `=`
 
-```c++
+```cpp
 // Creating a unique ptr
 std::unique_ptr<T> ptr = std::make_unique<T>(obj);
 ```
@@ -6857,7 +6857,7 @@ Also this: https://github.com/fmtlib/fmt
 
 ### Absl::Time
 
-```c++
+```cpp
 absl::Time t = absl::FromUnixNanos(time_uint);
 std::cout << absl::FormatTime(t, absl::UTCTimeZone());
 ```
@@ -6903,7 +6903,7 @@ Assertions:
 - When assertion trips, GoogleTest prints  source file, line number location, and failure message
 - Custom failure message
 
-```c++
+```cpp
 ASSERT_EQ(x.size(), y.size()) << "Vectors x and y are of unequal length.";
 
 for (int i=0; i<x.size(); ++i) 
@@ -6935,7 +6935,7 @@ Common assertions: https://google.github.io/googletest/reference/assertions.html
 
 Simple tests:
 
-```c++
+```cpp
 TEST(TestSuiteName, TestName) {
     // Test body
 }
@@ -6947,7 +6947,7 @@ The test body is just the body of an ordinary C++ function, returning no value.
 
 Example
 
-```c++
+```cpp
 // Tests factorial of 0.
 TEST(FactorialTest, HandlesZeroInput) {
   EXPECT_EQ(Factorial(0), 1);
@@ -6968,7 +6968,7 @@ Test fixtures
 
 Test fixtures allow the same configuration to be used across tests (note, the objects are created before each test and destroyed after each test)
 
-```c++
+```cpp
 // Inherit from testing::Test 
 class QueueTest : public testing::Test {
  // Use protected so fields available to subclasses
@@ -6998,7 +6998,7 @@ class QueueTest : public testing::Test {
 
 To use the fixture, use the `TEST_F` function and pass in the fixture class name
 
-```c++
+```cpp
 TEST_F(TestFixtureClassName, TestName) {
   ... test body ...
 }
@@ -7008,7 +7008,7 @@ TEST_F(TestFixtureClassName, TestName) {
 
 main() function
 
-```c++
+```cpp
 #include "this/package/foo.h"
 
 #include <gtest/gtest.h>
@@ -7086,13 +7086,13 @@ int main(int argc, char **argv) {
 `BOOST_AUTO_TEST_CASE(testCaseName)`
 
 For floating pointer comparison
-```c++
+```cpp
 double TOL = 0.000'1; // Relative error
 BOOST_CHECK_CLOSE(actual, expected, TOL);
 ```
 
 To add information on which loop failed.
-```c++
+```cpp
 for (int i = 0; i < size; i++)
 {
     BOOST_CHECK_EQUAL(actual, expected);
