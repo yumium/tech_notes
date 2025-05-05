@@ -7109,6 +7109,59 @@ for (int i = 0; i < size; i++)
 ```
 
 
+## Miscellaneous
+
+#### std::nullptr_t
+
+This is the type of the null pointer literal `nullptr`. A simple use case is to state `nullptr` in types (e.g., `std::variant<int, std::nullptr> foo = nullptr;`.  The most common usecase is for function overload resolution
+
+```cpp
+template <typename T>
+class Foo
+{
+    Foo() { ... }
+    Foo(std::nullptr_t) { ... } // Constructor taking a nullptr
+    Foo(T* t) { ... }           // Constructor taking vald pointers
+
+    ...
+}
+```
+
+Consider the following illustrative example:
+
+```cpp
+#include <cstddef>
+#include <iostream>
+ 
+void f(int*) { ... }
+ 
+void f(double*) { ... }
+ 
+void f(std::nullptr_t) { ... }
+ 
+int main()
+{
+    int* pi{};
+    double* pd{};
+ 
+    f(pi);
+    f(pd);
+    f(nullptr); // would be ambiguous without void f(nullptr_t)
+    // f(0);    // ambiguous call: all three functions are candidates
+    // f(NULL); // ambiguous if NULL is an integral null pointer constant 
+                // (as is the case in most implementations)
+}
+```
+
+A word about `NULL`, this is a legacy construct from C, used as canonical way to represent nullptr. In C++ it is defined in header `<cstddef>` as
+
+```cpp
+#define NULL 0
+```
+
+
+
+
 ## To learn
 
 - 
