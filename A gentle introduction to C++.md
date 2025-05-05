@@ -3452,6 +3452,18 @@ MyClass& operator= (MyClass&&);  // move-assignment
 
 As a parameter, an *rvalue reference* matches arguments of temporaries of this type.
 
+Example of use
+
+```cpp
+Foo f1 (1);
+Foo f2 = std::move(f1); // move construct
+
+Foo get_foo()
+{
+    ...
+}
+f2 = get_foo(); // move assign (if not optimised out say with RVO)
+```
 
 
 
