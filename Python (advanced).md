@@ -1,4 +1,4 @@
-# Advanced Python
+# Python (advanced)
 
 Why Python in quant finance?
 - Useful for research, ML is Python heavy

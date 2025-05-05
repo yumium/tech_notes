@@ -1,4 +1,4 @@
-# A gentle introduction to Python 3
+# Python
 
 Python3 language reference: https://docs.python.org/3/reference/index.html#reference-index
 

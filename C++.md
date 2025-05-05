@@ -1,4 +1,4 @@
-# A gentle introduction to C++
+# C++
 
 To learn
 
