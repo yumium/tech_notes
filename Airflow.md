@@ -827,6 +827,12 @@ def print_ti_info(task_instance: TaskInstance, dag_run: DagRun):
 ```
 
 
+## TODO
+
+Understand how Airflow's scheduler works, and compare with Google's scheduler
+
+https://sre.google/sre-book/data-processing-pipelines/
+
 
 
 
