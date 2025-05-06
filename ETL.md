@@ -207,6 +207,28 @@ proper range, e.g., greater than zero?
 
 ### Recovery
 
+- Staging: staged data can also be used for recovery
+- Backfilling: useful when your data is corrupted or you need to rerun the pipeline. Keep your pipeline backfillable
+
+
+## Improving workflows
+
+### Start with relationships
+
+It's common for application developers to change some data schema without warning and break your pipeline. Below are some ways to help them not commit these issues
+
+- SLAs: usually provided by external vendors, also useful internally, doesn't need to be full blown just the essential expectations
+- Data contracts: popularised by dbt, basically some enforcement on metadata (column names, types). Agree on data schemas and other part of the data
+- APIs: another way to specify contract
+
+
+
+
+
+### Align incentives
+
+
+### Improve outcomes
 
 
 
