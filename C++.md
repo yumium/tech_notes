@@ -1355,7 +1355,7 @@ int z = y + 5; // y + 5 is an rvalue
 int &ref = y;  // ref is an lvalue reference to x
 ref = 20;      // x is now 20
 
-int &&rref = 10;  // rref is an rvalue reference to the temporary 10 - $$ how does && work?
+int &&rref = 10;  // rref is an rvalue reference to the temporary 10
 rref = 20;        // temporary 10 is now modified to 20
 ```
 
@@ -6889,7 +6889,9 @@ Use when defining move constructor and move assignment
 // Simple move constructor
 A(A&& arg) : member(std::move(arg.member)) // the expression "arg.member" is lvalue even though arg is an rvalue, so need to use std::move to call move assignment
 {}
- 
+// remember to check this is not called on the same object, if so just return as moving to itself is semantically a no-op
+// also remember the object moved from is left in a valid state
+
 // Simple move assignment operator
 A& operator=(A&& other)
 {
@@ -6903,7 +6905,17 @@ A& operator=(A&& other)
 
 #### std::forward
 
-Testing
+Note, `void take(T&& x)` here x is a regular rvalue reference. But if we include T as a template
+
+```cpp
+template <typename T>
+void take(T&& x) { ... }  // T here is a universal (forwarding) reference
+```
+
+Universal reference means this function can bind both lvalues and rvalues.
+
+
+
 
 
 #### std::swap
