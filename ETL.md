@@ -198,6 +198,14 @@ proper range, e.g., greater than zero?
 
 ## Errors
 
+### Error Handling
+
+- Conditional logic: useful to handle errors you can handle
+- Retry mechanisms: useful for automatically handling parts that you expect will fail sometime (e.g., HTTP request timeouts)
+- Pipeline decomposition: decomposiing keep errors more contained in smaller components
+- Alerting: reactive solving, be aware of alert fatigue
+
+### Recovery
 
 
 
