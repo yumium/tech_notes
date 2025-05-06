@@ -1379,7 +1379,6 @@ set_value_2(0);  // Not OK, initial value of references to non-const must be lva
 
 void set_value_3(const int& value) { }
 set_value_3(0);  // OK, not compiler under the hood will still allocate temporary storage for the value, just makes language cleaner
-// So many library
 
 std::string first_name = "Yuming";
 std::string last_name = "Zai";
@@ -1388,6 +1387,7 @@ std::string full_name = first_name + last_name;
 
 void print_name(const std::string& name) { ... }
 void print_name(std::string&& name) { ... }  // with this overload, rvalue arguments will be resolved to use this definition even though the previous definition is also valid
+// So const reference argument is more general, while && argument can be more efficient (with const reference you don't know if the argument is a lvalue or rvalue, so you can't do as much)
 ```
 
 The introduction of rvalue is to avoid compiler from always allocating memory. So values can, say, be stored in a register.
