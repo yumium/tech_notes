@@ -6840,6 +6840,60 @@ Observers:
 
 #### std::move
 
+std::move is used to indicate that an object t may be "moved from". This is used to "cast an lvalue expression to an rvalue expression".
+
+Overload resolution will then be able to use the move semantics overload over copy, though it is not always requried to do so.
+
+```cpp
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
+ 
+int main()
+{
+    std::string str = "Salut";
+    std::vector<std::string> v;
+
+    // "" literal creates an `const char[]` type, here decays to char* in function and will be copied
+    v.push_back("Salut");
+
+    // Temporary string, which will be moved as it's an rvalue
+    v.push_back(std::string("Salut"));
+
+    // uses the push_back(const T&) overload, which means
+    // we'll incur the cost of copying str
+    // this is wasteful if `str` is no longer needed after the push_back funcion
+    v.push_back(str);
+    std::cout << "After copy, str is " << std::quoted(str) << '\n';
+ 
+    // uses the rvalue reference push_back(T&&) overload,
+    // which means no strings will be copied; instead, the contents
+    // of str will be moved into the vector. This is less
+    // expensive, but also means str might now be empty.
+    v.push_back(std::move(str));
+    std::cout << "After move, str is " << std::quoted(str) << '\n';
+ 
+    std::cout << "The contents of the vector are {" << std::quoted(v[0])
+              << ", " << std::quoted(v[1]) << "}\n";
+}
+```
+
+Use when defining move constructor and move assignment
+
+```cpp
+// Simple move constructor
+A(A&& arg) : member(std::move(arg.member)) // the expression "arg.member" is lvalue even though arg is an rvalue, so need to use std::move to call move assignment
+{}
+ 
+// Simple move assignment operator
+A& operator=(A&& other)
+{
+    member = std::move(other.member); // need std::move as otherwise will use copy assignment
+    return *this;
+}
+```
 
 
 
