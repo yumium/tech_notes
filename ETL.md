@@ -147,6 +147,16 @@ Options:
 
 
 
+# Pipeline Issues and Troubleshooting
+
+Some desire properties of good pipelines
+
+- Are easy to maintain and extend—that is, allow for quick error triage and new feature development
+- Provide automated ways to handle errors in real time and recover from failure
+- Incorporate a framework for improvement based on learning and experience
+
+
+
 
 # Misc
 
