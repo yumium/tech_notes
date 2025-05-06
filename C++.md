@@ -1346,6 +1346,7 @@ When we say a variable, process etc. "owns" memory, we mean they are responsible
 ### lvalue vs rvalue
 
 lvalue: (locator value), which must have address in memory, can appear on LHS
+
 rvalue: (right value), does not have address in memory, cannot appear on LHS
 
 ```cpp
@@ -1359,7 +1360,38 @@ int &&rref = 10;  // rref is an rvalue reference to the temporary 10
 rref = 20;        // temporary 10 is now modified to 20
 ```
 
+```cpp
+// More examples
+int& get_value() {
+  static int i = 0;
+  return i;
+}
+get_value() = 1; // OK
+
+int get_value_2() { return 0; }
+get_value_2() = 1; // Not OK, assignment can only be done to a non-const lvalue
+
+void set_value(int value) { }
+set_value(0);  // OK, can take rvalue
+
+void set_value_2(int& value) { }
+set_value_2(0);  // Not OK, initial value of references to non-const must be lvalues
+
+void set_value_3(const int& value) { }
+set_value_3(0);  // OK, not compiler under the hood will still allocate temporary storage for the value, just makes language cleaner
+// So many library
+
+std::string first_name = "Yuming";
+std::string last_name = "Zai";
+std::string full_name = first_name + last_name;
+// In block above, all variables on LHS is lvalue, all variables on RHS is rvalue (incl. `first_name + last_name`)
+
+void print_name(const std::string& name) { ... }
+void print_name(std::string&& name) { ... }  // with this overload, rvalue arguments will be resolved to use this definition even though the previous definition is also valid
+```
+
 The introduction of rvalue is to avoid compiler from always allocating memory. So values can, say, be stored in a register.
+
 The introduction of rvalue references which allows resources to be moved rather than copied
 
 ```cpp
