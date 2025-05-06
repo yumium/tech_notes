@@ -6842,7 +6842,7 @@ Observers:
 
 std::move is used to indicate that an object t may be "moved from". This is used to "cast an lvalue expression to an rvalue expression".
 
-Overload resolution will then be able to use the move semantics overload over copy, though it is not always requried to do so.
+Overload resolution will then be able to use the move semantics overload over copy, though it is not requried to do so.
 
 ```cpp
 #include <iomanip>
@@ -6861,6 +6861,9 @@ int main()
 
     // Temporary string, which will be moved as it's an rvalue
     v.push_back(std::string("Salut"));
+
+    // Moves, explicit cast to rvalue
+    v.push_back((std::string&&)str);
 
     // uses the push_back(const T&) overload, which means
     // we'll incur the cost of copying str
