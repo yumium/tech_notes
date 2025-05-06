@@ -157,6 +157,55 @@ Some desire properties of good pipelines
 
 
 
+## Maintainability
+
+Maintainability is important to consider as time spent maintaining a pipeline is a cost to your company.
+
+Similar to basic SaaS offering pitch: pay for "small" fees up front (direct cost) so your developer don't have to build it from scratch and maintain it (indirect cost)
+
+
+
+## Monitoring and Benchmarking
+
+
+### Metrics
+
+- Freshness: The timeliness and relevance of data in a system. It’s the measure of how up to date and current the data is compared with the real-world events it represents. Better freshness = more up-to-date analytics is done
+  - The length between the most recent timestamp (in your
+data) and the current timestamp
+  - The lag between source data and your dataset
+  - The refresh rate, e.g., by minute, hourly, daily
+  - Latency (the total time between when data is acquired and
+when it’s made available)
+- Volume: Large data = more difficulty in dealing with (e.g., efficient storage, quick retrieval, processing speed)
+- Quality: Quality involves ensuring that data is accurate, consistent, and reliable throughout its lifecycle. Think data quality checks at start of your data science projects
+  - Uniqueness: are there duplicate rows in your dataset?
+  - Completeness: how many nulls exist? Are they expected?
+  - Validity: is data consistently formatted? Does it exist in the
+proper range, e.g., greater than zero?
+
+
+### Methods of monitoring
+
+- Logging & Monitoring: write to logs that can be pulled up later
+- Lineage: have some way to track the entire pipeline where the current data come from, all the way to "source" ($$ check what lineage tools are out there)
+  - Which column -> From which table(s) -> From which version -> Of which pipeline -> From which source
+- Anomaly detection: a good way to detect issues that not easily obvious to a human (also good for detecting vendor issues)
+- Data diffs: diffs on data like software -> not used these tools much, sounds like a bad idea because we have many more magnitudes of data than code
+- Assertions: assertions on data output, you can be sure 100% data conforms to your spec, these are simpler to check than more generic "anomaly detections". Check out the `great expectations` library
+
+
+
+## Errors
+
+
+
+
+
+
+
+
+
 
 # Misc
 
