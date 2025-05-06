@@ -221,15 +221,7 @@ It's common for application developers to change some data schema without warnin
 - Data contracts: popularised by dbt, basically some enforcement on metadata (column names, types). Agree on data schemas and other part of the data
 - APIs: another way to specify contract
 
-
-
-
-
-### Align incentives
-
-
-### Improve outcomes
-
+Share a common understanding of expectations, agree on some metrics --- Number of incidents (N), Time to detection (TTD), Time to resolution (TTR), Data downtime (N × [TTD + TTR]), Cost; do blameless post-mortems; follow standard SRE procedures
 
 
 
