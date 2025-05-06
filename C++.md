@@ -6922,6 +6922,43 @@ Universal reference means this function can bind both lvalues and rvalues.
 
 
 
+#### std::exchange
+
+As part of `<utility>` header.
+
+Assigns object to new value and returns old object.
+
+```cpp
+template<class T, class U = T>
+T exchange(T& obj, U&& new_value);
+
+// old code
+auto temp = foo;
+foo = bar;
+bar = foo;
+
+// new code
+foo = std::exchange(bar, foo);
+```
+
+Possible implementation $$ understand this
+
+```cpp
+template<class T, class U = T>
+constexpr // Since C++20
+T exchange(T& obj, U&& new_value)
+    noexcept( // Since C++23
+        std::is_nothrow_move_constructible<T>::value &&
+        std::is_nothrow_assignable<T&, U>::value
+    )
+{
+    T old_value = std::move(obj);
+    obj = std::forward<U>(new_value);
+    return old_value;
+}
+```
+
+
 
 
 
@@ -7247,41 +7284,6 @@ A word about `NULL`, this is a legacy construct from C, used as canonical way to
 #define NULL 0
 ```
 
-#### std::exchange
-
-As part of `<utility>` header.
-
-Assigns object to new value and returns old object.
-
-```cpp
-template<class T, class U = T>
-T exchange(T& obj, U&& new_value);
-
-// old code
-auto temp = foo;
-foo = bar;
-bar = foo;
-
-// new code
-foo = std::exchange(bar, foo);
-```
-
-Possible implementation $$ understand this
-
-```cpp
-template<class T, class U = T>
-constexpr // Since C++20
-T exchange(T& obj, U&& new_value)
-    noexcept( // Since C++23
-        std::is_nothrow_move_constructible<T>::value &&
-        std::is_nothrow_assignable<T&, U>::value
-    )
-{
-    T old_value = std::move(obj);
-    obj = std::forward<U>(new_value);
-    return old_value;
-}
-```
 
 
 
