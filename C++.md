@@ -1372,6 +1372,7 @@ std::string createString() {
 std::string s = createString(); // s can "steal" the temporary string
 ```
 
+Without rvalues, when I need to pass an object to a function that will take ownership of that object, I have no choice but to first construct that object in my stack frame then copy that object in the argument section of the function call.
 
 
 
