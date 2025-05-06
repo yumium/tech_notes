@@ -6596,7 +6596,7 @@ Members
 - `std::holds_alternative<T>(u)`: returns if `u` holds the alternative `T`
 - `std::get<T/index>(u)`: return the underlying of `u`, throws error if the type `T` or type index `index` does not match the current type of variant
 - `std::get_if<T/index>(u)`: same as `get` but returns pointer to value, nullptr instead of error-ing
-- `std::index`: Returns the zero-based index of the alternative that is currently held by the variant.
+- `.index()`: Returns the zero-based index of the alternative that is currently held by the variant.
 
 
 
