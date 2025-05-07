@@ -6934,20 +6934,107 @@ Observers:
 
 
 
-#### std::move $$
+#### std::move
+
+std::move is used to indicate that an object `t` may be "moved from".
+
+The most basic use case is passing an object to a function. Normally copying will take place. But if we're passing ownership to the function, we can just move the object (imagine it's a large object on the heap).
+
+The functions that accept rvalue reference parameters (including move constructors, move assignment operators, and regular member functions such as std::vector::push_back) are selected, by overload resolution, when called with rvalue arguments.
+
+```cpp
+// Simple move constructor
+A(A&& arg) : member(std::move(arg.member)) // the expression "arg.member" is lvalue even if arg itself is an rvalue, here will then call the move constructor on member
+{}
+ 
+// Simple move assignment operator
+A& operator=(A&& other)
+{
+    member = std::move(other.member);  // again "other.member" is lvalue here, need to use std::move to call the move assignment on member
+    return *this;
+}
+```
 
 
 
+#### std::forward
+
+When t is a forwarding reference (a function argument that is declared as an rvalue reference to a cv-unqualified function template parameter), this overload forwards the argument to another function with the value category it had when passed to the calling function.
+
+```cpp
+void print_name(const std::string& name)
+{
+    std::cout << "[lvalue]" <<  name << std::endl;
+}
+
+void print_name(std::string&& name)
+{
+    std::cout << "[rvalue]" <<  name << std::endl;
+}
+
+template<class T>
+void wrapper(T&& arg)
+{
+    // arg is always lvalue, because any named variable is an lvalue, regardless of whether it was initialized from an rvalue or not
+    print_name(arg);  // uses lvalue
+    print_name(std::move(arg));  // always converts to rvalue
+    print_name(std::forward<T>(arg));  // uses value category of T
+}
+
+int main()
+{
+    std::string name = "Yuming";
+    wrapper(name);      // lvalue, rvalue, lvalue
+    wrapper("Yuming");  // lvalue, rvalue, rvalue
+}
+```
+
+value categories: https://en.cppreference.com/w/cpp/language/value_category
 
 
-#### std::forward $$
-
-Testing
 
 
 #### std::swap $$
 
 
+
+
+
+#### std::exchange
+
+As part of `<utility>` header.
+
+Assigns object to new value and returns old object.
+
+```cpp
+template<class T, class U = T>
+T exchange(T& obj, U&& new_value);
+
+// old code
+auto temp = foo;
+foo = bar;
+bar = foo;
+
+// new code
+foo = std::exchange(bar, foo);
+```
+
+Possible implementation $$ understand this
+
+```cpp
+template<class T, class U = T>
+constexpr // Since C++20
+T exchange(T& obj, U&& new_value)
+    noexcept( // Since C++23
+        std::is_nothrow_move_constructible<T>::value &&
+        std::is_nothrow_assignable<T&, U>::value
+    )
+{
+    T old_value = std::move(obj);
+    obj = std::forward<U>(new_value);
+    return old_value;
+}
+```
 
 
 
@@ -7272,42 +7359,6 @@ A word about `NULL`, this is a legacy construct from C, used as canonical way to
 
 ```cpp
 #define NULL 0
-```
-
-#### std::exchange
-
-As part of `<utility>` header.
-
-Assigns object to new value and returns old object.
-
-```cpp
-template<class T, class U = T>
-T exchange(T& obj, U&& new_value);
-
-// old code
-auto temp = foo;
-foo = bar;
-bar = foo;
-
-// new code
-foo = std::exchange(bar, foo);
-```
-
-Possible implementation $$ understand this
-
-```cpp
-template<class T, class U = T>
-constexpr // Since C++20
-T exchange(T& obj, U&& new_value)
-    noexcept( // Since C++23
-        std::is_nothrow_move_constructible<T>::value &&
-        std::is_nothrow_assignable<T&, U>::value
-    )
-{
-    T old_value = std::move(obj);
-    obj = std::forward<U>(new_value);
-    return old_value;
-}
 ```
 
 
