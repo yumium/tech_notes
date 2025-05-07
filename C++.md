@@ -1405,6 +1405,7 @@ When we say a variable, process etc. "owns" memory, we mean they are responsible
 ### lvalue vs rvalue
 
 lvalue: (locator value), which must have address in memory, can appear on LHS
+
 rvalue: (right value), does not have address in memory, cannot appear on LHS
 
 ```cpp
@@ -1419,6 +1420,7 @@ rref = 20;        // temporary 10 is now modified to 20
 ```
 
 The introduction of rvalue is to avoid compiler from always allocating memory. So values can, say, be stored in a register.
+
 The introduction of rvalue references which allows resources to be moved rather than copied
 
 ```cpp
@@ -1429,6 +1431,42 @@ std::string createString() {
     return "Hello, World!";
 }
 std::string s = createString(); // s can "steal" the temporary string
+```
+
+More interesting cases
+```cpp
+int& get_value()
+{
+    static int i = 10;
+    return i;
+}
+
+get_value() = 20;  // OK, assigning to an lvalue
+
+void set_value(int& i) { ... }
+void set_value_c(const int& i) { ... }
+
+set_value(10);  // not OK, cannot assign rvalue to non-const reference
+set_value_c(10);  // OK, this is just a shorthand, compiler will allocate temporary  storage for the object passed as argument
+// so functions taking const reference is more flexible to use, though it leaves less room for optimisation as we don't know whether we can steal the argument or not
+
+std::string first_name = "Yuming";
+std::string last_name = "Zai";
+std::string full_name = first_name + last_name;
+// All LHS here are lvalues
+// All RHS here are rvalues, `first_name + last_name` is rvalue
+
+void print_name(const std::string& name)
+{
+    std::cout << "[lvalue]" <<  name << std::endl;
+}
+
+void print_name(std::string&& name)
+{
+    std::cout << "[rvalue]" <<  name << std::endl;
+}
+
+print_name("Yuming"); // picks rvalue one, uses more specific overload even when both overloads are compatible
 ```
 
 
@@ -1768,7 +1806,7 @@ Reason: Using “unusual and clever” techniques causes surprises, slows unders
 
 `f(X&)`: In/out, could be expensive to move, so modify directly via reference
 
-`f(X)`: In, cheap or impossible to copy (e.g., int, unique_ptr) $$
+`f(X)`: In, cheap or impossible to copy (e.g., int, unique_ptr)
 
 `f(const X&)`: In, expensive to move
 
@@ -2256,7 +2294,7 @@ In modern c++ you should really use `string_view` as argument type rather than `
 
 ​	(for `const string&` the code needs to first need to unpack reference to the string object, then unpack reference othe char* array inside the object)
 
-This change should be simple as `std::string` has a conversion function to `string_view`
+This change should be simple as `std::string` has a conversion function to `string_view` (via std::string::operator string_view)
 
 ```cpp
 int get_len(string_view s)
@@ -2264,7 +2302,7 @@ int get_len(string_view s)
 	return s.size();
 }
 
-std::cout << get_len("ABC") << std::endl; $$ check this works
+std::cout << get_len("ABC") << std::endl;
 ```
 
 
