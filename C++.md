@@ -46,7 +46,71 @@ Problems C++ tries to solve over C (so you should focus on these first)
 - std::duque
 - CPP implementations for the 3 types, maybe write them but low priority
 
+Feedback on missing coverage for SMFT
 
+- Concurrency primitives
+- AsyncIO primitives
+- Type traits `std::is_same`, `std::is_arithmetic`
+- `std::aligned_storage`
+- Use of RAII elsewhere (mutexes, look at RAII usage with OrderLockGuard)
+- Compiler flags "(-Wall -Wextra -O2 -g, etc.)"
+
+
+
+Feedback on missing coverage for HFT:
+
+🧠 Memory Management & Layout
+
+- Custom memory allocators (pool, arena, monotonic)
+- Placement new / aligned new
+- std::pmr (polymorphic memory resource)
+- Memory alignment and padding (alignas, alignof)
+- Cache-line optimization (false sharing prevention)
+- NUMA-awareness (non-uniform memory access)
+
+⚙️ Concurrency & Lock-Free Programming
+- std::atomic, memory orderings (relaxed, acquire, release, seq_cst)
+- Lock-free queues, ring buffers, and freelists
+- Spinlocks and busy-wait strategies
+- Hazard pointers
+- Read-Copy-Update (RCU) mechanisms
+- Fences and memory barriers (std::atomic_thread_fence)
+
+🧵 Thread Management & Real-Time Control
+- Thread pinning / CPU affinity (sched_setaffinity, pthread_setaffinity_np)
+- Real-time OS tuning (e.g., isolcpus, nohz_full, rtprio)
+- Real-time scheduling policies (SCHED_FIFO, SCHED_RR)
+- Thread priority management
+- Measuring and reducing context-switch latency
+
+⏱️ High-Precision Timing
+- rdtsc, rdtscp and timestamp counter calibration
+- Nanosecond-level timers (clock_gettime with CLOCK_MONOTONIC_RAW)
+- Latency benchmarking and histogramming tools
+- Using cycle counters for profiling (CPU cycle precision)
+
+🧬 Low-Level Performance & Tuning
+- SIMD with intrinsics (SSE, AVX, AVX-512 via <immintrin.h>)
+- Inline assembly for critical paths
+- Branch prediction hints ([[likely]], [[unlikely]])
+- Loop unrolling and instruction pipelining strategies
+- Compiler flags for performance:
+- -march=native, -flto, -fno-rtti, -fno-exceptions
+- -fvisibility=hidden, -fomit-frame-pointer
+
+🌐 Networking (Kernel Bypass & Market Data)
+- Kernel-bypass networking (DPDK, Solarflare/OpenOnload, Netmap)
+- AF_XDP sockets
+- Multicast UDP optimization (e.g., SO_REUSEPORT, SO_BUSY_POLL)
+- TCP tuning (TCP_NODELAY, socket buffer tuning)
+- Zero-copy networking (sendfile, mmap, splice)
+
+🛠️ Binary Introspection & Build
+- ELF tools: objdump, nm, readelf, strip, ldd
+- Linker scripts and section tuning
+- Profilers: perf, gprof, gperftools
+- Symbol visibility and binary layout analysis
+- Build tuning for minimal runtime & fast startup
 
 
 
