@@ -2,6 +2,10 @@
 
 # Creational patterns
 
+Additional guides
+
+- IP3 OOP
+- Is-A relationship
 
 ## Factory method
 
