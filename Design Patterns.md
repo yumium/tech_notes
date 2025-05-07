@@ -273,53 +273,17 @@ class IPhoneAdapter(FormatAndroid):
 
 
 
-
-
-Pattern name, the common problem, the general approach/solution, the consequences (side effects)
-
-#### Iteration
+### Iterator
 
 A unified way to easily iterate element by element through any class that's a "collection"
 
 Use `iterator` method to get an iterator object from the collection, then use `hasNext` and `next` to iterate through the iterator.
 
-The C++ implementation is more flexible (iteration becomes indexing memory location), but harder to use.
+Used extensively in C++
 
 
 
-#### Observers
-
-Having update code after every code that refreshes a status is ugly. Let's automate this process
-
-```scala
-trait Observable[T] { this: T =>
-    val observers = new ArrayBuffer[Observable.Observer[T]]
-    
-    def addObserver(observer: Observable.Observer[T]) observers.append(observer)
-   
-    def notifyObserver() {
-        for (o <- observers) o.refresh(this)
-    }
-}
-
-object Observable {
-    trait Observer[T] {
-        def refresh(subject: T)
-    }
-}
-```
-
-To make an object of type T observable, you mix in the Observable[T] trait in the object's class.
-
-The object will then have an internal list of observers to itself, and a function `notifyObserver` that can be called whenever you want the observers to be notified after the object's internal state is updated. This is much better to write than writing out all the refresh procedures for all observers.
-
-All Observer[T] must have a `refresh` function defined that takes in the object as an argument. It's quite neat to have the trait inside a companion object like that.
-
-This introduces loose coupling, so changing the refresh behavior doesn't have ripples, and the observable object doesn't know what the observers will do with `refresh`.
-
-
-
-#### Model View Controller
+### Model View Controller
 
 Model: Internal data
 
@@ -327,39 +291,10 @@ View: A mapping of internal data to display. There can be multiple views from th
 
 Controller: Processing input, updating model from input, and refreshing the view
 
-Diagram:
 
 
 
-
-
-
-
-
-
-
-
-##### Aside: Anonymous classes:
-
-```scala
-new MainFrame {
-    contents = new Lable("Hello IP3")
-}
-```
-
-Create a new class with auto-generated name, extending from class MainFrame (you can also extend from trait or abstract class), overriding contents in the {...}, then immediately instantiating an object, which is tagged by the variable name.
-
-
-
-##### More aside:
-
-CRC cards and how to design a GUI see the Programming Good Practice guide
-
-
-
-
-
-#### Command
+### Command
 
 We don't want to associate each keypress with direct method calls that change the model.
 
@@ -390,7 +325,7 @@ There are 4 players:
 
 
 
-#### Change
+### Change
 
 When you want to undo or redo things, it might be good to encapsulate a change into an object
 
@@ -403,7 +338,7 @@ trait Change {
 
 
 
-#### Memento
+### Memento
 
 Your "originator" changes relatively continuously. During discrete times it can generate a memento that stores all of its internal state at that time. The memento can be invoked to restore the state of the originator to that time, sort of like git commits.
 
