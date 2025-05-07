@@ -30,29 +30,22 @@ Problems C++ tries to solve over C (so you should focus on these first)
 
 ### TODO
 
-- [x] Program building (page 15)
-  - [x] Find the line where I talk about difference between #include <source> vs #include "source"
-
 - [ ] cpp core guidelines (prioritise the ones in the appendix)
   - [ ] Chapter 3 (page 43)
-- [x] `std::variant` - safer and easier to use than union
 - [ ] asynchronous I/O (`std::future`, `std::promise`)
-- [x] `static_cast` vs `reinterpret_cast` (see in book)
-- [x] virtual and vtbl (page 70)
 - [ ] `std::swap` (page 89)
-- [ ] templates and concepts chapter
-- [x] I/O (the cpp STL is pretty horrible)
 - [ ] Concurrency chapter from tour of cpp book can be better explained in cpp concurrency in action book
-- [ ] Parameter unpacking
 - [ ] Ranges concept and ranges library
 - [ ] Customer allocators
-- [x] Pointer vs references
 - [ ] Inline specifier:
 - https://ryonaldteofilo.medium.com/inline-and-one-definition-rule-in-c-db760ec81fb2
 - https://en.cppreference.com/w/cpp/language/inline
 - Different from what you may think, about saying if multiple definitions of the same function appear in the same namespace (e.g., when you import .h in multiple .cpp files), telling compiler they are indeed the same function (no need to raise error).
+- Look at inheritance avoidance in cpp examples
+- Use of templates in b+
+- std::duque
+- CPP implementations for the 3 types, maybe write them but low priority
 
-- .cpp vs .h files
 
 
 
@@ -171,7 +164,7 @@ Different machines that can run C++ then write implementation that satisfies the
 
 ## Basics of C++
 
-### **Compilation process**
+### Compilation process
 
 Interfaces are represented in cpp via declarations
 
@@ -277,7 +270,7 @@ Note, an executable program is created for a specific hardware. The executable c
 
 
 
-#### **Preprocessor definitions**
+#### Preprocessor definitions
 
 
 
@@ -602,6 +595,8 @@ int main()
 
 #### Non standards
 
+$$ Look at other non-standards used in BF (inlining, branch prediction)
+
 **pragma once**
 
 A non-standard that is implemented in most compiler. If added to a file, it is only included in the first include, all subsequent include on the same file is ignored.
@@ -750,7 +745,7 @@ for (int i = 0; i < arr.size(); i++)
 
 
 
-#### **Variable declarations**
+#### Variable declarations
 
 ```cpp
 int a;
@@ -844,7 +839,7 @@ auto nor = test::order_request({.symbol = "AAPL", .quantity = 100});
 
 ### Constants
 
-#### **Literals**
+#### Literals
 
 ```cpp
 // Integer Numerals
@@ -885,7 +880,7 @@ int* p = nullptr;
 
 
 
-#### **Escapes for special characters**
+#### Escapes for special characters
 
 | Escape code | Description           |
 | ----------- | --------------------- |
@@ -903,7 +898,7 @@ int* p = nullptr;
 
 
 
-#### **Defining constants**
+#### Defining constants
 
 Sometimes it's convenient to give a constant a name, instead of writing out that constant everywhere
 
@@ -1346,7 +1341,6 @@ When we say a variable, process etc. "owns" memory, we mean they are responsible
 ### lvalue vs rvalue
 
 lvalue: (locator value), which must have address in memory, can appear on LHS
-
 rvalue: (right value), does not have address in memory, cannot appear on LHS
 
 ```cpp
@@ -1356,42 +1350,11 @@ int z = y + 5; // y + 5 is an rvalue
 int &ref = y;  // ref is an lvalue reference to x
 ref = 20;      // x is now 20
 
-int &&rref = 10;  // rref is an rvalue reference to the temporary 10
+int &&rref = 10;  // rref is an rvalue reference to the temporary 10 - $$ how does && work?
 rref = 20;        // temporary 10 is now modified to 20
 ```
 
-```cpp
-// More examples
-int& get_value() {
-  static int i = 0;
-  return i;
-}
-get_value() = 1; // OK
-
-int get_value_2() { return 0; }
-get_value_2() = 1; // Not OK, assignment can only be done to a non-const lvalue
-
-void set_value(int value) { }
-set_value(0);  // OK, can take rvalue
-
-void set_value_2(int& value) { }
-set_value_2(0);  // Not OK, initial value of references to non-const must be lvalues
-
-void set_value_3(const int& value) { }
-set_value_3(0);  // OK, not compiler under the hood will still allocate temporary storage for the value, just makes language cleaner
-
-std::string first_name = "Yuming";
-std::string last_name = "Zai";
-std::string full_name = first_name + last_name;
-// In block above, all variables on LHS is lvalue, all variables on RHS is rvalue (incl. `first_name + last_name`)
-
-void print_name(const std::string& name) { ... }
-void print_name(std::string&& name) { ... }  // with this overload, rvalue arguments will be resolved to use this definition even though the previous definition is also valid
-// So const reference argument is more general, while && argument can be more efficient (with const reference you don't know if the argument is a lvalue or rvalue, so you can't do as much)
-```
-
 The introduction of rvalue is to avoid compiler from always allocating memory. So values can, say, be stored in a register.
-
 The introduction of rvalue references which allows resources to be moved rather than copied
 
 ```cpp
@@ -1404,7 +1367,6 @@ std::string createString() {
 std::string s = createString(); // s can "steal" the temporary string
 ```
 
-Without rvalues, when I need to pass an object to a function that will take ownership of that object, I have no choice but to first construct that object in my stack frame then copy that object in the argument section of the function call.
 
 
 
@@ -2523,7 +2485,7 @@ Structs vs. Class: The two constructs are identical in C++ except that in struct
 
 
 
-### **Type aliases**
+### Type aliases
 
 ```cpp
 // typedef existing_type new_type_name
@@ -2554,7 +2516,7 @@ One use of type aliases is to have a easy way to switch, say between `int` and `
 
 
 
-### **Unions**
+### Unions
 
 Syntactically like `struct`, but all members occupy the same space. So a union's size is that of its largest variant
 
@@ -2594,7 +2556,7 @@ In modern C++, prefer `std::variant` over `union` for more safety
 
 
 
-### **Anonymous unions**
+### Anonymous unions
 
 You can define union inside a `struct` and not giving it a name, which omits the union name during use.
 
@@ -2627,7 +2589,7 @@ cout << book2.dollars;
 
 
 
-### **Enumerated types (enum)**
+### Enumerated types (enum)
 
 A list of values what can be passed around and compared. These values are implicitly converted to `int` underlying. Enums make your code more readable and less error prone by giving it names, during compilation only ints are passed.
 
@@ -5362,7 +5324,7 @@ The following four specific casting operators control this behaviour.
 
 
 
-
+$$ Better understand these casting types
 
 **dynamic_cast**
 
@@ -6629,7 +6591,7 @@ Members
 - `std::holds_alternative<T>(u)`: returns if `u` holds the alternative `T`
 - `std::get<T/index>(u)`: return the underlying of `u`, throws error if the type `T` or type index `index` does not match the current type of variant
 - `std::get_if<T/index>(u)`: same as `get` but returns pointer to value, nullptr instead of error-ing
-- `.index()`: Returns the zero-based index of the alternative that is currently held by the variant.
+- `std::index`: Returns the zero-based index of the alternative that is currently held by the variant.
 
 
 
@@ -6777,7 +6739,7 @@ The algorithms library defines functions for a variety of purposes (e.g. searchi
 
 
 
-### Utility $$
+### Utility
 
 #### std::shared_ptr
 
@@ -6864,131 +6826,25 @@ Observers:
 
 
 
-#### std::weak_ptr
+#### std::weak_ptr $$
 
 
 
 
 
-#### std::move
-
-std::move is used to indicate that an object t may be "moved from". This is used to "cast an lvalue expression to an rvalue expression".
-
-Overload resolution will then be able to use the move semantics overload over copy, though it is not requried to do so.
-
-```cpp
-#include <iomanip>
-#include <iostream>
-#include <string>
-#include <utility>
-#include <vector>
- 
-int main()
-{
-    std::string str = "Salut";
-    std::vector<std::string> v;
-
-    // "" literal creates an `const char[]` type, here decays to char* in function and will be copied
-    v.push_back("Salut");
-
-    // Temporary string, which will be moved as it's an rvalue
-    v.push_back(std::string("Salut"));
-
-    // Moves, explicit cast to rvalue
-    v.push_back((std::string&&)str);
-
-    // uses the push_back(const T&) overload, which means
-    // we'll incur the cost of copying str
-    // this is wasteful if `str` is no longer needed after the push_back funcion
-    v.push_back(str);
-    std::cout << "After copy, str is " << std::quoted(str) << '\n';
- 
-    // uses the rvalue reference push_back(T&&) overload,
-    // which means no strings will be copied; instead, the contents
-    // of str will be moved into the vector. This is less
-    // expensive, but also means str might now be empty.
-    v.push_back(std::move(str));
-    std::cout << "After move, str is " << std::quoted(str) << '\n';
- 
-    std::cout << "The contents of the vector are {" << std::quoted(v[0])
-              << ", " << std::quoted(v[1]) << "}\n";
-}
-```
-
-Use when defining move constructor and move assignment
-
-```cpp
-// Simple move constructor
-A(A&& arg) : member(std::move(arg.member)) // the expression "arg.member" is lvalue even though arg is an rvalue, so need to use std::move to call move assignment
-{}
-// remember to check this is not called on the same object, if so just return as moving to itself is semantically a no-op
-// also remember the object moved from is left in a valid state
-
-// Simple move assignment operator
-A& operator=(A&& other)
-{
-    member = std::move(other.member); // need std::move as otherwise will use copy assignment
-    return *this;
-}
-```
-
-
-
-
-#### std::forward
-
-Note, `void take(T&& x)` here x is a regular rvalue reference. But if we include T as a template
-
-```cpp
-template <typename T>
-void take(T&& x) { ... }  // T here is a universal (forwarding) reference
-```
-
-Universal reference means this function can bind both lvalues and rvalues.
+#### std::move $$
 
 
 
 
 
-#### std::swap
+#### std::forward $$
+
+Testing
 
 
+#### std::swap $$
 
-#### std::exchange
-
-As part of `<utility>` header.
-
-Assigns object to new value and returns old object.
-
-```cpp
-template<class T, class U = T>
-T exchange(T& obj, U&& new_value);
-
-// old code
-auto temp = foo;
-foo = bar;
-bar = foo;
-
-// new code
-foo = std::exchange(bar, foo);
-```
-
-Possible implementation $$ understand this
-
-```cpp
-template<class T, class U = T>
-constexpr // Since C++20
-T exchange(T& obj, U&& new_value)
-    noexcept( // Since C++23
-        std::is_nothrow_move_constructible<T>::value &&
-        std::is_nothrow_assignable<T&, U>::value
-    )
-{
-    T old_value = std::move(obj);
-    obj = std::forward<U>(new_value);
-    return old_value;
-}
-```
 
 
 
@@ -7316,12 +7172,42 @@ A word about `NULL`, this is a legacy construct from C, used as canonical way to
 #define NULL 0
 ```
 
+#### std::exchange
 
+As part of `<utility>` header.
 
+Assigns object to new value and returns old object.
 
-## To learn
+```cpp
+template<class T, class U = T>
+T exchange(T& obj, U&& new_value);
 
-- 
+// old code
+auto temp = foo;
+foo = bar;
+bar = foo;
+
+// new code
+foo = std::exchange(bar, foo);
+```
+
+Possible implementation $$ understand this
+
+```cpp
+template<class T, class U = T>
+constexpr // Since C++20
+T exchange(T& obj, U&& new_value)
+    noexcept( // Since C++23
+        std::is_nothrow_move_constructible<T>::value &&
+        std::is_nothrow_assignable<T&, U>::value
+    )
+{
+    T old_value = std::move(obj);
+    obj = std::forward<U>(new_value);
+    return old_value;
+}
+```
+
 
 
 
