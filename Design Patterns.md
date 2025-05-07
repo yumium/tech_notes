@@ -273,7 +273,7 @@ class IPhoneAdapter(FormatAndroid):
 
 
 
-### Iterator
+## Iterator
 
 A unified way to easily iterate element by element through any class that's a "collection"
 
@@ -283,7 +283,7 @@ Used extensively in C++
 
 
 
-### Model View Controller
+## Model View Controller
 
 Model: Internal data
 
@@ -294,7 +294,7 @@ Controller: Processing input, updating model from input, and refreshing the view
 
 
 
-### Command
+## Command
 
 We don't want to associate each keypress with direct method calls that change the model.
 
@@ -325,7 +325,7 @@ There are 4 players:
 
 
 
-### Change
+## Change
 
 When you want to undo or redo things, it might be good to encapsulate a change into an object
 
@@ -338,7 +338,7 @@ trait Change {
 
 
 
-### Memento
+## Memento
 
 Your "originator" changes relatively continuously. During discrete times it can generate a memento that stores all of its internal state at that time. The memento can be invoked to restore the state of the originator to that time, sort of like git commits.
 
