@@ -416,18 +416,3 @@ class Memento {
 ```
 
 Usually the memento class lives inside the originator class. This way, extracting the information about the originator is just accessing its internal data.
-
-
-
-#### Decorator
-
-Makes adding a <u>regular</u> change to multiple subtypes of a type easy. You don't need to manually change this for all subtypes.
-
-```scala
-class MyClassDecorator(private val toBeDecorated: MyClass, private val extraInfo: Any) extends MyClass {
-    ...	//regular changes
-}
-```
-
-This class will then do the regular changes to all subtypes of `MyClass`. You can make the changes just by instantiating `MyClassDecorator` with the object you want to decorate passed in as a perimeter.
-
