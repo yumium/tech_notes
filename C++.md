@@ -33,7 +33,7 @@ Problems C++ tries to solve over C (so you should focus on these first)
 - [ ] cpp core guidelines (prioritise the ones in the appendix)
   - [ ] Chapter 3 (page 43)
 - [ ] asynchronous I/O (`std::future`, `std::promise`)
-- [ ] `std::swap` (page 89)
+- [X] `std::swap` (page 89)
 - [ ] Concurrency chapter from tour of cpp book can be better explained in cpp concurrency in action book
 - [ ] Ranges concept and ranges library
 - [ ] Customer allocators
@@ -6994,7 +6994,26 @@ value categories: https://en.cppreference.com/w/cpp/language/value_category
 
 
 
-#### std::swap $$
+#### std::swap
+
+Swaps between 2 values, typically does 3 moves
+
+```cpp
+int i = 3;
+int j = 4;
+std::swap(i, j);
+// i = 4
+// j = 3
+```
+
+Both values must be non-cost references. This is unlike `std::exchange`, which can take lvalue and rvalue for second argument, and tries to move if possible using `std::forward`
+
+```cpp
+std::string s = "Hello";
+std::swap(s, std::string("World")); // not OK, second argument cannot be converted to non-const reference
+
+std::string t = std::exchange(s, std::string("World"));  // OK, "World" is perfectly forwarded to s
+```
 
 
 
