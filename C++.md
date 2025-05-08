@@ -6954,14 +6954,15 @@ int main()
 
 ```
 
-obj.lock() gives shared_ptr
--> still has RAII
--> .expired() is not thread safe
--> .use_count()
+Main methods:
 
+- `obj.lock()`: returns a std::shared_ptr of that type, as we'll now need strong reference to use it. If underlying object is deleted, returns an empty shared_ptr
+- `obj.expired()`: checks and return whether underlying object is deletd or not
+- `obj.use_count()`: returns the number of shared_ptr objects that manage the object
 
 
 Avoiding cyclic dependency
+
 ```cpp
 struct B;
 struct A
@@ -7013,9 +7014,6 @@ class Observable
     private:
 	std::vector<std::weak_ptr<Observer>> observers;
 }
-
-
-
 
 ```
 
