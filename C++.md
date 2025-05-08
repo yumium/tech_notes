@@ -6914,6 +6914,110 @@ Observers:
 
 #### std::weak_ptr
 
+`std::unique_ptr` and `std::shared_ptr` are called strong references or owning references, as they have the intent of keeping the underlying reference alive.
+
+On the other hand `std::weak_ptr` does not own the underlying object. Even if the weak pointer object is alive, the underlying object can be deleted. Weak pointer provides some mechanism to safely check that pointer is deleted or not, usually done with a small control block (see reference implementation)
+
+$$ try running code below
+
+```cpp
+
+template <typename T>
+class Manager
+{
+    Manager(const std::shared_ptr<T>& p) : obj(p) { }
+
+    public:
+    	void foo()
+    	{
+	    if (std::shared_ptr<T>& o = obj.lock())
+	    {
+		// obj ->
+	    }
+	    else
+	    {
+		// something else
+	    }
+    	}
+
+    private:
+	std::weak_ptr<T> obj;
+}
+
+int main()
+{
+    auto* i = new int(8);
+    Manager manager(std::make_shared<int>(i));
+    delete i;
+    manager.foo();  // OK, will not access obj
+}
+
+```
+
+obj.lock() gives shared_ptr
+-> still has RAII
+-> .expired() is not thread safe
+-> .use_count()
+
+
+
+Avoiding cyclic dependency
+```cpp
+struct B;
+struct A
+{
+    std::shared_ptr<B> ptrB;
+    ~A() { std::cout << "A destroyed\n"; }
+}
+
+struct B
+{
+    std::shared_ptr<A> ptrA:
+    ~B() { std::cout << "B destroyed\n"; }
+}
+
+int main()
+{
+    auto a = std::make_shared<A>{};
+    auto b = std::make_shared<B>{};
+
+    a->ptrB = b;
+    b->ptrA = a;
+}
+// Destructors not called, as
+// This won't be issue if ptrA is type std::weak_ptr, as then ~A() called as `a` is out of scope, after ~B() is called because share_ptr to B inside A is destroyed
+// $$ check how weak_ptr is used for cycle detection in CPython garbage collector
+```
+
+
+Observers in the observers pattern can perhaps be better represented as weak pointers
+
+```cpp
+template <typename O>
+class Observable
+{
+    using Observer = O;
+
+    public:
+	void notify()
+	{
+	    for (auto& observer: observers)
+	    {
+		if (auto& o = observer.lock())
+		    o->notify(*this);
+		else
+		    _remove_observer(observer);
+	    }
+	}
+
+    private:
+	std::vector<std::weak_ptr<Observer>> observers;
+}
+
+
+
+
+```
 
 
 
