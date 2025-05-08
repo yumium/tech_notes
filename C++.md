@@ -1415,8 +1415,9 @@ int z = y + 5; // y + 5 is an rvalue
 int &ref = y;  // ref is an lvalue reference to x
 ref = 20;      // x is now 20
 
-int &&rref = 10;  // rref is an rvalue reference to the temporary 10 - $$ how does && work?
+int &&rref = 10;  // rref is an rvalue reference to the temporary 10, 10 now binds to lifetime of rref
 rref = 20;        // temporary 10 is now modified to 20
+// value 20 is destroyed when rref goes out of scope
 ```
 
 The introduction of rvalue is to avoid compiler from always allocating memory. So values can, say, be stored in a register.
@@ -5232,12 +5233,7 @@ https://dl.acm.org/doi/fullHtml/10.1145/332148.332155#:~:text=Casts%20are%20used
 
 
 
-**Implicit conversions** $$
-
-https://en.cppreference.com/w/cpp/language/implicit_conversion
-
-Read more also on static_cast etc. from standard
-
+**Implicit conversions**
 
 
 Standard conversion (conversion between compatible types without explicit operator)
@@ -5268,6 +5264,7 @@ Some conversion rules for other types
 - Pointers of any type can be converted to void pointers
 
 
+More implicit conversions: https://en.cppreference.com/w/cpp/language/implicit_conversion
 
 
 
@@ -5335,8 +5332,6 @@ Arithematic operator conversion rule:
 
 Normally, when a variable of type `A` is used as the argument for a function that takes a type `B`, implicit conversion is done between the types before the function is called. This may not always be what we want. Say in the case of implicit single-argument constructors in classes.
 
-
-
 We use the `explicit` keyword to make implicit conversion of argument parameters invalid.
 
 ```cpp
@@ -5372,11 +5367,7 @@ Additionally, constructors marked with `explicit` cannot be called with assignme
 
 `explicit` keyword before type-cast operators presents implicit conversions.
 
-
-
 Basically, `explicit` keyword makes sure the arguments need to be explicitly converted before being passed into the function.
-
-
 
 
 
@@ -5426,7 +5417,6 @@ The following four specific casting operators control this behaviour.
 
 
 
-$$ Better understand these casting types
 
 **dynamic_cast**
 
@@ -6603,9 +6593,6 @@ double foo();
 std::pair<T, bool> foo();
 ```
 
-$$ implement the internals
-
-
 
 #### std::variant
 
@@ -6697,10 +6684,7 @@ Members
 
 
 
-
-
-
-#### std::ranges $$
+#### std::ranges
 
 https://ericniebler.github.io/std/wg21/D4128.html#motivation-and-scope
 
@@ -6928,7 +6912,7 @@ Observers:
 
 
 
-#### std::weak_ptr $$
+#### std::weak_ptr
 
 
 
@@ -7038,7 +7022,7 @@ bar = foo;
 foo = std::exchange(bar, foo);
 ```
 
-Possible implementation $$ understand this
+Possible implementation
 
 ```cpp
 template<class T, class U = T>
@@ -7049,8 +7033,8 @@ T exchange(T& obj, U&& new_value)
         std::is_nothrow_assignable<T&, U>::value
     )
 {
-    T old_value = std::move(obj);
-    obj = std::forward<U>(new_value);
+    T old_value = std::move(obj);  // old_value as rvalue as it can be moved (no longer needed by obj
+    obj = std::forward<U>(new_value);  // uses std::forward to move to `obj` if possible
     return old_value;
 }
 ```
