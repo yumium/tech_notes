@@ -30,6 +30,7 @@ Problems C++ tries to solve over C (so you should focus on these first)
 
 ### TODO
 
+- [ ] What really is a nullptr? How does the compiled code check if a pointer is a nullptr? Does it just hold the value 0? (https://www.youtube.com/watch?v=yKT_Rwx4lsQ)
 - [ ] cpp core guidelines (prioritise the ones in the appendix)
   - [ ] Chapter 3 (page 43)
 - [ ] asynchronous I/O (`std::future`, `std::promise`)
