@@ -30,22 +30,23 @@ Problems C++ tries to solve over C (so you should focus on these first)
 
 ### TODO
 
-- [ ] What really is a nullptr? How does the compiled code check if a pointer is a nullptr? Does it just hold the value 0? (https://www.youtube.com/watch?v=yKT_Rwx4lsQ)
+- [x] What really is a nullptr? How does the compiled code check if a pointer is a nullptr? Does it just hold the value 0? (https://www.youtube.com/watch?v=yKT_Rwx4lsQ)
+- [ ] Compiler flags: Also good to look at ./releast build sh what cpp version used and flags
 - [ ] cpp core guidelines (prioritise the ones in the appendix)
   - [ ] Chapter 3 (page 43)
 - [ ] asynchronous I/O (`std::future`, `std::promise`)
 - [X] `std::swap` (page 89)
 - [ ] Concurrency chapter from tour of cpp book can be better explained in cpp concurrency in action book
-- [ ] Ranges concept and ranges library
+- [x] Ranges concept and ranges library
 - [ ] Customer allocators
-- [ ] Inline specifier:
-- https://ryonaldteofilo.medium.com/inline-and-one-definition-rule-in-c-db760ec81fb2
-- https://en.cppreference.com/w/cpp/language/inline
-- Different from what you may think, about saying if multiple definitions of the same function appear in the same namespace (e.g., when you import .h in multiple .cpp files), telling compiler they are indeed the same function (no need to raise error).
+- [x] Inline specifier:
 - Look at inheritance avoidance in cpp examples
 - Use of templates in b+
-- std::duque
+- [x] std::duque
 - CPP implementations for the 3 types, maybe write them but low priority
+- Other random pieces:
+  - always_inline performance: https://indico.cern.ch/event/386232/sessions/159923/attachments/771039/1057534/always_inline_performance.pdf
+  - More on constexpr: https://www.youtube.com/watch?v=MdrfPSUtMVM
 
 Feedback on missing coverage for SMFT
 
@@ -55,7 +56,6 @@ Feedback on missing coverage for SMFT
 - `std::aligned_storage`
 - Use of RAII elsewhere (mutexes, look at RAII usage with OrderLockGuard)
 - Compiler flags "(-Wall -Wextra -O2 -g, etc.)"
-
 
 
 Feedback on missing coverage for HFT:
@@ -1920,7 +1920,6 @@ Reason: Using “unusual and clever” techniques causes surprises, slows unders
 
 
 
-
 #### Structured binding
 
 Generally speaking, we can use structured binding for `std::tuple`, `std::array`, and `struct`/`class` with public members
@@ -1941,6 +1940,59 @@ Entry read_entry(std::vector<std::string>& names, std::vector<int>& ages, int ui
 auto [n, a] = read_entry(names, ages, 5);
 ```
 
+#### Inline specifier
+
+ODR: one definition rule: A symbol can only be defined once across translation units (translation unit = .cpp file after pre-processing is done)
+
+If a function is an inline function, that function can be defined many times across translation units (though each TU can only have symbol defined once)
+
+Note, a function defined entirely inside a class/struct/union definition, whether it's a member function or a non-member friend function, is implicitly an inline function. Example:
+
+Header "example.h":
+
+```cpp
+#ifndef EXAMPLE_H
+#define EXAMPLE_H
+ 
+#include <atomic>
+ 
+// function included in multiple source files must be inline
+inline int sum(int a, int b)
+{
+    return a + b;
+}
+ 
+// variable with external linkage included in multiple source files must be inline
+inline std::atomic<int> counter(0);
+#endif
+```
+
+Source file #1:
+
+```cpp
+#include "example.h"
+ 
+int a()
+{
+    ++counter;
+    return sum(1, 2);
+}
+```
+
+Source file #2:
+
+```cpp
+#include "example.h"
+ 
+int b()
+{
+    ++counter;
+    return sum(3, 4);
+}
+
+```
+
+Here #include will define `sum` and `counter`, without inlining we’ll have it defined 3 times, once on each file
 
 
 
@@ -5881,6 +5933,275 @@ Have a look at bf::alert and see how it is implemented
 
 
 
+## Ranges
+
+Ranges abstraction
+
+Built on top of iterations
+
+Some benefits:
+- Reduce needing to spell out .begin() and .end()
+- Views & algo composability (can’t do before)
+- New algorithms
+
+Concepts:
+- Range: something that can be iterated over
+- Range algo: algorithms that take range
+  - std::ranges
+- View: lazy range that’s cheap (to copy)
+- Range adaptor: make a range into a view
+  - std::ranges::views
+  - std::views = std::ranges::views (shortcut)
+
+What’s a range?
+- An iterator pair
+- Technically an iterator and a sentinel
+- Sentinel and iterator can be different types ($$)
+
+Examples of ranges:
+- Std things
+  - Containers: array, vector, map, set, list
+  - Container adaptors: queue, stack, priority_queue
+  - Strings: string and string_view (becomes a range of characters)
+  - Span, mdspan
+- Many libraries outside std
+  - Boost::flat_map
+
+
+```cpp
+boost::flat_map<string, int> fm;
+fm["hello"] = 1;
+fm["world"] = 2;
+
+std::print("{}\n", fm);  // {"hello": 1, "world": 2}
+
+for (auto [k, v] : std::ranges::reverse_view{fm})
+{
+    std::print("{}:{}\n", k, v);
+}
+//world:2
+//hello:1
+```
+
+
+Range algorithms are familiar -> Derived from STL algorithms 
+
+Ranges algorithms offer better return type than STL algo for some algos
+  - When you call an STL function there can be additional info as a result of running that algo, you don’t want to just discard that
+
+```cpp
+std::string path = "/foo/bar/baz";
+
+auto leaf = std::ranges::find_last(path, '/') // finds last occurance of / and creates a range starting from there
+                | std::views::drop(1);  // removes first element (ie. the '/')
+std::print("{}\n", std::string_view(leaf));  // baz
+```
+
+Note, here removing needing to state .begin() and .end() makes code more readable and less error prone (similar to how Haskell functions work with recursive data structures)
+
+Ranges are specified with concepts, so can be flexible on what objects can be taken for range algos
+
+- range: provides a begin iterator and a end sentinel
+- input_range: specifies that a range has InputIterator
+- ...
+
+Projection parameters -> filtering predicate without needing to write a combersome comparator function
+
+```cpp
+struct stuff = {
+    int idx = 0;
+    string s;
+}
+
+vector<stuff> stuffs = {{2, "foo"}, {1, "bar"}, {0, "baz"}};
+
+// lambda form
+ranges::sort(stuffs, std::less<>{}, [](auto const& iii) { return iii.idx; });
+
+// short form
+ranges::sort(stuffs, std::less<>{}, &stuff::idx );
+
+// cumbersome way using STL algorithms
+std::sort(stuffs.begin(), stuffs.end(), [](const stuff& a, const stuff& b) {
+    return a.idx < b.idx;
+});
+```
+
+
+Views are ranges with ‘lazy evaluation’
+- Non-owning of elements
+- All methods O(1) - copy and assignment
+- Allows for composition of several processing steps -> more declarative like Haskell
+- Allows for “infinite ranges”
+- Unlike algorithms that executes immediately, views are executed lazily
+
+```cpp
+int main() {
+    std::vector<int> vi{ 0, 1, 2, 3, 4, 5, 6 };
+    auto is_even = [](int i) { return 0 == i%2; };
+    ranges::filter_view evens{vi, is_even}; // no computation
+    
+    for (int i : evens)
+        std::cout << i << " "; // 0 2 4 6
+}
+```
+
+Range adaptors -> views from ranges using the pipe operator
+
+```cpp
+std::vector<int> vi { 0, 1, 2, 3, 4, 5, 6 };
+auto is_even = [](int i) { return 0 == i%2; };
+
+// view on stack with adaptor
+auto evens = vi | std::ranges::filter(is_even);
+
+for (int i: evens)
+    std::cout << i << " ";
+```
+
+Interesting views:
+
+Cartesian product
+
+```cpp
+/* output
+0 2
+0 3
+1 2
+1 3
+*/
+namespace rv = std::ranges::views;
+
+std::vector<int> v1{0, 1};
+std::vector<int> v2{2, 3};
+for (auto&& [a, b] : rv::cartesian_product(v1, v2)) // note cartesian_product uses a variadic template, so can take arbitrary # of elements
+    std::print("{} {}\n", a, b);
+```
+
+Chunk by
+
+```cpp
+std::vector v = {1, 2, 2, 3, 0, 4, 5, 2};
+// [[1, 2, 2, 3], [0, 4, 5], [2]]
+std::print("{}\n", v | std::views::chunk_by(ranges::less_equal{}));
+```
+
+Zip
+
+```cpp
+std::vector v1{1, 2};
+std::vector v2{'a', 'b', 'c'};
+std::vector v3{3, 4, 5};
+
+// {(1, 'a'), (2, 'b')}
+std::print("{}\n", std::views::zip(v1, v2));
+// {3, 8}
+std::print("{}\n", std::views::zip_transform(std::multiplies(), v1, v3));
+// {('a', 'b'), ('b', 'c')}
+std::print("{}\n", v2 | std::views::pairwise);
+// {7, 9}
+std::print("{}\n", v3 | std::views::pairwise_transform(std::plus()));
+```
+
+
+Converting ranges back into resource owning container
+
+```cpp
+std::vector<int> numbers{1, 2, 3, 4, 5};
+
+std::deque<int> squared = numbers
+    | std::ranges::views::transform([](int n) { return n*n; } )
+    | std::ranges::to<std::deque>();
+```
+
+A more complex example show Haskell-like lazy evaluation and functional composition
+
+
+```cpp
+auto square = [](int x) { return x*x; };
+auto add = [](int x, int y) { return x+y; };
+
+auto square_view = rv::iota(0)  // declarative way of specifying natural numbers
+                 | rv::transform(square)
+                 | rv::take(5)
+                 
+int total = std::ranges::fold_left(square_view, 0, add); // 30
+
+// [(0,0), (1,1), (2,4), (3,9), (4,16)]
+print("{}\n", square_view | std::ranges::view::enumerate);
+```
+
+C++ 26 will have a tons more “functional” stuff
+
+Advice:
+- Always prefer ranges algorithms ove STL algorithms, more constrained, better errors, etc. no performance overhead for compiled code
+- Don’t go overboard on pipelines, keep it simple
+
+
+Useful ranges algorithms
+
+| **Category**    | **Algorithms**                                                       |
+| --------------- | -------------------------------------------------------------------- |
+| **queries**     | `find`, `find_if`, `find_if_not`                                     |
+| **queries**     | `find_last`, `find_last_if`, `find_last_if_not` (23)                 |
+| **queries**     | `adjacent_find`                                                      |
+| **queries**     | `any_of`, `all_of`, `none_of`                                        |
+| **queries**     | `contains`, `contains_subrange` (23)                                 |
+| **queries**     | `is_partitioned`                                                     |
+| **queries**     | `is_sorted`, `is_sorted_until`                                       |
+| **queries**     | `lower_bound`, `upper_bound`, `partition_point`                      |
+| **queries**     | `clamp`                                                              |
+| **queries**     | `mismatch`                                                           |
+| **queries**     | `starts_with`, `ends_with` (23)                                      |
+| **sampling**    | `copy`, `copy_if`, `copy_n`                                          |
+| **sampling**    | `rotate_copy`, `unique_copy`                                         |
+| **sampling**    | `stride`, `sample`, `take`                                           |
+| **modifiers**   | `merge`, `inplace_merge`                                             |
+| **modifiers**   | `move`, `move_backward`                                              |
+| **modifiers**   | `partition`, `partition_copy`                                        |
+| **modifiers**   | `replace`, `replace_if`, `replace_copy`, `replace_copy_if`           |
+| **modifiers**   | `remove`, `remove_if`, `remove_copy`, `remove_copy_if`               |
+| **modifiers**   | `reverse`                                                            |
+| **modifiers**   | `shuffle`, `sort`                                                    |
+| **modifiers**   | `shift_left`, `shift_right` (23)                                     |
+| **modifiers**   | `transform`, `for_each`, `for_each_n`                                |
+| **modifiers**   | `unique`                                                             |
+| **modifiers**   | `uninitialized_value_construct`, `uninitialized_copy`                |
+| **calculation** | `count`, `count_if`                                                  |
+| **calculation** | `fold_left`, `fold_left_first`, `fold_right`, `fold_right_last` (23) |
+| **calculation** | `min`, `max`, `minmax`                                               |
+| **generation**  | `iota` (23)                                                          |
+| **generation**  | `generate`                                                           |
+| **generation**  | `next_permutation`, `prev_permutation`                               |
+
+Useful ranges views
+
+| **Category**  | **Views**                                |
+| ------------- | ---------------------------------------- |
+| **modifiers** | `join_view`, `join_with` (23)            |
+| **modifiers** | `split_view`, `lazy_split_view`          |
+| **modifiers** | `reverse_view`                           |
+| **modifiers** | `transform_view`                         |
+| **modifiers** | `cartesian_product` (23)                 |
+| **modifiers** | `zip`, `zip_transform` (23)              |
+| **sample**    | `drop_view`, `drop_while_view`           |
+| **sample**    | `take_view`, `take_while_view`           |
+| **sample**    | `filter_view`, `stride` (23)             |
+| **sample**    | `chunk`, `chunk_by` (23)                 |
+| **adapters**  | `istream_view`                           |
+| **adapters**  | `keys_view`, `values_view`               |
+| **adapters**  | `ref_view`, `all_view`                   |
+| **adapters**  | `enumerate` (23)                         |
+| **factories** | `iota_view`, `single_view`, `empty_view` |
+| **factories** | `repeat`                                 |
+| **convert**   | `as_const` (23), `as_rvalue` (23)        |
+
+
+
+
+
+
+
 
 ## File I/O
 
@@ -6352,9 +6673,6 @@ struct Point
 std::set<Point> s {{0,1}, {1,0}};
 ```
 
-- 
-
-- 
 
 Modifiers (complexity is log to the size of the set)
 
@@ -6365,6 +6683,72 @@ Lookup (complexity is log to the size of the set)
 - `size_type count( const Key& key ) const`: returns # of elements equal to `key` (0 or 1)
 - `iterator find( const Key& key )`: finds `key` in the set, returns the iterator, or `set.end()` otherwise. So you check for non-existance using `s.find(elem) == s.end()`
 - `.contains()`: new in C++20
+
+
+#### std::deque
+
+Allow efficient random access and insertion/removal at ends (O(1)), insertion and removal of arbitrary elements is slow (O(N))
+
+A central array (called the map) of pointers to fixed-size memory blocks (usually 512 or 1024 bytes). When space runs out, allocate new block
+
+Most implementations keep some spare blocks at beginning and end
+
+Note:
+- Shrinkage needs to be request via `.shrink_to_fit()`
+- Pointers are stable if we only insert/remove from the ends (compare with std::vector)
+- Though can have higher memory footprint than std::vector
+
+Methods similar to std::list with `.at()` for random access
+
+```
+Initial State
+-------------
+map[1]     map[2]
+ A          B
+ 1         2 3
+
+Action: pop 1 from the front
+Result: Block A becomes spare
+
+map[1]     map[2]
+ A          B
+           2 3
+
+Action: push 4 to the back
+Result: Steal block A
+
+map[1]     map[2]     map[3]
+ B          A
+2 3         4
+
+Action: pop 2 from the front
+
+map[1]     map[2]
+ B          A
+ 3         4
+
+Action: push 5 to the back
+
+map[1]     map[2]
+ B          A
+ 3        4 5
+
+Action: pop 3 from the front
+Result: Block B becomes spare
+
+map[1]     map[2]
+ B          A
+          4 5
+
+Action: push 6 to the back
+Result: Steal block B and slide
+
+map[1]     map[2]
+ A          B
+4 5         6
+```
+
+
 
 
 
@@ -6499,7 +6883,7 @@ int main()
 
 A view of a contiguous memory, useful when you want to pass some contiguous sequence but not owning the memory.
 
-It only supports contiguous memory because internals do pointer arithmetic. For general iterators (e.g., for `std::list`), use `std::ranges::subrange`
+It only supports contiguous memory because internals do pointer arithmetic (so compiled code is efficient). For general iterators (e.g., for `std::list`), use `std::ranges::subrange`
 
 Type signature
 ```cpp
@@ -7523,7 +7907,7 @@ for (int i = 0; i < size; i++)
 
 ## Miscellaneous
 
-#### std::nullptr_t
+#### std::nullptr_t and nullptr
 
 This is the type of the null pointer literal `nullptr`. A simple use case is to state `nullptr` in types (e.g., `std::variant<int, std::nullptr> foo = nullptr;`.  The most common usecase is for function overload resolution
 
@@ -7569,6 +7953,14 @@ A word about `NULL`, this is a legacy construct from C, used as canonical way to
 
 ```cpp
 #define NULL 0
+```
+
+More on `nullptr`
+
+```cpp
+int* x;  // x holds the address (8-bytes in 64-bit machines), but is uninitialised so whatever bytes happen to be in that location. Dereferencing results in undefined behaviour
+
+int* y = nullptr;  // this is at least better, `nullptr` is usually 0 in most machines, dereferencing nullptr also results in undefined behaviour though, but you can now check with (y == nullptr)
 ```
 
 
