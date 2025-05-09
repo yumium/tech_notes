@@ -36,7 +36,7 @@ TODO:
   - [ ] https://docs.python.org/3/faq/library.html#can-t-we-get-rid-of-the-global-interpreter-lock
   - [ ] https://www.artima.com/weblogs/viewpost.jsp?thread=214235
 
-
+- [ ] How weak pointers are used for reference tracking
 
 
 

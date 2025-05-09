@@ -658,9 +658,104 @@ int main()
 
 
 
-#### Non standards
+#### Other attributes
 
-$$ Look at other non-standards used in BF (inlining, branch prediction)
+`[[gnu::always_inline]]`
+
+GNU specific specifier. Tells compiler that you really want the function to be inlined. Compiler will try vey hard to inline it, even with compiler flag `-O0`
+
+```cpp
+[[gnu::always_inline]] inline void my_function() {
+    // code
+}
+```
+
+`[[nodiscard]]`
+
+Standard C++17 attribute. "Warn the programmer if the return value of this function or type is ignored." Mostly used as sanity check
+
+```cpp
+[[nodiscard]] int compute_result() {
+    return 42;
+}
+
+void example() {
+    compute_result(); // Warning: result is discarded
+}
+```
+
+`[[fallthrough]]`
+
+Since C++17. Indicates deliberate fall through behaviour, silences compiler warnings
+
+```cpp
+switch (x) {
+    case 1:
+        do_something();
+        [[fallthrough]];
+    case 2:
+        do_something_else(); // OK: fallthrough is intentional
+        break;
+}
+```
+
+`[[gnu::nonnull]]`
+
+GNU specific attribute. Asserts that argument cannot be `nullptr`
+
+```cpp
+[[gnu::nonnull(1, 2)]]
+void foo(char* a, char* b); // `a` and `b` must not be null
+
+[[gnu::nonnull]]
+void bar(char* a, char* b);
+```
+
+`[[maybe_unused]]`
+
+Since C++17, suppresses warnings about unused entities (variables, functions, etc.).
+
+```cpp
+[[maybe_unused]] int debug_value = compute_debug(); // OK even if unused
+
+void handler([[maybe_unused]] int unused_flag) {
+    // no warning even if unused_flag is ignored
+}
+```
+
+
+`__builtin_expect`
+
+GCC specific attribute, stronger than C++20 [[likely]] and [[unlikely]], branch prediction hint.
+
+```cpp
+if (__builtin_expect(bool{x}, true)) { ... } // same as expecting x is true
+```
+
+Using `false` does the opposite.
+
+
+
+
+
+Look at other non-standards used in BF (inlining, branch prediction). Warnings. What is our C++ version, and release vs debug build compiler settings
+
+
+
+More
+
+| Attribute                         | Purpose                         | Standard / Compiler |
+| --------------------------------- | ------------------------------- | ------------------- |
+| `[[noreturn]]`                    | Function never returns          | C++11               |
+| `[[deprecated]]`                  | Mark as deprecated              | C++14 / C++17       |
+| `[[likely]]` / `[[unlikely]]`     | Branch prediction hints         | C++20               |
+| `[[gnu::pure]]`, `[[gnu::const]]` | Mark as side-effect-free        | GNU/Clang           |
+| `[[gnu::cold]]`                   | Mark as cold path               | GNU/Clang           |
+| `[[gnu::format]]`                 | Enable format string checking   | GNU/Clang           |
+
+
+
+
 
 **pragma once**
 
@@ -1168,7 +1263,7 @@ stringstream(mystr) >> myint;  // myint = 1204
 
 
 
-### Const and constexpr $$
+### Const and constexpr
 
 `const` used to mark variable as immutable. Mainly used for const correctness when passing references/pointers as function arguments
 
@@ -1182,9 +1277,19 @@ const T& t;			// cannot modify object		cannot reassign t
 T& const t;			// invalid, references can't be reseated
 ```
 
+`constexpr` specifier declares that it is possible to evaluate the value of the entities at compile time. If this specifier is not used, compilers can still optimise via constant folding if sees fit but not required. If `constexpr` is spcified, compiler must be able to deduce value at compile time, otherwise will throw compile error. However, compiler *can* still evaluate the expression at runtime. 
+
+```cpp
+constexpr int factorial(int n)
+{
+    int res = 1;
+    while (n > 1)
+        res *= n--;
+    return res;
+}
+```
 
 
-`constexpr` roughly means "to be evaluated at compile time"
 
 
 
@@ -6988,7 +7093,6 @@ int main()
 }
 // Destructors not called, as
 // This won't be issue if ptrA is type std::weak_ptr, as then ~A() called as `a` is out of scope, after ~B() is called because share_ptr to B inside A is destroyed
-// $$ check how weak_ptr is used for cycle detection in CPython garbage collector
 ```
 
 
